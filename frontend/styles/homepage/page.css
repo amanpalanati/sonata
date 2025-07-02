@@ -1,0 +1,58 @@
+.hero {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: #f4f4f4;
+}
+
+.hero h1 {
+  font-size: 34px;
+  margin-bottom: 1rem;
+}
+
+.search-bar {
+  margin-top: 2rem;
+}
+
+.search-bar input[type="text"] {
+  padding: 0.5rem;
+  width: 300px;
+  max-width: 80%;
+  margin-right: 0.5rem;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  background: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 4rem 2rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  text-align: center;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.card h2 {
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  color: #555;
+}
