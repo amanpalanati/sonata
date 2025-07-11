@@ -10,4 +10,4 @@ class Config:
     SESSION_TYPE = 'filesystem'
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
-    PERMANENT_SESSION_LIFETIME = 86400  # 24 hours
+    PERMANENT_SESSION_LIFETIME = 604800  # 7 days
