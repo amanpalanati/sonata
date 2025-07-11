@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Choose Account Type</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Choose Your Account Type</h1>
+      <div class="account-types">
+        <a
+          href="{{ url_for('signup_form', account_type='student') }}"
+          class="account-type-btn"
+        >
+          <h3>Student</h3>
+          <p>Access learning materials and assignments</p>
+        </a>
+        <a
+          href="{{ url_for('signup_form', account_type='teacher') }}"
+          class="account-type-btn"
+        >
+          <h3>Teacher</h3>
+          <p>Create and manage courses and assignments</p>
+        </a>
+        <a
+          href="{{ url_for('signup_form', account_type='parent') }}"
+          class="account-type-btn"
+        >
+          <h3>Parent</h3>
+          <p>Monitor your child's progress</p>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
