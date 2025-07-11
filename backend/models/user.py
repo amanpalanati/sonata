@@ -21,7 +21,8 @@ class User:
                 'last_name': last_name
             }).execute()
             
-            return {'success': True, 'user': result.data[0]}
+            user_data = {k: v for k, v in result.data[0].items() if k != 'password_hash'}
+            return {'success': True, 'user': user_data}
         except Exception as e:
             return {'success': False, 'error': str(e)}
         
