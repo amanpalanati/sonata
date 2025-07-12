@@ -1,0 +1,18 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: black;
+  padding-top: 100px; /* Remove later */
+  background: rgb(240, 240, 240);
+}
+
+h1 {
+  font-size: 24px;
+  white-space: nowrap;
+  text-align: center;
+}

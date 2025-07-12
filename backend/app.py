@@ -108,7 +108,7 @@ def register():
             flash("Account created successfully!", "success")
             return redirect(url_for("dashboard"))
         else:
-            flash(f'Error creating account: {result["error"]}', "error")
+            flash(result["error"], "error")
             return redirect(url_for("signup_form", account_type=account_type))
 
     except Exception as e:
