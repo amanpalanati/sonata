@@ -41,6 +41,18 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/about")
+def about():
+    """Show about page"""
+    return render_template("about.html")
+
+
+@app.route("/help")
+def help():
+    """Show help page"""
+    return render_template("help.html")
+
+
 @app.route("/signup")
 def signup():
     """Show account type selection"""

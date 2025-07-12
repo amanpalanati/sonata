@@ -25,12 +25,10 @@
           href="{{ url_for('signup_form', account_type='teacher') }}"
           >Teach</a
         >
-        <a class="left-nav-item" href="#">About</a>
-        <!--TODO-->
+        <a class="left-nav-item" href="{{ url_for('about') }}">About</a>
       </nav>
       <nav class="right">
-        <a class="right-nav-item" href="#">Help</a>
-        <!--TODO-->
+        <a class="right-nav-item" href="{{ url_for('help') }}">Help</a>
         <a class="right-nav-item" href="{{ url_for('login') }}">Log In</a>
         <a class="sign-up" href="{{ url_for('signup') }}">Sign Up</a>
       </nav>
