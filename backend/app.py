@@ -12,7 +12,9 @@ from flask_session import Session
 from config import Config
 from models.user import User
 import os
+from forms.signup_form import SignUpForm
 
+# Initialize Flask app
 app = Flask(
     __name__,
     template_folder="../frontend/templates",
@@ -59,61 +61,49 @@ def signup():
     return render_template("account_type.html")
 
 
-@app.route("/signup/<account_type>")
+@app.route("/signup/<account_type>", methods=["GET", "POST"])
 def signup_form(account_type):
     """Show signup form for specific account type"""
     if account_type not in ["student", "teacher", "parent"]:
         flash("Invalid account type", "error")
         return redirect(url_for("signup"))
 
-    return render_template("signup.html", account_type=account_type)
+    form = SignUpForm()
+    
+    # For GET requests, set the account_type
+    if request.method == 'GET':
+        form.account_type.data = account_type
+    
+    if form.validate_on_submit():
+        try:
+            # Create user
+            result = user_model.create_user(
+                form.email.data,
+                form.password.data,
+                form.account_type.data,
+                form.first_name.data,
+                form.last_name.data
+            )
 
+            if result["success"]:
+                # Log user in (set session)
+                session["user_id"] = result["user"]["id"]
+                session["user_email"] = result["user"]["email"]
+                session["account_type"] = result["user"]["account_type"]
+                session["first_name"] = result["user"]["first_name"]
+                session.permanent = True
 
-@app.route("/register", methods=["POST"])
-def register():
-    """Handle user registration"""
-    try:
-        # Get form data
-        email = request.form.get("email")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-        account_type = request.form.get("account_type")
-        first_name = request.form.get("first_name")
-        last_name = request.form.get("last_name")
+                flash("Account created successfully!", "success")
+                return redirect(url_for("dashboard"))
+            else:
+                flash(result["error"], "error")
+                # Form will automatically retain the user's input
 
-        # Validate inputs
-        if not all(
-            [email, password, confirm_password, account_type, first_name, last_name]
-        ):
-            flash("All fields are required", "error")
-            return redirect(url_for("signup_form", account_type=account_type))
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+            # Form will automatically retain the user's input
 
-        if password != confirm_password:
-            flash("Passwords do not match", "error")
-            return redirect(url_for("signup_form", account_type=account_type))
-
-        # Create user
-        result = user_model.create_user(
-            email, password, account_type, first_name, last_name
-        )
-
-        if result["success"]:
-            # Log user in (set session)
-            session["user_id"] = result["user"]["id"]
-            session["user_email"] = result["user"]["email"]
-            session["account_type"] = result["user"]["account_type"]
-            session["first_name"] = result["user"]["first_name"]
-            session.permanent = True
-
-            flash("Account created successfully!", "success")
-            return redirect(url_for("dashboard"))
-        else:
-            flash(result["error"], "error")
-            return redirect(url_for("signup_form", account_type=account_type))
-
-    except Exception as e:
-        flash(f"An error occurred: {str(e)}", "error")
-        return redirect(url_for("signup"))
+    return render_template("signup.html", form=form, account_type=account_type)
 
 
 @app.route("/login")
