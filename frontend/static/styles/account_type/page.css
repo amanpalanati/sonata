@@ -1,0 +1,79 @@
+body {
+  font-family: Arial, sans-serif;
+  padding-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+header {
+  background: #000;
+  color: #fff;
+  padding: 0px 32px;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 72px;
+}
+
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1.3px solid black;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  max-width: 325px;
+  gap: 36px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.account-types {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 60%;
+}
+
+.container a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+  padding: 0;
+  background-color: black;
+  color: white;
+  max-width: 200%;
+  padding: 6px;
+  border-radius: 20px;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 -2px 8px rgba(0, 0, 0, 0.15);
+  transition: 0.15s;
+}
+
+.container a:hover {
+  background: rgb(50, 50, 50);
+}
+
+.container a:active {
+  background: rgb(96, 96, 96);
+  box-shadow: none;
+}

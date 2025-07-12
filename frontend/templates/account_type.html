@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Choose Account Type</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Type</title>
+    <link rel="stylesheet" href="../static/styles/account_type/page.css" />
   </head>
   <body>
+    <header>
+      <a class="logo" href="{{ url_for('index') }}">
+        <img src="" alt="app-name/logo" />
+      </a>
+    </header>
     <div class="container">
       <h1>Choose Your Account Type</h1>
       <div class="account-types">
@@ -15,22 +19,19 @@
           href="{{ url_for('signup_form', account_type='student') }}"
           class="account-type-btn"
         >
-          <h3>Student</h3>
-          <p>Access learning materials and assignments</p>
+          Student
         </a>
         <a
           href="{{ url_for('signup_form', account_type='teacher') }}"
           class="account-type-btn"
         >
-          <h3>Teacher</h3>
-          <p>Create and manage courses and assignments</p>
+          Teacher
         </a>
         <a
           href="{{ url_for('signup_form', account_type='parent') }}"
           class="account-type-btn"
         >
-          <h3>Parent</h3>
-          <p>Monitor your child's progress</p>
+          Parent
         </a>
       </div>
     </div>
