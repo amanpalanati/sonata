@@ -158,7 +158,6 @@ def dashboard():
 def logout():
     """Log user out"""
     session.clear()
-    flash("You have been logged out", "info")
     return redirect(url_for("index"))
 
 
