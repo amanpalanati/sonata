@@ -6,22 +6,55 @@
     <title>Log In</title>
   </head>
   <body>
-    <h1>Log In</h1>
-    <form method="POST" action="{{ url_for('authenticate') }}">
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="text" id="email" name="email" required />
-      </div>
+    <div class="container">
+      <h1>Log In</h1>
 
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
-      </div>
-      <button type="submit">Log In</button>
-    </form>
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <!-- CSRF token -->
 
-    <p>
-      <a href="{{ url_for('signup') }}">Don't have an account? Sign up</a>
-    </p>
+        <div class="form-group">
+          {{ form.email.label }}
+          {{ form.email(class="form-control") }}
+          {% if form.email.errors %}
+            {% for error in form.email.errors %}
+              <div class="error">
+                <span style="margin-right: 8px">&#9888;</span>{{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.password.label }}
+          {{ form.password(class="form-control") }}
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <div class="error">
+                <span style="margin-right: 8px">&#9888;</span>{{ error }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                <span style="margin-right: 8px">&#9888;</span>{{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {{ form.submit(class="login-button") }}
+      </form>
+
+      <p>
+        Don't have an account?
+        <a href="{{ url_for('signup') }}" style="margin-left: 2px">Sign up</a>
+      </p>
+    </div>
   </body>
 </html>

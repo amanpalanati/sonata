@@ -12,7 +12,7 @@ from flask_session import Session
 from config import Config
 from models.user import User
 import os
-from forms.signup_form import SignUpForm
+from models.forms import SignUpForm, LoginForm
 
 # Initialize Flask app
 app = Flask(
@@ -69,11 +69,11 @@ def signup_form(account_type):
         return redirect(url_for("signup"))
 
     form = SignUpForm()
-    
+
     # For GET requests, set the account_type
-    if request.method == 'GET':
+    if request.method == "GET":
         form.account_type.data = account_type
-    
+
     if form.validate_on_submit():
         try:
             # Create user
@@ -82,7 +82,7 @@ def signup_form(account_type):
                 form.password.data,
                 form.account_type.data,
                 form.first_name.data,
-                form.last_name.data
+                form.last_name.data,
             )
 
             if result["success"]:
@@ -106,44 +106,36 @@ def signup_form(account_type):
     return render_template("signup.html", form=form, account_type=account_type)
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    """Show login form"""
-    return render_template("login.html")
+    """Show login form and handle authentication"""
+    form = LoginForm()
 
+    if form.validate_on_submit():
+        try:
+            # Authenticate user
+            result = user_model.authenticate_user(form.email.data, form.password.data)
 
-@app.route("/authenticate", methods=["POST"])
-def authenticate():
-    """Handle user login"""
-    try:
-        email = request.form.get("email")
-        password = request.form.get("password")
+            if result["success"]:
+                # Log user in (set session)
+                user = result["user"]
+                session["user_id"] = user["id"]
+                session["user_email"] = user["email"]
+                session["account_type"] = user["account_type"]
+                session["first_name"] = user["first_name"]
+                session.permanent = True
 
-        if not email or not password:
-            flash("Email and password are required", "error")
-            return redirect(url_for("login"))
+                flash("Login successful!", "success")
+                return redirect(url_for("dashboard"))
+            else:
+                flash(result["error"], "error")
+                # Form will automatically retain the email input
 
-        # Authenticate user
-        result = user_model.authenticate_user(email, password)
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+            # Form will automatically retain the email input
 
-        if result["success"]:
-            # Log user in (set session)
-            user = result["user"]
-            session["user_id"] = user["id"]
-            session["user_email"] = user["email"]
-            session["account_type"] = user["account_type"]
-            session["first_name"] = user["first_name"]
-            session.permanent = True
-
-            flash("Login successful!", "success")
-            return redirect(url_for("dashboard"))
-        else:
-            flash(f'Login failed: {result["error"]}', "error")
-            return redirect(url_for("login"))
-
-    except Exception as e:
-        flash(f"An error occurred: {str(e)}", "error")
-        return redirect(url_for("login"))
+    return render_template("login.html", form=form)
 
 
 @app.route("/dashboard")
