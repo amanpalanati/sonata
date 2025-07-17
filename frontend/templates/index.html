@@ -4,25 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>App Name</title>
-    <link rel="stylesheet" href="../styles/homepage/general.css" />
-    <link rel="stylesheet" href="../styles/homepage/header.css" />
-    <link rel="stylesheet" href="../styles/homepage/page.css" />
-    <link rel="stylesheet" href="../styles/homepage/footer.css" />
+    <link rel="stylesheet" href="../static/styles/homepage/general.css" />
+    <link rel="stylesheet" href="../static/styles/homepage/header.css" />
+    <link rel="stylesheet" href="../static/styles/homepage/page.css" />
+    <link rel="stylesheet" href="../static/styles/homepage/footer.css" />
   </head>
   <body>
     <header>
       <nav class="left">
-        <a class="logo" href="#">
+        <a class="logo" href="{{ url_for('index') }}">
           <img src="" alt="app-name/logo" />
         </a>
-        <a class="left-nav-item" href="#">Learn</a>
-        <a class="left-nav-item" href="#">Teach</a>
-        <a class="left-nav-item" href="#">About</a>
+        <a
+          class="left-nav-item"
+          href="{{ url_for('signup_form', account_type='student') }}"
+          >Learn</a
+        >
+        <a
+          class="left-nav-item"
+          href="{{ url_for('signup_form', account_type='teacher') }}"
+          >Teach</a
+        >
+        <a class="left-nav-item" href="{{ url_for('about') }}">About</a>
       </nav>
       <nav class="right">
-        <a class="right-nav-item" href="#">Help</a>
-        <a class="right-nav-item" href="#">Log In</a>
-        <a class="sign-up" href="#">Sign Up</a>
+        <a class="right-nav-item" href="{{ url_for('help') }}">Help</a>
+        <a class="right-nav-item" href="{{ url_for('login') }}">Log In</a>
+        <a class="sign-up" href="{{ url_for('signup') }}">Sign Up</a>
       </nav>
     </header>
 
@@ -32,21 +40,24 @@
       <div class="search-bar">
         <input type="text" placeholder="Search for a music teacher" />
         <a href="#">Search</a>
+        <!--TODO-->
       </div>
     </section>
 
     <section class="card-grid">
       <div class="card">
-        <img src="../public/images/student.jpg" alt="Students" />
+        <img src="../static/public/images/student.jpg" alt="Students" />
         <div class="card-text">
           <h2>For Students</h2>
           <p>
             Find music teachers who match your learning style and skill level.
           </p>
-          <p class="underline">
-            ____________________
-          </p>
-          <a class="sign-up-link" href="#">Start as a Student</a>
+          <p class="underline">____________________</p>
+          <a
+            class="sign-up-link"
+            href="{{ url_for('signup_form', account_type='student') }}"
+            >Get started</a
+          >
         </div>
       </div>
 
@@ -57,26 +68,30 @@
             Grow your studio, set your availability, and&nbsp;get paid
             seamlessly.
           </p>
-          <p class="underline">
-            ____________________
-          </p>
-          <a class="sign-up-link" href="#">Start as a Teacher</a>
+          <p class="underline">____________________</p>
+          <a
+            class="sign-up-link"
+            href="{{ url_for('signup_form', account_type='teacher') }}"
+            >Get started</a
+          >
         </div>
-        <img src="../public/images/teacher.jpg" alt="Teachers" />
+        <img src="../static/public/images/teacher.jpg" alt="Teachers" />
       </div>
 
       <div class="card">
-        <img src="../public/images/parent.jpg" alt="Parents" />
+        <img src="../static/public/images/parent.jpg" alt="Parents" />
         <div class="card-text">
           <h2>For Parents</h2>
           <p>
             Manage your child's lessons, schedule, and payments all in one
             place.
           </p>
-          <p class="underline">
-            ____________________
-          </p>
-          <a class="sign-up-link" href="#">Start as a Parent</a>
+          <p class="underline">____________________</p>
+          <a
+            class="sign-up-link"
+            href="{{ url_for('signup_form', account_type='parent') }}"
+            >Get started</a
+          >
         </div>
       </div>
     </section>

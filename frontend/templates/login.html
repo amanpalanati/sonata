@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up - {{ account_type.title() }}</title>
+    <title>Log In</title>
     <link rel="stylesheet" href="../static/styles/signup_login/general.css" />
     <link rel="stylesheet" href="../static/styles/signup_login/header.css" />
     <link rel="stylesheet" href="../static/styles/signup_login/page.css" />
@@ -15,36 +15,12 @@
       </a>
     </header>
 
-    <div class="signup-container">
-      <h1>Create {{ account_type.title() }} Account</h1>
+    <div class="login-container">
+      <h1>Log In</h1>
 
       <form method="POST" novalidate>
         {{ form.hidden_tag() }}
-        <!-- This includes CSRF token and account_type -->
-
-        <div class="form-group">
-          {{ form.first_name.label }}
-          {{ form.first_name(class="form-control") }}
-          {% if form.first_name.errors %}
-            {% for error in form.first_name.errors %}
-              <div class="error">
-                <span style="margin-right: 8px">&#9888;</span>{{ error }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          {{ form.last_name.label }}
-          {{ form.last_name(class="form-control") }}
-          {% if form.last_name.errors %}
-            {% for error in form.last_name.errors %}
-              <div class="error">
-                <span style="margin-right: 8px">&#9888;</span>{{ error }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
+        <!-- CSRF token -->
 
         <div class="form-group">
           {{ form.email.label }}
@@ -70,18 +46,6 @@
           {% endif %}
         </div>
 
-        <div class="form-group">
-          {{ form.confirm_password.label }}
-          {{ form.confirm_password(class="form-control") }}
-          {% if form.confirm_password.errors %}
-            {% for error in form.confirm_password.errors %}
-              <div class="error">
-                <span style="margin-right: 8px">&#9888;</span>{{ error }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-
         <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -92,13 +56,13 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        
-        {{ form.submit(class="create-account-button") }}
+
+        {{ form.submit(class="login-button") }}
       </form>
 
       <p>
-        Already have an account?
-        <a href="{{ url_for('login') }}" style="margin-left: 2px">Log in</a>
+        Don't have an account?
+        <a href="{{ url_for('signup') }}" style="margin-left: 2px">Sign up</a>
       </p>
     </div>
   </body>
