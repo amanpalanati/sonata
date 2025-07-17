@@ -146,7 +146,7 @@ def dashboard():
         return redirect(url_for("login"))
 
     # Get fresh user data
-    user_data = user_model.get_user_by_id(session["user_id"])
+    user_data = user_model.get_user(session["user_id"])
     if not user_data:
         flash("User not found", "error")
         return redirect(url_for("logout"))
@@ -169,7 +169,7 @@ def profile():
         return redirect(url_for("login"))
 
     # Get fresh user data
-    user_data = user_model.get_user_by_id(session["user_id"])
+    user_data = user_model.get_user(session["user_id"])
     if not user_data:
         flash("User not found", "error")
         return redirect(url_for("logout"))

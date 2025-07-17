@@ -72,7 +72,7 @@ class User:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def get_user_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
+    def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID from Supabase Auth"""
         try:
             # Get the current authenticated user
