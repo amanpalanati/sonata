@@ -1,0 +1,45 @@
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  max-width: 325px;
+  gap: 36px;
+  text-align: center;
+}
+
+.account-types {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 60%;
+}
+
+.container a {
+  text-decoration: none;
+  background-color: black;
+  color: white;
+  max-width: 200%;
+  padding: 6px;
+  border-radius: 20px;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 -2px 8px rgba(0, 0, 0, 0.15);
+  transition: 0.15s;
+}
+
+.container a:hover {
+  background: rgb(50, 50, 50);
+}
+
+.container a:active {
+  background: rgb(96, 96, 96);
+  box-shadow: none;
+}
