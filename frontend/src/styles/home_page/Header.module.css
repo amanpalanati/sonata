@@ -1,4 +1,4 @@
-.home-header {
+.header {
   background: #000;
   color: #fff;
   padding: 16px 32px;
@@ -25,7 +25,7 @@
 }
 
 @media (max-width: 768px) {
-  .left-nav-item {
+  .leftNavItem {
     display: none;
   }
   .left {
@@ -37,8 +37,8 @@
   width: 204px;
 }
 
-.left-nav-item,
-.right-nav-item {
+.leftNavItem,
+.rightNavItem {
   color: #fff;
   text-decoration: none;
   font-size: 14px;
@@ -48,17 +48,17 @@
   white-space: nowrap;
 }
 
-.left-nav-item:hover,
-.right-nav-item:hover {
+.leftNavItem:hover,
+.rightNavItem:hover {
   background-color: rgb(50, 50, 50);
 }
 
-.left-nav-item:active,
-.right-nav-item:active {
+.leftNavItem:active,
+.rightNavItem:active {
   background-color: rgb(96, 96, 96);
 }
 
-.sign-up {
+.signUp {
   background-color: white;
   color: black;
   font-size: 14px;
@@ -69,10 +69,10 @@
   transition: 0.15s;
 }
 
-.sign-up:hover {
+.signUp:hover {
   background-color: rgb(220, 220, 220);
 }
 
-.sign-up:active {
+.signUp:active {
   background-color: rgb(200, 200, 200);
 }

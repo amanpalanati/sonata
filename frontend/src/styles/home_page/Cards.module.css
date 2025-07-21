@@ -1,61 +1,4 @@
-.hero {
-  padding: 64px 32px;
-  text-align: center;
-  background: rgb(240, 240, 240);
-}
-
-.home-hero-title {
-  font-size: 34px;
-  margin-bottom: 28px;
-}
-
-.search-bar {
-  margin-top: 32px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-}
-
-.search-bar input[type="text"] {
-  padding: 8px 12px;
-  max-width: 80%;
-  margin-right: 8px;
-  box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.15);
-  border: 1.5px solid;
-  border-radius: 4px;
-  flex: 1;
-  max-width: 350px;
-  transition: 0.05s;
-}
-
-.search-bar input[type="text"]:focus {
-  outline: none;
-  border: 1.5px solid rgb(76, 101, 215);
-}
-
-.search-bar button {
-  padding: 10px 16px;
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: 0.15s;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.search-bar button:hover {
-  background: rgb(50, 50, 50);
-}
-
-.search-bar button:active {
-  background: rgb(96, 96, 96);
-}
-
-.card-grid {
+.cardGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 32px;
@@ -76,40 +19,40 @@
   gap: 20px;
 }
 
-.card img {
+.img {
   width: 50%;
   border-radius: 10px;
   margin-bottom: 16px;
 }
 
-.card-text,
-.opposite-card-text {
+.cardText,
+.oppositeCardText {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.card h2 {
+.h2 {
   margin-bottom: 8px;
   text-align: center;
   color: black;
 }
 
-.card p {
+.p {
   color: #555;
   margin-bottom: 8px;
   text-align: center;
   max-width: 300px;
 }
 
-.card .underline {
+.underline {
   color: #555;
   margin-top: -4px;
   margin-bottom: 16px;
 }
 
-.card .sign-up-link {
+.signUpLink {
   color: white;
   text-decoration: none;
   font-size: 14.5px;
@@ -122,11 +65,11 @@
   transition: 0.15s;
 }
 
-.card .sign-up-link:hover {
+.signUpLink:hover {
   background-color: rgb(50, 50, 50);
 }
 
-.card .sign-up-link:active {
+.signUpLink:active {
   background-color: rgb(96, 96, 96);
 }
 
@@ -137,21 +80,21 @@
     justify-content: center;
   }
 
-  .card img {
+  .img {
     width: 100%;
   }
 
-  .opposite-card-text {
+  .oppositeCardText {
     order: 2;
   }
 
-  .search-bar {
+  .searchBar {
     flex-direction: column;
     align-items: center;
     gap: 16px;
   }
 
-  .search-bar input[type="text"] {
+  .searchBarInput[type="text"] {
     min-width: 90%;
     margin-right: 0;
   }

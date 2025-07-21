@@ -1,33 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import "../../styles/home_page/header.css";
+import styles from "../../styles/home_page/Header.module.css";
 
 const Header: React.FC = () => {
   return (
-    <header className="home-header">
-      <nav className="left">
+    <header className={styles.header}>
+      <nav className={styles.left}>
         <Link className="logo" to="/">
           <img src="" alt="app-name/logo" />
         </Link>
-        <Link className="left-nav-item" to="/signup/student">
+        <Link className={styles.leftNavItem} to="/signup/student">
           Learn
         </Link>
-        <Link className="left-nav-item" to="/signup/teacher">
+        <Link className={styles.leftNavItem} to="/signup/teacher">
           Teach
         </Link>
-        <Link className="left-nav-item" to="/about">
+        <Link className={styles.leftNavItem} to="/about">
           About
         </Link>
       </nav>
-      <nav className="right">
-        <Link className="right-nav-item" to="/help">
+      <nav className={styles.right}>
+        <Link className={styles.rightNavItem} to="/help">
           Help
         </Link>
-        <Link className="right-nav-item" to="/login">
+        <Link className={styles.rightNavItem} to="/login">
           Log In
         </Link>
-        <Link className="sign-up" to="/signup">
+        <Link className={styles.signUp} to="/signup">
           Sign Up
         </Link>
       </nav>
