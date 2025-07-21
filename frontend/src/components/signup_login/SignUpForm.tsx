@@ -4,7 +4,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Link, useParams, useNavigate } from "react-router-dom";
 
-import Header from "./Header";
 import { SignUpFormData } from "../../types";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
@@ -115,7 +114,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        // Default API call logic would go here
+        // Default logic when no onSubmit function is provided
         console.log("Form submitted:", formData);
       }
     } catch (error) {
@@ -140,7 +139,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
   return (
     <>
-      <Header />
       <div className={styles.container}>
         <h1 className={styles.h1}>
           Create {capitalizeAccountType(normalizedAccountType)} Account

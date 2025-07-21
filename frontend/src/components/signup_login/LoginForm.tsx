@@ -1,0 +1,175 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
+
+import { LoginFormData } from "../../types";
+
+import { useBodyClass } from "../../hooks/useBodyClass";
+import styles from "../../styles/signup_login/AuthForm.module.css";
+
+// Validation schema
+const loginSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required("Email is required")
+    .email("Please enter a valid email address")
+    .trim(),
+  password: yup.string().required("Password is required"),
+});
+
+interface LoginFormProps {
+  onSubmit?: (data: LoginFormData) => void | Promise<void>;
+}
+
+const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
+  useBodyClass("auth");
+  const navigate = useNavigate();
+
+  // Track which fields have been blurred and had errors
+  const [touchedWithErrors, setTouchedWithErrors] = React.useState<Set<string>>(
+    new Set()
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    trigger,
+  } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
+
+  // Effect to track which fields have errors after blur
+  React.useEffect(() => {
+    Object.keys(errors).forEach((fieldName) => {
+      if (fieldName !== "root") {
+        setTouchedWithErrors((prev) => new Set(prev).add(fieldName));
+      }
+    });
+  }, [errors]);
+
+  // Custom register function that adds onChange validation for fields with errors
+  const customRegister = (name: keyof LoginFormData) => {
+    const registration = register(name);
+
+    return {
+      ...registration,
+      onChange: async (e: React.ChangeEvent<HTMLInputElement>) => {
+        registration.onChange(e);
+        if (touchedWithErrors.has(name)) {
+          await trigger(name);
+        }
+      },
+      onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
+        registration.onBlur(e);
+        // Always validate on blur
+        await trigger(name);
+        // If there's an error after blur, add to touchedWithErrors
+        if (errors[name]) {
+          setTouchedWithErrors((prev) => new Set(prev).add(name));
+        }
+      },
+    };
+  };
+
+  const handleFormSubmit = async (data: LoginFormData) => {
+    try {
+      if (onSubmit) {
+        await onSubmit(data);
+      } else {
+        // Default logic when no onSubmit function is provided
+        console.log("Form submitted:", data);
+      }
+      // Navigate to dashboard on successful login
+      navigate("/dashboard");
+    } catch (error) {
+      // Handle API errors
+      if (error instanceof Error) {
+        setError("root", { type: "manual", message: error.message });
+      } else {
+        setError("root", {
+          type: "manual",
+          message: "An unexpected error occurred. Please try again.",
+        });
+      }
+    }
+  };
+
+  return (
+    <>
+      <div className={styles.container}>
+        <h1 className={styles.h1}>Log In</h1>
+
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit(handleFormSubmit)}
+          noValidate
+        >
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="email">
+              Email
+            </label>
+            <input
+              className={styles.input}
+              id="email"
+              type="email"
+              {...customRegister("email")}
+              aria-invalid={errors.email ? "true" : "false"}
+            />
+            {errors.email && (
+              <div className={styles.error}>
+                <span className={styles.span}>&#9888;</span>
+                {errors.email.message}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="password">
+              Password
+            </label>
+            <input
+              className={styles.input}
+              id="password"
+              type="password"
+              {...customRegister("password")}
+              aria-invalid={errors.password ? "true" : "false"}
+            />
+            {errors.password && (
+              <div className={styles.error}>
+                <span className={styles.span}>&#9888;</span>
+                {errors.password.message}
+              </div>
+            )}
+          </div>
+
+          {/* Root error for API errors */}
+          {errors.root && (
+            <div className={styles.error}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.root.message}
+            </div>
+          )}
+
+          <button
+            className={styles.submitButton}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Logging In..." : "Log In"}
+          </button>
+        </form>
+
+        <p className={styles.p}>
+          Don't have an account?
+          <Link to="/signup" className={styles.link}>
+            Sign Up
+          </Link>
+        </p>
+      </div>
+    </>
+  );
+};
+
+export default LogInForm;
