@@ -5,7 +5,7 @@ import "../../styles/home_page/header.css";
 
 const Header: React.FC = () => {
   return (
-    <header>
+    <header className="home-header">
       <nav className="left">
         <Link className="logo" to="/">
           <img src="" alt="app-name/logo" />

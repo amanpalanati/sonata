@@ -1,13 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Homepage from "./components/home_page/Homepage";
-import About from "./components/About";
-import Help from "./components/Help";
-import Login from "./components/Login";
-import AccountType from "./components/AccountType";
-import SignUp from "./components/SignUp";
-import Dashboard from "./components/Dashboard";
-import Profile from "./components/Profile";
+import About from "./components/about/About";
+import Help from "./components/about/Help";
+import Login from "./components/login/Login";
+import AccountType from "./components/signup/AccountType";
+import SignUp from "./components/signup/SignUp";
+import Dashboard from "./components/dashboard/Dashboard";
+import Profile from "./components/dashboard/Profile";
 
 function App() {
   return (

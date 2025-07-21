@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
 
   return (
     <section className="hero">
-      <h1>Learn music with app-name</h1>
+      <h1 className="home-hero-title">Learn music with app-name</h1>
       <p>Connect students with teachers for music lessons</p>
       <form
         className="search-bar"
