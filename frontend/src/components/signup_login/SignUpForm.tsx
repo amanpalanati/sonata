@@ -1,8 +1,8 @@
 import React from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Link, useParams, useNavigate } from "react-router-dom";
 
 import { SignUpFormData } from "../../types";
 
@@ -63,6 +63,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     formState: { errors, isSubmitting },
     setError,
     trigger,
+    setValue,
   } = useForm<Omit<SignUpFormData, "accountType">>({
     resolver: yupResolver(signUpSchema),
     mode: "onBlur",
@@ -118,6 +119,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         console.log("Form submitted:", formData);
       }
     } catch (error) {
+      // Clear password fields on API errors while keeping other fields
+      setValue("password", "");
+      setValue("confirmPassword", "");
+      
       // Handle API errors
       if (error instanceof Error) {
         setError("root", {

@@ -1,8 +1,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
 
 import { LoginFormData } from "../../types";
 
@@ -38,6 +38,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     formState: { errors, isSubmitting },
     setError,
     trigger,
+    setValue,
   } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
   // Effect to track which fields have errors after blur
@@ -80,10 +81,12 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       } else {
         // Default logic when no onSubmit function is provided
         console.log("Form submitted:", data);
+        navigate("/dashboard");
       }
-      // Navigate to dashboard on successful login
-      navigate("/dashboard");
     } catch (error) {
+      // Clear password field on API errors while keeping email field
+      setValue("password", "");
+
       // Handle API errors
       if (error instanceof Error) {
         setError("root", { type: "manual", message: error.message });
