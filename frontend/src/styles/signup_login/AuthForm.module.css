@@ -1,7 +1,7 @@
-.signup-container,
-.login-container {
+.container {
   position: absolute;
   left: 50%;
+  top: 55%;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -15,33 +15,31 @@
   gap: 22px;
 }
 
-.signup-container {
-  top: 55%;
+.h1 {
+  font-size: 24px;
+  white-space: nowrap;
+  text-align: center;
 }
 
-.login-container {
-  top: 50%;
-}
-
-form {
+.form {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
 }
 
-.form-group {
+.formGroup {
   display: flex;
   flex-direction: column;
 }
 
-.form-group label {
+.label {
   font-size: 12px;
   padding-left: 2px;
   margin-bottom: 2px;
 }
 
-.form-group input {
+.input {
   padding: 8px;
   font-size: 14px;
   box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.15);
@@ -50,26 +48,23 @@ form {
   transition: 0.05s;
 }
 
-.form-group input:focus {
+.input:focus {
   outline: none;
   border: 1px solid rgb(76, 101, 215);
 }
 
-.form-group .error {
+.error {
   font-size: 12px;
   color: rgb(255, 67, 67);
   padding-left: 2px;
   margin-top: 4px;
 }
 
-.alert {
-  font-size: 12px;
-  color: rgb(255, 67, 67);
-  text-align: center;
+.span {
+  margin-right: 8px;
 }
 
-.create-account-button,
-.login-button {
+.submitButton {
   background-color: black;
   color: white;
   padding: 6px;
@@ -80,32 +75,28 @@ form {
   margin-top: 6px;
 }
 
-.create-account-button:hover,
-.login-button:hover {
+.submitButton:hover {
   background: rgb(50, 50, 50);
 }
 
-.create-account-button:active,
-.login-button:active {
+.submitButton:active {
   background: rgb(96, 96, 96);
 }
 
-.signup-container p,
-.login-container p {
+.p {
   color: black;
   text-decoration: none;
   font-size: 16px;
 }
 
-.signup-container a,
-.login-container a {
+.link {
   color: rgb(21, 57, 216);
   text-decoration: none;
   font-size: 16px;
   font-weight: 600;
+  margin-left: 2px;
 }
 
-.signup-container a:hover,
-.login-container a:hover {
+.link:hover {
   text-decoration: underline;
 }

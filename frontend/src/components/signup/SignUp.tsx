@@ -1,11 +1,14 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React from "react";
+
+import Header from "./Header";
+import SignUpForm from "./SignUpForm";
 
 const SignUp: React.FC = () => {
-  const { accountType } = useParams<{ accountType: string }>();
-  
   return (
-    <h1>Create {accountType} Account</h1>
+    <>
+      <Header />
+      <SignUpForm />
+    </>
   );
 };
 
