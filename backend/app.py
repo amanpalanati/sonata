@@ -17,8 +17,8 @@ from models.forms import SignUpForm, LoginForm
 # Initialize Flask app
 app = Flask(
     __name__,
-    template_folder="../frontend/templates",
-    static_folder="../frontend/static",
+    template_folder="../old_frontend/templates",
+    static_folder="../old_frontend/static",
 )
 app.config.from_object(Config)
 

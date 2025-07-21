@@ -33,7 +33,7 @@
   border: 1.5px solid rgb(76, 101, 215);
 }
 
-.search-bar a {
+.search-bar button {
   padding: 10px 16px;
   background: #000;
   color: #fff;
@@ -45,11 +45,11 @@
   font-size: 14px;
 }
 
-.search-bar a:hover {
+.search-bar button:hover {
   background: rgb(50, 50, 50);
 }
 
-.search-bar a:active {
+.search-bar button:active {
   background: rgb(96, 96, 96);
 }
 
