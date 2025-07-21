@@ -1,4 +1,4 @@
-header {
+.header {
   background: #000;
   color: #fff;
   padding: 0px 32px;
@@ -13,7 +13,7 @@ header {
 }
 
 @media (max-width: 550px) {
-  header {
+  .header {
     padding: 0px;
     justify-content: center;
   }

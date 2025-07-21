@@ -8,3 +8,7 @@ body {
   font-family: Arial, sans-serif;
   padding-top: 72px;
 }
+
+body.auth {
+  background: rgb(240, 240, 240);
+}

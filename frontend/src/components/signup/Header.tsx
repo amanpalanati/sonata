@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import "../../styles/signup_login/header.css";
+import styles from "../../styles/signup_login/Header.module.css";
 
 const Header: React.FC = () => {
   return (
-    <header className="auth-header">
-      <Link className="logo" to="/">
+    <header className={styles.header}>
+      <Link className={styles.logo} to="/">
         <img src="" alt="app-name/logo" />
       </Link>
     </header>

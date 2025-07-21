@@ -4,24 +4,24 @@ import { Link } from "react-router-dom";
 import Header from "./Header";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import "../../styles/signup_login/page.css";
+import styles from "../../styles/signup_login/AccountType.module.css";
 
 const AccountType: React.FC = () => {
-  useBodyClass("account-type-body");
+  useBodyClass("auth");
 
   return (
     <>
       <Header />
-      <div className="account-type-container">
-        <h1 className="auth-h1">Choose Your Account Type</h1>
-        <div className="account-types">
-          <Link to="/signup/student" className="account-type-link">
+      <div className={styles.container}>
+        <h1 className={styles.h1}>Choose Your Account Type</h1>
+        <div className={styles.accountTypes}>
+          <Link className={styles.link} to="/signup/student">
             Student
           </Link>
-          <Link to="/signup/teacher" className="account-type-link">
+          <Link className={styles.link} to="/signup/teacher">
             Teacher
           </Link>
-          <Link to="/signup/parent" className="account-type-link">
+          <Link className={styles.link} to="/signup/parent">
             Parent
           </Link>
         </div>
