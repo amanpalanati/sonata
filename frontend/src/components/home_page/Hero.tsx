@@ -15,10 +15,7 @@ const Hero: React.FC = () => {
     <section className="hero">
       <h1 className="home-hero-title">Learn music with app-name</h1>
       <p>Connect students with teachers for music lessons</p>
-      <form
-        className="search-bar"
-        onSubmit={handleSearch}
-      >
+      <form className="search-bar" onSubmit={handleSearch}>
         <input
           className="search-input"
           type="text"

@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 
 import Header from "./Header";
 
-import { useBodyClass } from '../../hooks/useBodyClass';
+import { useBodyClass } from "../../hooks/useBodyClass";
 import "../../styles/signup_login/page.css";
 
 const AccountType: React.FC = () => {
-  useBodyClass('account-type-body');
+  useBodyClass("account-type-body");
 
   return (
     <>
