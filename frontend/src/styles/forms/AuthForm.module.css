@@ -34,10 +34,11 @@
 }
 
 .alert {
-  font-size: 12px;
+  font-size: 16px;
   color: rgb(255, 67, 67);
   text-align: center;
   margin-top: -14px;
+  margin-bottom: 6px;
 }
 
 .formGroup {
