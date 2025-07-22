@@ -6,8 +6,10 @@ import * as yup from "yup";
 
 import { LoginFormData } from "../../types";
 
+import FloatingLabelInput from "./FloatingLabelInput";
+
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/signup_login/AuthForm.module.css";
+import styles from "../../styles/forms/AuthForm.module.css";
 
 // Validation schema
 const loginSchema = yup.object().shape({
@@ -109,16 +111,24 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
+          {/* Root error for API errors */}
+          {errors.root && (
+            <div className={styles.alert}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.root.message}
+            </div>
+          )}
+
+          {/* Form Fields */}
           <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="email">
-              Email
-            </label>
-            <input
-              className={styles.input}
+            <FloatingLabelInput
               id="email"
+              label="Email"
               type="email"
-              {...customRegister("email")}
-              aria-invalid={errors.email ? "true" : "false"}
+              placeholder="Email"
+              register={customRegister("email")}
+              errors={errors.email}
+              ariaInvalid={errors.email ? "true" : "false"}
             />
             {errors.email && (
               <div className={styles.error}>
@@ -129,15 +139,14 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="password">
-              Password
-            </label>
-            <input
-              className={styles.input}
+            <FloatingLabelInput
               id="password"
+              label="Password"
               type="password"
-              {...customRegister("password")}
-              aria-invalid={errors.password ? "true" : "false"}
+              placeholder="Password"
+              register={customRegister("password")}
+              errors={errors.password}
+              ariaInvalid={errors.password ? "true" : "false"}
             />
             {errors.password && (
               <div className={styles.error}>
@@ -146,14 +155,6 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               </div>
             )}
           </div>
-
-          {/* Root error for API errors */}
-          {errors.root && (
-            <div className={styles.error}>
-              <span className={styles.span}>&#9888;</span>
-              {errors.root.message}
-            </div>
-          )}
 
           <button
             className={styles.submitButton}
