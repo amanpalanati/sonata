@@ -6,7 +6,7 @@ import { authService } from "../../services/auth";
 import { useAuth } from "../../hooks/useAuth";
 
 import Header from "./Header";
-import LoginForm from "./LoginForm";
+import LoginForm from "../forms/LoginForm";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

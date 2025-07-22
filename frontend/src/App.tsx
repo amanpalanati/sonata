@@ -10,7 +10,7 @@ import { useAuth } from "./hooks/useAuth";
 
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
-import Help from "./components/about/Help";
+import Help from "./components/help/Help";
 import Login from "./components/signup_login/Login";
 import AccountType from "./components/signup_login/AccountType";
 import SignUp from "./components/signup_login/SignUp";
