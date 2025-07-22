@@ -65,6 +65,7 @@ def api_signup():
             session["user_email"] = result["user"]["email"]
             session["account_type"] = result["user"]["account_type"]
             session["first_name"] = result["user"]["first_name"]
+            session["last_name"] = result["user"]["last_name"]
             session.permanent = True
 
             return (
@@ -107,6 +108,7 @@ def api_login():
             session["user_email"] = user["email"]
             session["account_type"] = user["account_type"]
             session["first_name"] = user["first_name"]
+            session["last_name"] = user["last_name"]
             session.permanent = True
 
             return (
@@ -169,6 +171,7 @@ def api_check_auth():
                     "user_email": session.get("user_email"),
                     "account_type": session.get("account_type"),
                     "first_name": session.get("first_name"),
+                    "last_name": session.get("last_name"),
                 }
             ),
             200,
