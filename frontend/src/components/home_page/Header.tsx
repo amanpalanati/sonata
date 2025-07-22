@@ -8,7 +8,7 @@ const Header: React.FC = () => {
     <header className={styles.header}>
       <nav className={styles.left}>
         <Link className={styles.logo} to="/">
-          <img src="" alt="app-name/logo" />
+          <img src="./placeholder-logo.png" alt="app-name/logo" />
         </Link>
         <Link className={styles.leftNavItem} to="/signup/student">
           Learn

@@ -34,7 +34,7 @@ const AccountType: React.FC = () => {
     <>
       <Header />
       <div className={styles.container}>
-        <h1 className={styles.h1}>Choose Your Account Type</h1>
+        <h1 className={styles.h1}>Choose Account Type</h1>
         <div className={styles.accountTypes}>
           <Link className={styles.link} to="/signup/student">
             Student

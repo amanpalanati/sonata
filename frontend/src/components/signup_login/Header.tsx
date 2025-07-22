@@ -7,7 +7,7 @@ const Header: React.FC = () => {
   return (
     <header className={styles.header}>
       <Link className={styles.logo} to="/">
-        <img src="" alt="app-name/logo" />
+        <img src="./placeholder-logo.png" alt="app-name/logo" />
       </Link>
     </header>
   );
