@@ -66,6 +66,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     setError,
     trigger,
     setValue,
+    clearErrors,
   } = useForm<Omit<SignUpFormData, "accountType">>({
     resolver: yupResolver(signUpSchema),
     mode: "onBlur",
@@ -91,6 +92,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         // If this field has had an error before, validate on change
         if (touchedWithErrors.has(name)) {
           await trigger(name);
+        }
+      },
+      onFocus: () => {
+        // Clear root API error when any input gets focus
+        if (errors.root) {
+          clearErrors("root");
         }
       },
       onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {

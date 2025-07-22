@@ -41,6 +41,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     setError,
     trigger,
     setValue,
+    clearErrors
   } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
   // Effect to track which fields have errors after blur
@@ -62,6 +63,12 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         registration.onChange(e);
         if (touchedWithErrors.has(name)) {
           await trigger(name);
+        }
+      },
+      onFocus: () => {
+        // Clear root API error when any input gets focus
+        if (errors.root) {
+          clearErrors("root");
         }
       },
       onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
