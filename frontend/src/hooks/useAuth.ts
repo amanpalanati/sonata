@@ -35,7 +35,7 @@ export const useAuth = () => {
             email: result.user_email,
             account_type: result.account_type,
             first_name: result.first_name,
-            last_name: "", // You might want to add last_name to the backend response
+            last_name: result.last_name,
           },
           loading: false,
         });
