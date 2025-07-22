@@ -1,7 +1,12 @@
+.signUpWrapper,
+.loginWrapper {
+  display: none;
+}
+
 .container {
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 53%;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -86,4 +91,47 @@
 
 .link:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .signUpWrapper,
+  .loginWrapper {
+    display: block;
+  }
+
+  .signUpWrapper {
+    padding-bottom: 685px;
+  }
+
+  .loginWrapper {
+    padding-bottom: 500px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    width: 85%;
+  }
+}
+
+@media (max-height: 640px) and (min-width: 768px) {
+  .signUpWrapper,
+  .loginWrapper {
+    display: block;
+  }
+
+  .signUpWrapper {
+    padding-bottom: 685px;
+  }
+
+  .loginWrapper {
+    padding-bottom: 500px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    min-height: fit-content;
+    overflow-y: auto;
+  }
 }

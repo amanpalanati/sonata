@@ -32,6 +32,7 @@ const AccountType: React.FC = () => {
 
   return (
     <>
+      <div className={styles.wrapper}></div>
       <Header />
       <div className={styles.container}>
         <h1 className={styles.h1}>Choose Account Type</h1>

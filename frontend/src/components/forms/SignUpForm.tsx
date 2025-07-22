@@ -146,6 +146,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
   return (
     <>
+      <div className={styles.signUpWrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>
           Create {capitalizeAccountType(normalizedAccountType)} Account

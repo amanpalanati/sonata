@@ -1,6 +1,10 @@
+.wrapper {
+  display: none;
+}
+
 .container {
   position: absolute;
-  top: 50%;
+  top: 53%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -46,4 +50,30 @@
 .link:active {
   background: rgb(96, 96, 96);
   box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 360px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    width: 85%;
+  }
+}
+
+@media (max-height: 640px) and (min-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 360px;
+  }
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    min-height: fit-content;
+    overflow-y: auto;
+  }
 }
