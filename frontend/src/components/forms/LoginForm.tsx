@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { LoginFormData } from "../../types";
 
 import FloatingLabelInput from "./FloatingLabelInput";
+import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
 import styles from "../../styles/forms/AuthForm.module.css";
@@ -41,7 +42,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     setError,
     trigger,
     setValue,
-    clearErrors
+    clearErrors,
   } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
   // Effect to track which fields have errors after blur
@@ -172,6 +173,16 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
             {isSubmitting ? "Logging In..." : "Log In"}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <span className={styles.dividerSpan}>OR</span>
+        </div>
+
+        <GoogleSignIn
+          text="in"
+          onError={(message) => setError("root", { type: "manual", message })}
+          onFocus={() => clearErrors("root")}
+        />
 
         <p className={styles.p}>
           Don't have an account?

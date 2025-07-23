@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { SignUpFormData } from "../../types";
 
 import FloatingLabelInput from "./FloatingLabelInput";
+import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
 import styles from "../../styles/forms/AuthForm.module.css";
@@ -271,6 +272,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
             {isSubmitting ? "Creating Account..." : "Create Account"}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <span className={styles.dividerSpan}>OR</span>
+        </div>
+
+        <GoogleSignIn
+          text="up"
+          onError={(message) => setError("root", { type: "manual", message })}
+          onFocus={() => clearErrors("root")}
+        />
 
         <p className={styles.p}>
           Already have an account?
