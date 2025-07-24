@@ -39,6 +39,7 @@ def refresh_session():
 
 # API Routes for React Frontend
 
+
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
     """API endpoint for user signup"""
@@ -54,7 +55,15 @@ def api_signup():
         # Validate account type
         valid_account_types = ["student", "teacher", "parent"]
         if data["accountType"] not in valid_account_types:
-            return jsonify({"success": False, "error": "No selected account type. Please try again."}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "No selected account type. Please try again.",
+                    }
+                ),
+                400,
+            )
 
         # Create user
         result = user_model.create_user(
@@ -148,22 +157,6 @@ def api_logout():
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 
-# REMOVE IN PRODUCTION
-# @app.route("/api/debug-session", methods=["GET"])
-# def api_debug_session():
-#     """Debug endpoint to check session state (remove in production)"""
-#     return (
-#         jsonify(
-#             {
-#                 "session_data": dict(session),
-#                 "session_permanent": session.permanent,
-#                 "has_user_id": "user_id" in session,
-#             }
-#         ),
-#         200,
-#     )
-
-
 @app.route("/api/user", methods=["GET"])
 def api_get_user():
     """API endpoint to get current user data"""
@@ -231,7 +224,12 @@ def api_oauth_callback():
         # Validate required fields
         if not data.get("access_token") or not data.get("user_id"):
             return (
-                jsonify({"success": False, "error": "Missing required data. Please try again."}),
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Missing required data. Please try again.",
+                    }
+                ),
                 400,
             )
 
@@ -311,7 +309,15 @@ def api_oauth_callback():
         except:
             pass  # Ignore deletion errors in exception handler
 
-        return jsonify({"success": False, "error": "There was an error processing your request. Please try again later."}), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "There was an error processing your request. Please try again later.",
+                }
+            ),
+            500,
+        )
 
 
 if __name__ == "__main__":

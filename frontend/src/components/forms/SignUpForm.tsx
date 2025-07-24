@@ -187,7 +187,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
             </div>
           )}
 
-          {/*Form Fields*/}
+          {/* Form Fields */}
           <div className={styles.formGroup}>
             <FloatingLabelInput
               id="firstName"
