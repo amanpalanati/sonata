@@ -1,54 +1,91 @@
-import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 
-import { useAuth } from "./hooks/useAuth";
+import OAuthCallback from "./components/authentication/OAuthCallback";
+import ProtectedRoute from "./components/authentication/ProtectedRoute";
+import PublicRoute from "./components/authentication/PublicRoute";
 
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
-import Help from "./components/about/Help";
-import Login from "./components/signup_login/Login";
-import AccountType from "./components/signup_login/AccountType";
-import SignUp from "./components/signup_login/SignUp";
+import Help from "./components/help/Help";
+import Login from "./components/authentication/Login";
+import AccountType from "./components/authentication/AccountType";
+import SignUp from "./components/authentication/SignUp";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
 
-// Component to validate session on route changes
-const SessionValidator: React.FC = () => {
-  const location = useLocation();
-  const { validateSession, isAuthenticated } = useAuth();
+const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/about" element={<About />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/auth/callback" element={<OAuthCallback />} />
+      <Route path="/auth/callback/:accountType" element={<OAuthCallback />} />
 
-  useEffect(() => {
-    // Only validate session if user appears to be authenticated
-    if (isAuthenticated) {
-      validateSession();
-    }
-  }, [location.pathname, isAuthenticated, validateSession]);
+      {/* Public routes - redirect to dashboard if authenticated */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Homepage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <AccountType />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup/:accountType"
+        element={
+          <PublicRoute>
+            <SignUp />
+          </PublicRoute>
+        }
+      />
 
-  return null;
+      {/* Protected routes - redirect to login if not authenticated */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
 };
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <SessionValidator />
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<AccountType />} />
-          <Route path="/signup/:accountType" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <AppRoutes />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

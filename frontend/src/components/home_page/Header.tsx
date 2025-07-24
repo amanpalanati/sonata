@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import SignUpDropdown from "./SignUpDropdown";
+
 import styles from "../../styles/home_page/Header.module.css";
 
 const Header: React.FC = () => {
@@ -8,7 +10,7 @@ const Header: React.FC = () => {
     <header className={styles.header}>
       <nav className={styles.left}>
         <Link className={styles.logo} to="/">
-          <img src="" alt="app-name/logo" />
+          <img src="./placeholder-logo.png" alt="app-name/logo" />
         </Link>
         <Link className={styles.leftNavItem} to="/signup/student">
           Learn
@@ -27,9 +29,7 @@ const Header: React.FC = () => {
         <Link className={styles.rightNavItem} to="/login">
           Log In
         </Link>
-        <Link className={styles.signUp} to="/signup">
-          Sign Up
-        </Link>
+        <SignUpDropdown />
       </nav>
     </header>
   );

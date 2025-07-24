@@ -1,47 +1,38 @@
-import React, { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
 import { authService } from "../../services/auth";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, loading, logout } = useAuth();
-  const isLoggingOut = useRef(false);
-
-  useEffect(() => {
-    // If user is not authenticated and not in the process of logging out, redirect to login
-    if (!loading && !isAuthenticated && !isLoggingOut.current) {
-      navigate("/login");
-    }
-  }, [isAuthenticated, loading, navigate]);
+  const { logoutAndRedirect, user } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+
+    setIsLoggingOut(true);
+
     try {
-      isLoggingOut.current = true; // Set flag to prevent useEffect redirect
+      // Clear backend session first
       await authService.logout();
-      logout(); // Update auth state
-      navigate("/"); // Redirect to homepage after logout
+
+      // Use the context method that handles redirect properly
+      logoutAndRedirect("/");
     } catch (error) {
       console.error("Logout failed:", error);
-      isLoggingOut.current = false; // Reset flag on error
+      // Even if backend logout fails, still redirect
+      logoutAndRedirect("/");
     }
   };
 
-  // Show loading while checking authentication
-  if (loading) {
-    return <></>;
-  }
-
-  // Don't render dashboard if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // Authentication is now handled at the route level in App.tsx
   return (
     <>
       <h1>Dashboard</h1>
-      <button onClick={handleLogout}>Log Out</button>
+      <p>Welcome, {user?.first_name}!</p>
+      <button onClick={handleLogout} disabled={isLoggingOut}>
+        {isLoggingOut ? "Logging out..." : "Log Out"}
+      </button>
     </>
   );
 };
