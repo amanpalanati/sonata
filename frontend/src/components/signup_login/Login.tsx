@@ -13,9 +13,9 @@ const Login: React.FC = () => {
   const { login, isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    // If user is already authenticated, redirect to dashboard
+    // Redirect authenticated users away from login page
     if (!loading && isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, loading, navigate]);
 
@@ -40,11 +40,7 @@ const Login: React.FC = () => {
     return <></>;
   }
 
-  // Don't render login if already authenticated (will redirect)
-  if (isAuthenticated) {
-    return null;
-  }
-
+  // Show login form for unauthenticated users
   return (
     <>
       <Header />

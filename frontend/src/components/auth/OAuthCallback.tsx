@@ -29,6 +29,10 @@ const OAuthCallback: React.FC = () => {
           throw new Error("No OAuth callback parameters found");
         }
 
+        // Get mode from URL search params
+        const urlParams = new URLSearchParams(search);
+        const mode = urlParams.get('mode') as 'login' | 'signup' | null;
+
         // Get the session from Supabase
         const { data: authData, error } = await supabase.auth.getSession();
         
@@ -73,6 +77,7 @@ const OAuthCallback: React.FC = () => {
           body: JSON.stringify({
             access_token: session.access_token,
             user_id: session.user.id,
+            mode: mode, // Pass the mode to backend
             user_metadata: {
               ...session.user.user_metadata,
               // Only include account_type if we have it from URL (new users)
@@ -85,6 +90,26 @@ const OAuthCallback: React.FC = () => {
 
         if (!response.ok) {
           console.error("Flask sync failed:", data);
+          
+          // Special handling for incomplete account during login
+          if (data.incomplete_account && mode === "login") {
+            // Delete the incomplete user from Supabase and redirect to signup
+            try {
+              await supabase.auth.signOut();
+            } catch (signOutError) {
+              console.warn("Failed to sign out from Supabase:", signOutError);
+            }
+            
+            // Redirect to signup with specific message
+            navigate("/signup", { 
+              replace: true,
+              state: { 
+                oauthError: "Account found but setup incomplete. Please complete your signup." 
+              }
+            });
+            return;
+          }
+          
           throw new Error(data.error || "Failed to sync session");
         }
         

@@ -1,4 +1,5 @@
 import { SignUpFormData, LoginFormData } from "../types";
+import { supabase } from "./supabase";
 
 // Since we have a proxy configured in vite.config.ts, we can use relative URLs
 // The proxy will forward /api requests to http://localhost:5000
@@ -54,12 +55,22 @@ export const authService = {
 
   // Log out a user
   logout: async () => {
-    const response = await fetch(`${API_BASE_URL}/api/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+    try {
+      // First, sign out from Supabase to clear the OAuth session
+      await supabase.auth.signOut();
+      
+      // Then clear the Flask session
+      const response = await fetch(`${API_BASE_URL}/api/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-    return handleResponse(response);
+      return handleResponse(response);
+    } catch (error) {
+      // Even if there's an error, still try to clear local state
+      console.error("Logout error:", error);
+      return { success: true, message: "Logged out locally" };
+    }
   },
 
   // Get current user data

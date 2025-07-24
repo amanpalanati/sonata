@@ -13,18 +13,18 @@ const Homepage: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    // If user is authenticated, redirect to dashboard
+    // Redirect authenticated users to dashboard
     if (!loading && isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, loading, navigate]);
-
+  
   // Show loading while checking authentication
   if (loading) {
     return <></>;
   }
 
-  // Only render homepage if user is not authenticated
+  // Show homepage for unauthenticated users
   return (
     <>
       <Header />

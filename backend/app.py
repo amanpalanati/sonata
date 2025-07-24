@@ -28,10 +28,11 @@ user_model = User(
 )
 
 
-# Resets session lifetime
+# Resets session lifetime only for authenticated users who are actively using the app
 @app.before_request
 def refresh_session():
-    if "user_id" in session:
+    # Only refresh if this is not a logout request and user is authenticated
+    if "user_id" in session and request.endpoint != "api_logout":
         session.permanent = True
 
 
@@ -131,8 +132,27 @@ def api_login():
 @app.route("/api/logout", methods=["POST"])
 def api_logout():
     """API endpoint for user logout"""
+    # Get session ID before clearing to ensure proper cleanup
+    session_id = session.get('_id', None)
+    
+    # Make session non-permanent and clear all data
+    session.permanent = False
     session.clear()
+    
+    # Force session modification to ensure it's saved as empty
+    session.modified = True
+    
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
+
+
+@app.route("/api/debug-session", methods=["GET"])
+def api_debug_session():
+    """Debug endpoint to check session state (remove in production)"""
+    return jsonify({
+        "session_data": dict(session),
+        "session_permanent": session.permanent,
+        "has_user_id": "user_id" in session
+    }), 200
 
 
 @app.route("/api/user", methods=["GET"])
@@ -194,11 +214,27 @@ def api_oauth_callback():
         if not data.get("access_token") or not data.get("user_id"):
             return jsonify({"success": False, "error": "Missing required OAuth data"}), 400
         
+        # Get mode from request data
+        mode = data.get("mode", "signup")  # Default to signup for backward compatibility
+        
         # Get user data from Supabase using the access token
         user_data = user_model.get_oauth_user(data["user_id"], data.get("user_metadata", {}))
         
         if not user_data:
-            return jsonify({"success": False, "error": "Failed to retrieve user data"}), 400
+            # Delete the incomplete user account
+            user_model.delete_user(data["user_id"])
+            return jsonify({"success": False, "error": "Account does not exist. Please sign up or try again."}), 400
+        
+        # Check if this is a login attempt but user doesn't have account_type (incomplete signup)
+        if mode == "login" and not user_data.get("account_type"):
+            # Delete the incomplete user account
+            delete_success = user_model.delete_user(data["user_id"])
+            return jsonify({
+                "success": False, 
+                "error": "Account setup not complete. Please complete signup process.",
+                "incomplete_account": True,
+                "account_deleted": delete_success
+            }), 400
         
         # Set Flask session with user data
         session["user_id"] = user_data["id"]
@@ -224,6 +260,13 @@ def api_oauth_callback():
         }), 200
         
     except Exception as e:
+        # If there's any error, try to delete the potentially incomplete account
+        try:
+            if data and data.get("user_id"):
+                user_model.delete_user(data["user_id"])
+        except:
+            pass  # Ignore deletion errors in exception handler
+            
         return jsonify({"success": False, "error": str(e)}), 500
 
 

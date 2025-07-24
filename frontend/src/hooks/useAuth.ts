@@ -91,7 +91,5 @@ export const useAuth = () => {
     checkAuth,
     login,
     logout,
-    // Function to validate current session (can be called on navigation)
-    validateSession: checkAuth,
   };
 };

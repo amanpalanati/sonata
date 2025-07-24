@@ -293,6 +293,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
         <GoogleSignIn
           text="up"
+          mode="signup"
           onError={(message) => setError("root", { type: "manual", message })}
           onFocus={() => clearErrors("root")}
         />

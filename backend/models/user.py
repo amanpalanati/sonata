@@ -79,19 +79,23 @@ class User:
 
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID from Supabase Auth"""
-       
-        if self.admin_supabase:
-            # Use admin client to get user by ID
-            user_response = self.admin_supabase.auth.admin.get_user_by_id(user_id)
-            
-            if user_response and user_response.user:
-                return {
-                    "id": user_response.user.id,
-                    "email": user_response.user.email,
-                    "account_type": user_response.user.user_metadata.get("account_type"),
-                    "first_name": user_response.user.user_metadata.get("first_name"),
-                    "last_name": user_response.user.user_metadata.get("last_name"),
-                }
+        try:
+            if self.admin_supabase:
+                # Use admin client to get user by ID
+                user_response = self.admin_supabase.auth.admin.get_user_by_id(user_id)
+                
+                if user_response and user_response.user:
+                    return {
+                        "id": user_response.user.id,
+                        "email": user_response.user.email,
+                        "account_type": user_response.user.user_metadata.get("account_type"),
+                        "first_name": user_response.user.user_metadata.get("first_name"),
+                        "last_name": user_response.user.user_metadata.get("last_name"),
+                    }
+            return None
+        except Exception as e:
+            # User not found or other error - return None
+            return None
             
 
     def get_oauth_user(self, user_id: str, user_metadata: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -126,8 +130,12 @@ class User:
             
             return user_data
         
-        # If no existing user or no account_type, we need account_type from frontend
+        # For new users, we need account_type from the request
         account_type = user_metadata.get("account_type")
+        
+        # If no account_type provided, return None (will trigger account deletion)
+        if not account_type:
+            return None
             
         # Extract data from Google OAuth user_metadata for new user
         email = user_metadata.get("email")
@@ -170,6 +178,20 @@ class User:
                 return True
             else:
                 return False
+                
+        except Exception as e:
+            return False
+
+    def delete_user(self, user_id: str) -> bool:
+        """Delete user from Supabase Auth (requires service role key)"""
+        try:
+            if not self.admin_supabase:
+                return False
+                
+            response = self.admin_supabase.auth.admin.delete_user(user_id)
+            
+            # The delete operation returns True on success
+            return True
                 
         except Exception as e:
             return False

@@ -194,6 +194,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
         <GoogleSignIn
           text="in"
+          mode="login"
           onError={(message) => setError("root", { type: "manual", message })}
           onFocus={() => clearErrors("root")}
         />

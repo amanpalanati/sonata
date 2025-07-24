@@ -7,12 +7,14 @@ interface GoogleSignInProps {
   text: "up" | "in";
   onError?: (message: string) => void;
   onFocus?: () => void;
+  mode?: "login" | "signup"; // Add mode to distinguish between login and signup
 }
 
 const GoogleSignIn: React.FC<GoogleSignInProps> = ({
   text,
   onError,
   onFocus,
+  mode = "signup", // Default to signup for backward compatibility
 }) => {
   const { accountType } = useParams<{ accountType?: string }>();
 
@@ -25,6 +27,11 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
       if (accountType) {
         redirectTo = `${window.location.origin}/auth/callback/${accountType}`;
       }
+      
+      // Add mode as a query parameter to distinguish login vs signup
+      const url = new URL(redirectTo);
+      url.searchParams.set('mode', mode);
+      redirectTo = url.toString();
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
