@@ -1,4 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+
+import OAuthCallback from "./components/authentication/OAuthCallback";
+import ProtectedRoute from "./components/authentication/ProtectedRoute";
+import PublicRoute from "./components/authentication/PublicRoute";
 
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
@@ -8,29 +13,79 @@ import AccountType from "./components/authentication/AccountType";
 import SignUp from "./components/authentication/SignUp";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
-import OAuthCallback from "./components/authentication/OAuthCallback";
+
+const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/about" element={<About />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/auth/callback" element={<OAuthCallback />} />
+      <Route path="/auth/callback/:accountType" element={<OAuthCallback />} />
+
+      {/* Public routes - redirect to dashboard if authenticated */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Homepage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <AccountType />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup/:accountType"
+        element={
+          <PublicRoute>
+            <SignUp />
+          </PublicRoute>
+        }
+      />
+
+      {/* Protected routes - redirect to login if not authenticated */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+};
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<AccountType />} />
-          <Route path="/signup/:accountType" element={<SignUp />} />
-          <Route path="/auth/callback" element={<OAuthCallback />} />
-          <Route
-            path="/auth/callback/:accountType"
-            element={<OAuthCallback />}
-          />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <AppRoutes />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

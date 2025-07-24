@@ -1,31 +1,21 @@
-import React, { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Profile: React.FC = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, loading } = useAuth();
-  const isLoggingOut = useRef(false);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    // If user is not authenticated and not in the process of logging out, redirect to login
-    if (!loading && !isAuthenticated && !isLoggingOut.current) {
-      navigate("/login");
-    }
-  }, [isAuthenticated, loading, navigate]);
-
-  // Show loading while checking authentication
-  if (loading) {
-    return <></>;
-  }
-
-  // Don't render profile if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return <h1>Profile</h1>;
+  // Authentication is now handled at the route level in App.tsx
+  return (
+    <div>
+      <h1>Profile</h1>
+      <p>
+        Name: {user?.first_name} {user?.last_name}
+      </p>
+      <p>Email: {user?.email}</p>
+      <p>Account Type: {user?.account_type}</p>
+    </div>
+  );
 };
 
 export default Profile;

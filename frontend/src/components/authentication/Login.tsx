@@ -1,23 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { LoginFormData } from "../../types";
 import { authService } from "../../services/auth";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 
 import Header from "./Header";
 import LoginForm from "../forms/LoginForm";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated, loading } = useAuth();
-
-  useEffect(() => {
-    // Redirect authenticated users away from login page
-    if (!loading && isAuthenticated) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [isAuthenticated, loading, navigate]);
+  const { login } = useAuth();
 
   const handleSubmit = async (data: LoginFormData): Promise<void> => {
     try {
@@ -35,12 +28,7 @@ const Login: React.FC = () => {
     }
   };
 
-  // Show loading while checking authentication
-  if (loading) {
-    return <></>;
-  }
-
-  // Show login form for unauthenticated users
+  // Authentication check is now handled at the route level in App.tsx
   return (
     <>
       <Header />

@@ -2,12 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import { supabase } from "../../services/supabase";
+import { useAuth } from "../../contexts/AuthContext";
 
 const OAuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { accountType } = useParams<{ accountType?: string }>();
   const location = useLocation();
   const hasRun = useRef(false);
+  const { login } = useAuth();
 
   useEffect(() => {
     // Prevent double execution
@@ -115,7 +117,12 @@ const OAuthCallback: React.FC = () => {
           throw new Error(data.error || "Failed to sync session");
         }
 
-        // Success - redirect to dashboard
+        // Success - update auth context with user data
+        if (data.user) {
+          login(data.user);
+        }
+
+        // Redirect to dashboard
         navigate("/dashboard", { replace: true });
       } catch (error) {
         // Determine where to redirect based on account type or default to login

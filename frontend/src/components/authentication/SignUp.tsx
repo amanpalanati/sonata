@@ -1,23 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { SignUpFormData } from "../../types";
 import { authService } from "../../services/auth";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 
 import Header from "./Header";
 import SignUpForm from "../forms/SignUpForm";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated, loading } = useAuth();
-
-  useEffect(() => {
-    // If user is already authenticated, redirect to dashboard
-    if (!loading && isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, loading, navigate]);
+  const { login } = useAuth();
 
   const handleSubmit = async (data: SignUpFormData): Promise<void> => {
     try {
@@ -35,16 +28,7 @@ const SignUp: React.FC = () => {
     }
   };
 
-  // Show loading while checking authentication
-  if (loading) {
-    return <></>;
-  }
-
-  // Don't render signup if already authenticated (will redirect)
-  if (isAuthenticated) {
-    return null;
-  }
-
+  // Authentication check is now handled at the route level in App.tsx
   return (
     <>
       <Header />

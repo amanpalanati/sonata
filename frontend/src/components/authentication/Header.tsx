@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import styles from "../../styles/signup_login/Header.module.css";
+import styles from "../../styles/authentication/Header.module.css";
 
 const Header: React.FC = () => {
   return (

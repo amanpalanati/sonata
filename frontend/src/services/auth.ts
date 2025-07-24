@@ -5,6 +5,22 @@ import { supabase } from "./supabase";
 // The proxy will forward /api requests to http://localhost:5000
 const API_BASE_URL = "";
 
+// Cache for auth check to prevent rapid successive calls
+let authCheckCache: {
+  result: any;
+  timestamp: number;
+} | null = null;
+
+const CACHE_DURATION = 1000; // Reduced to 1 second for faster response
+
+// Function to clear auth cache
+const clearAuthCache = () => {
+  authCheckCache = null;
+};
+
+// Export clearAuthCache for use in other modules
+export { clearAuthCache };
+
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {
   const data = await response.json();
@@ -36,7 +52,9 @@ export const authService = {
       body: JSON.stringify(formData),
     });
 
-    return handleResponse(response);
+    const result = await handleResponse(response);
+    clearAuthCache(); // Clear cache after signup
+    return result;
   },
 
   // Log in a user
@@ -50,7 +68,9 @@ export const authService = {
       body: JSON.stringify(formData),
     });
 
-    return handleResponse(response);
+    const result = await handleResponse(response);
+    clearAuthCache(); // Clear cache after login
+    return result;
   },
 
   // Log out a user
@@ -65,10 +85,13 @@ export const authService = {
         credentials: "include",
       });
 
-      return handleResponse(response);
+      const result = await handleResponse(response);
+      clearAuthCache(); // Clear cache after logout
+      return result;
     } catch (error) {
       // Even if there's an error, still try to clear local state
       console.error("Logout error:", error);
+      clearAuthCache(); // Clear cache even on error
       return { success: true, message: "Logged out locally" };
     }
   },
@@ -85,11 +108,26 @@ export const authService = {
 
   // Check if user is authenticated
   checkAuth: async () => {
+    const now = Date.now();
+
+    // Return cached result if it's still valid
+    if (authCheckCache && now - authCheckCache.timestamp < CACHE_DURATION) {
+      return authCheckCache.result;
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/check-auth`, {
       method: "GET",
       credentials: "include",
     });
 
-    return handleResponse(response);
+    const result = await handleResponse(response);
+
+    // Cache the result
+    authCheckCache = {
+      result,
+      timestamp: now,
+    };
+
+    return result;
   },
 };

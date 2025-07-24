@@ -9,6 +9,7 @@ from flask_cors import CORS
 from config import Config
 from models.user import User
 import os
+import time
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -71,6 +72,7 @@ def api_signup():
             session["account_type"] = result["user"]["account_type"]
             session["first_name"] = result["user"]["first_name"]
             session["last_name"] = result["user"]["last_name"]
+            session["user_verified_at"] = time.time()  # Mark as recently verified
             session.permanent = True
 
             return (
@@ -114,6 +116,7 @@ def api_login():
             session["account_type"] = user["account_type"]
             session["first_name"] = user["first_name"]
             session["last_name"] = user["last_name"]
+            session["user_verified_at"] = time.time()  # Mark as recently verified
             session.permanent = True
 
             return (
@@ -145,19 +148,20 @@ def api_logout():
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 
-@app.route("/api/debug-session", methods=["GET"])
-def api_debug_session():
-    """Debug endpoint to check session state (remove in production)"""
-    return (
-        jsonify(
-            {
-                "session_data": dict(session),
-                "session_permanent": session.permanent,
-                "has_user_id": "user_id" in session,
-            }
-        ),
-        200,
-    )
+# REMOVE IN PRODUCTION
+# @app.route("/api/debug-session", methods=["GET"])
+# def api_debug_session():
+#     """Debug endpoint to check session state (remove in production)"""
+#     return (
+#         jsonify(
+#             {
+#                 "session_data": dict(session),
+#                 "session_permanent": session.permanent,
+#                 "has_user_id": "user_id" in session,
+#             }
+#         ),
+#         200,
+#     )
 
 
 @app.route("/api/user", methods=["GET"])
@@ -185,12 +189,21 @@ def api_get_user():
 def api_check_auth():
     """API endpoint to check if user is authenticated"""
     if "user_id" in session:
-        # Verify user still exists in Supabase (now that we have admin client)
-        user_data = user_model.get_user(session["user_id"])
-        if not user_data:
-            # User no longer exists, clear session
-            session.clear()
-            return jsonify({"authenticated": False, "session_cleared": True}), 200
+        # Only verify user exists in database if we haven't checked recently
+        # Check if we have cached user verification (expires after 5 minutes)
+        last_verified = session.get("user_verified_at", 0)
+        current_time = time.time()
+
+        if current_time - last_verified > 300:  # 5 minutes
+            # Verify user still exists in Supabase
+            user_data = user_model.get_user(session["user_id"])
+            if not user_data:
+                # User no longer exists, clear session
+                session.clear()
+                return jsonify({"authenticated": False, "session_cleared": True}), 200
+
+            # Update verification timestamp
+            session["user_verified_at"] = current_time
 
         return (
             jsonify(
@@ -267,6 +280,7 @@ def api_oauth_callback():
         session["account_type"] = user_data.get("account_type")
         session["first_name"] = user_data.get("first_name")
         session["last_name"] = user_data.get("last_name")
+        session["user_verified_at"] = time.time()  # Mark as recently verified
         session.permanent = True
 
         # Update Supabase user metadata with account type (if we have admin access)
