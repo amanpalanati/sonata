@@ -18,7 +18,7 @@ const Homepage: React.FC = () => {
       navigate("/dashboard", { replace: true });
     }
   }, [isAuthenticated, loading, navigate]);
-  
+
   // Show loading while checking authentication
   if (loading) {
     return <></>;

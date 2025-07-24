@@ -22,15 +22,15 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
     try {
       // Determine redirect URL based on context
       let redirectTo = `${window.location.origin}/auth/callback`;
-      
+
       // If we have account type from URL (signup flow), include it in callback URL
       if (accountType) {
         redirectTo = `${window.location.origin}/auth/callback/${accountType}`;
       }
-      
+
       // Add mode as a query parameter to distinguish login vs signup
       const url = new URL(redirectTo);
-      url.searchParams.set('mode', mode);
+      url.searchParams.set("mode", mode);
       redirectTo = url.toString();
 
       const { error } = await supabase.auth.signInWithOAuth({

@@ -58,7 +58,7 @@ export const authService = {
     try {
       // First, sign out from Supabase to clear the OAuth session
       await supabase.auth.signOut();
-      
+
       // Then clear the Flask session
       const response = await fetch(`${API_BASE_URL}/api/logout`, {
         method: "POST",
