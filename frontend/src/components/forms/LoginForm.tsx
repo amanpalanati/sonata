@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -29,6 +29,7 @@ interface LoginFormProps {
 const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   useBodyClass("auth");
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Track which fields have been blurred and had errors
   const [touchedWithErrors, setTouchedWithErrors] = React.useState<Set<string>>(
@@ -44,6 +45,19 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     setValue,
     clearErrors,
   } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
+
+  // Handle OAuth errors from location state
+  React.useEffect(() => {
+    const state = location.state as { oauthError?: string } | null;
+    if (state?.oauthError) {
+      setError("root", {
+        type: "manual",
+        message: state.oauthError,
+      });
+      // Clear the state to prevent showing error again on re-render
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, setError, navigate, location.pathname]);
 
   // Effect to track which fields have errors after blur
   React.useEffect(() => {

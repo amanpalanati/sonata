@@ -16,6 +16,7 @@ import AccountType from "./components/signup_login/AccountType";
 import SignUp from "./components/signup_login/SignUp";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
+import OAuthCallback from "./components/auth/OAuthCallback";
 
 // Component to validate session on route changes
 const SessionValidator: React.FC = () => {
@@ -44,6 +45,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<AccountType />} />
           <Route path="/signup/:accountType" element={<SignUp />} />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/auth/callback/:accountType" element={<OAuthCallback />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>

@@ -21,7 +21,11 @@ CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 Session(app)
 
 # Initialize user model
-user_model = User(app.config["SUPABASE_URL"], app.config["SUPABASE_KEY"])
+user_model = User(
+    app.config["SUPABASE_URL"], 
+    app.config["SUPABASE_KEY"],
+    app.config.get("SUPABASE_SERVICE_ROLE_KEY")
+)
 
 
 # Resets session lifetime
@@ -137,7 +141,7 @@ def api_get_user():
     if "user_id" not in session:
         return jsonify({"success": False, "error": "Not authenticated"}), 401
 
-    # Get fresh user data
+    # Verify user still exists in Supabase
     user_data = user_model.get_user(session["user_id"])
     if not user_data:
         # User no longer exists in database, clear session
@@ -156,7 +160,7 @@ def api_get_user():
 def api_check_auth():
     """API endpoint to check if user is authenticated"""
     if "user_id" in session:
-        # Verify user still exists in database
+        # Verify user still exists in Supabase (now that we have admin client)
         user_data = user_model.get_user(session["user_id"])
         if not user_data:
             # User no longer exists, clear session
@@ -178,6 +182,49 @@ def api_check_auth():
         )
     else:
         return jsonify({"authenticated": False}), 200
+
+
+@app.route("/api/oauth-callback", methods=["POST"])
+def api_oauth_callback():
+    """API endpoint to sync Supabase OAuth session with Flask session"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data.get("access_token") or not data.get("user_id"):
+            return jsonify({"success": False, "error": "Missing required OAuth data"}), 400
+        
+        # Get user data from Supabase using the access token
+        user_data = user_model.get_oauth_user(data["user_id"], data.get("user_metadata", {}))
+        
+        if not user_data:
+            return jsonify({"success": False, "error": "Failed to retrieve user data"}), 400
+        
+        # Set Flask session with user data
+        session["user_id"] = user_data["id"]
+        session["user_email"] = user_data["email"]
+        session["account_type"] = user_data.get("account_type")
+        session["first_name"] = user_data.get("first_name")
+        session["last_name"] = user_data.get("last_name")
+        session.permanent = True
+        
+        # Update Supabase user metadata with account type (if we have admin access)
+        if user_data.get("account_type"):
+            metadata_to_save = {
+                "account_type": user_data["account_type"],
+                "first_name": user_data.get("first_name", ""),
+                "last_name": user_data.get("last_name", "")
+            }
+            success = user_model.update_user_metadata(user_data["id"], metadata_to_save)
+        
+        return jsonify({
+            "success": True,
+            "message": "OAuth session synced successfully",
+            "user": user_data
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":

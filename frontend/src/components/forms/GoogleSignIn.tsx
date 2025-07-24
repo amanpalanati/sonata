@@ -1,4 +1,5 @@
 import { supabase } from "../../services/supabase";
+import { useParams } from "react-router-dom";
 
 import styles from "../../styles/forms/GoogleSignIn.module.css";
 
@@ -13,12 +14,22 @@ const GoogleSignIn: React.FC<GoogleSignInProps> = ({
   onError,
   onFocus,
 }) => {
+  const { accountType } = useParams<{ accountType?: string }>();
+
   const handleSignIn = async () => {
     try {
+      // Determine redirect URL based on context
+      let redirectTo = `${window.location.origin}/auth/callback`;
+      
+      // If we have account type from URL (signup flow), include it in callback URL
+      if (accountType) {
+        redirectTo = `${window.location.origin}/auth/callback/${accountType}`;
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo,
         },
       });
 
