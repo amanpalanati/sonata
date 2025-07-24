@@ -49,10 +49,22 @@ class User:
                 }
                 return {"success": True, "user": user_data}
             else:
-                return {"success": False, "error": "Failed to create user"}
+                return {"success": False, "error": "Unable to create account. Please try again."}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            error_message = str(e)
+        
+            # Custom error messages
+            if "User already registered" in error_message:
+                return {"success": False, "error": "An account with this email already exists. Please log in or use a different email address."}
+            elif "Password should be at least" in error_message:
+                return {"success": False, "error": "Password must be at least 8 characters long."}
+            elif "Unable to validate email address" in error_message:
+                return {"success": False, "error": "Please enter a valid email address."}
+            elif "signup is disabled" in error_message:
+                return {"success": False, "error": "Account creation is temporarily disabled. Please try again later."}
+            else:
+                return {"success": False, "error": "Unable to create account. Please try again."}
 
     def authenticate_user(self, email: str, password: str) -> Dict[str, Any]:
         """Authenticate user login using Supabase Auth"""
@@ -74,11 +86,21 @@ class User:
                 }
                 return {"success": True, "user": user_data}
             else:
-                return {"success": False, "error": "Invalid credentials"}
+                return {"success": False, "error": "Your email or password is incorrect. Please try again."}
 
         except Exception as e:
-            return {"success": False, "error": str(e)}
-
+            error_message = str(e)
+        
+            # Custom error messages for authentication
+            if "Invalid login credentials" in error_message:
+                return {"success": False, "error": "Your email or password is incorrect. Please try again."}
+            elif "Email not confirmed" in error_message:
+                return {"success": False, "error": "Please check your email and confirm your account before logging in."}
+            elif "Too many requests" in error_message:
+                return {"success": False, "error": "Too many login attempts. Please wait a moment and try again."}
+            else:
+                return {"success": False, "error": "There was an error logging in. Please try again later."}
+   
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID from Supabase Auth"""
         try:
@@ -171,7 +193,7 @@ class User:
         return user_data
 
     def update_user_metadata(self, user_id: str, metadata: Dict[str, Any]) -> bool:
-        """Update user metadata in Supabase Auth (requires service role key)"""
+        """Update user metadata in Supabase Auth"""
         try:
             if not self.admin_supabase:
                 return False

@@ -54,7 +54,7 @@ def api_signup():
         # Validate account type
         valid_account_types = ["student", "teacher", "parent"]
         if data["accountType"] not in valid_account_types:
-            return jsonify({"success": False, "error": "Invalid account type"}), 400
+            return jsonify({"success": False, "error": "No selected account type. Please try again."}), 400
 
         # Create user
         result = user_model.create_user(
@@ -231,7 +231,7 @@ def api_oauth_callback():
         # Validate required fields
         if not data.get("access_token") or not data.get("user_id"):
             return (
-                jsonify({"success": False, "error": "Missing required OAuth data"}),
+                jsonify({"success": False, "error": "Missing required data. Please try again."}),
                 400,
             )
 
@@ -266,7 +266,7 @@ def api_oauth_callback():
                 jsonify(
                     {
                         "success": False,
-                        "error": "Account setup not complete. Please complete signup process.",
+                        "error": "Account does not exist. Please sign up or try again.",
                         "incomplete_account": True,
                         "account_deleted": delete_success,
                     }
@@ -296,7 +296,7 @@ def api_oauth_callback():
             jsonify(
                 {
                     "success": True,
-                    "message": "OAuth session synced successfully",
+                    "message": "Sessions synced successfully",
                     "user": user_data,
                 }
             ),
@@ -311,7 +311,7 @@ def api_oauth_callback():
         except:
             pass  # Ignore deletion errors in exception handler
 
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({"success": False, "error": "There was an error processing your request. Please try again later."}), 500
 
 
 if __name__ == "__main__":

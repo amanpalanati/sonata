@@ -108,7 +108,7 @@ const OAuthCallback: React.FC = () => {
               replace: true,
               state: {
                 oauthError:
-                  "Account found but setup incomplete. Please complete your signup.",
+                  "Account does not exist. Please sign up or try again.",
               },
             });
             return;
