@@ -11,6 +11,7 @@ class Config:
     )
     SUPABASE_URL = os.environ.get("SUPABASE_URL")
     SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+    SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     SESSION_TYPE = "filesystem"
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True

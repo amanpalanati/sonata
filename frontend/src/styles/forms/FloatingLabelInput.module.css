@@ -1,0 +1,79 @@
+.floatingGroup {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 12px 8px 12px;
+  font-size: 14px;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  background-color: white;
+  outline: none;
+}
+
+/* Handle autofill styling */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input:focus {
+  border-color: #007bff;
+}
+
+.input:focus::placeholder {
+  color: transparent;
+}
+
+.inputError {
+  border-color: rgb(255, 67, 67);
+}
+
+.inputError:focus {
+  border-color: rgb(255, 67, 67);
+}
+
+.label {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #6c757d;
+  background-color: white;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.15s ease-in-out;
+  z-index: 1;
+}
+
+/* Make sure label background adapts to autofill */
+.input:-webkit-autofill + .label,
+.input:-webkit-autofill + .labelFloating {
+  background-color: white;
+}
+
+.labelFloating {
+  top: 0;
+  left: 8px;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #3a3a3a;
+}
+
+.input:focus + .label {
+  color: #007bff;
+}
+
+.inputError + .label,
+.inputError + .labelFloating,
+.inputError:focus + .label {
+  color: rgb(255, 67, 67);
+}
