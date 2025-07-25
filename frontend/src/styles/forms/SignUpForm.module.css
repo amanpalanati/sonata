@@ -1,5 +1,4 @@
-.signUpWrapper,
-.loginWrapper {
+.wrapper {
   display: none;
 }
 
@@ -14,10 +13,10 @@
   align-items: center;
   border-radius: 10px;
   padding: 32px;
-  width: 350px;
+  width: 750px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
   background: white;
-  gap: 22px;
+  gap: 30px;
 }
 
 .h1 {
@@ -27,9 +26,12 @@
 }
 
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-auto-flow: column;
+  justify-content: space-between;
+  gap: 20px;
   width: 100%;
 }
 
@@ -44,6 +46,7 @@
 .formGroup {
   display: flex;
   flex-direction: column;
+  flex-basis: 50%;
 }
 
 .error {
@@ -60,12 +63,12 @@
 .submitButton {
   background-color: black;
   color: white;
-  padding: 6px;
   border-radius: 20px;
   border: none;
   font-size: 16px;
   transition: 0.15s;
-  margin-top: -2px;
+  padding: 10px 6px;
+  align-self: start;
 }
 
 .submitButton:hover {
@@ -83,7 +86,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 8px 0;
+  margin-top: -14px;
 }
 
 .dividerSpan {
@@ -98,6 +101,7 @@
   color: black;
   text-decoration: none;
   font-size: 16px;
+  margin-top: -6px;
 }
 
 .link {
@@ -113,38 +117,49 @@
 }
 
 @media (max-width: 768px) {
-  .signUpWrapper,
-  .loginWrapper {
+  .wrapper {
     display: block;
-  }
-
-  .signUpWrapper {
     padding-bottom: 850px;
-  }
-
-  .loginWrapper {
-    padding-bottom: 600px;
   }
 
   .container {
     transform: translateX(-50%);
+    gap: 22px;
     top: 120px;
     width: 85%;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: normal;
+  }
+
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    flex-basis: auto;
+  }
+
+  .submitButton {
+    padding: 6px;
+    align-self: auto;
+  }
+
+  .divider {
+    margin: 8px 0;
+  }
+
+  .p {
+    margin-top: 0;
   }
 }
 
 @media (max-height: 640px) and (min-width: 768px) {
-  .signUpWrapper,
-  .loginWrapper {
+  .wrapper {
     display: block;
-  }
-
-  .signUpWrapper {
-    padding-bottom: 850px;
-  }
-
-  .loginWrapper {
-    padding-bottom: 500px;
+    padding-bottom: 600px;
   }
 
   .container {

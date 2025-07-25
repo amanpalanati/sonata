@@ -10,7 +10,7 @@ import FloatingLabelInput from "./FloatingLabelInput";
 import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/forms/AuthForm.module.css";
+import styles from "../../styles/forms/LoginForm.module.css";
 
 // Validation schema
 const loginSchema = yup.object().shape({
@@ -125,7 +125,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   return (
     <>
-      <div className={styles.loginWrapper}></div>
+      <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Log In</h1>
 

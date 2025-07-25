@@ -10,7 +10,7 @@ import FloatingLabelInput from "./FloatingLabelInput";
 import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/forms/AuthForm.module.css";
+import styles from "../../styles/forms/SignUpForm.module.css";
 
 // Validation schema
 const signUpSchema = yup.object().shape({
@@ -168,25 +168,25 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
   return (
     <>
-      <div className={styles.signUpWrapper}></div>
+      <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>
           Create {capitalizeAccountType(normalizedAccountType)} Account
         </h1>
+
+        {/* Root error for API errors */}
+        {errors.root && (
+          <div className={styles.alert}>
+            <span className={styles.span}>&#9888;</span>
+            {errors.root.message}
+          </div>
+        )}
 
         <form
           className={styles.form}
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
-          {/* Root error for API errors */}
-          {errors.root && (
-            <div className={styles.alert}>
-              <span className={styles.span}>&#9888;</span>
-              {errors.root.message}
-            </div>
-          )}
-
           {/* Form Fields */}
           <div className={styles.formGroup}>
             <FloatingLabelInput
