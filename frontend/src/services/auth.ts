@@ -1,4 +1,4 @@
-import { SignUpFormData, LoginFormData } from "../types";
+import { SignUpFormData, LoginFormData, ForgotPasswordFormData, ForgotPasswordEmailData } from "../types";
 import { supabase } from "./supabase";
 
 // Since we have a proxy configured in vite.config.ts, we can use relative URLs
@@ -128,6 +128,34 @@ export const authService = {
       timestamp: now,
     };
 
+    return result;
+  },
+
+  // Verify email exists for password reset
+  verifyEmailForReset: async (formData: ForgotPasswordEmailData) => {
+    const response = await fetch(`${API_BASE_URL}/api/verify-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    return handleResponse(response);
+  },
+
+  // Reset password
+  resetPassword: async (formData: ForgotPasswordFormData & { email: string }) => {
+    const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await handleResponse(response);
+    clearAuthCache(); // Clear cache after password reset
     return result;
   },
 };

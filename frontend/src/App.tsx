@@ -8,9 +8,10 @@ import PublicRoute from "./components/authentication/PublicRoute";
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
 import Help from "./components/help/Help";
-import Login from "./components/authentication/Login";
 import AccountType from "./components/authentication/AccountType";
 import SignUp from "./components/authentication/SignUp";
+import Login from "./components/authentication/Login";
+import ForgotPassword from "./components/authentication/ForgotPassword";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
 
@@ -32,14 +33,6 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
-      <Route
         path="/signup"
         element={
           <PublicRoute>
@@ -52,6 +45,22 @@ const AppRoutes: React.FC = () => {
         element={
           <PublicRoute>
             <SignUp />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <ForgotPassword />
           </PublicRoute>
         }
       />

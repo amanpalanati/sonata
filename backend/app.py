@@ -320,5 +320,76 @@ def api_oauth_callback():
         )
 
 
+@app.route("/api/verify-email", methods=["POST"])
+def api_verify_email():
+    """API endpoint to verify if email exists for password reset"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        if not data or not data.get("email"):
+            return jsonify({"success": False, "error": "Email is required"}), 400
+
+        email = data["email"].lower().strip()
+
+        # Check if user exists with this email
+        user_data = user_model.get_user_by_email(email)
+
+        if user_data:
+            return jsonify({
+                "success": True, 
+                "message": "Email verified successfully"
+            }), 200
+        else:
+            return jsonify({
+                "success": False, 
+                "error": "An account with this email does not exist. Please try again or sign up."
+            }), 404
+
+    except Exception as e:
+        return jsonify({
+            "success": False, 
+            "error": "An unexpected error occurred. Please try again."
+        }), 500
+
+
+@app.route("/api/reset-password", methods=["POST"])
+def api_reset_password():
+    """API endpoint for password reset"""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        if not data or not data.get("newPassword") or not data.get("email"):
+            return jsonify({"success": False, "error": "Email and new password are required"}), 400
+
+        email = data["email"].lower().strip()
+        new_password = data["newPassword"]
+
+        # Validate password length (basic validation)
+        if len(new_password) < 8:
+            return jsonify({"success": False, "error": "Password must be at least 8 characters long"}), 400
+
+        # Update the password using the user model
+        success = user_model.update_password_by_email(email, new_password)
+
+        if success:
+            return jsonify({
+                "success": True, 
+                "message": "Password updated successfully"
+            }), 200
+        else:
+            return jsonify({
+                "success": False, 
+                "error": "Failed to update password. Please try again."
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False, 
+            "error": "An unexpected error occurred. Please try again."
+        }), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)

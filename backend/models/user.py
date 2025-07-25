@@ -125,6 +125,39 @@ class User:
             # User not found or other error - return None
             return None
 
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        """Get user by email from Supabase Auth (requires admin privileges)"""
+        try:
+            if not self.admin_supabase:
+                return None
+
+            # List users and search for email match
+            response = self.admin_supabase.auth.admin.list_users()
+            
+            if response:
+                # Handle both direct list response and object with users attribute
+                if isinstance(response, list):
+                    users = response
+                elif hasattr(response, 'users'):
+                    users = response.users
+                else:
+                    return None
+                
+                # Search through users for email match
+                for user in users:
+                    if user.email and user.email.lower() == email.lower():
+                        return {
+                            "id": user.id,
+                            "email": user.email,
+                            "account_type": user.user_metadata.get("account_type"),
+                            "first_name": user.user_metadata.get("first_name"),
+                            "last_name": user.user_metadata.get("last_name"),
+                        }
+            
+            return None
+        except Exception as e:
+            return None
+
     def get_oauth_user(
         self, user_id: str, user_metadata: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
@@ -200,6 +233,52 @@ class User:
 
             response = self.admin_supabase.auth.admin.update_user_by_id(
                 user_id, {"user_metadata": metadata}
+            )
+
+            if response.user:
+                return True
+            else:
+                return False
+
+        except Exception as e:
+            return False
+
+
+    # This could be used in the future to update all user info at once when needed
+    # Also add a check to see if the user exists in the database before updating,
+    # else, log out the user
+    def update_password(self, user_id: str, new_password: str) -> bool:
+        """Update user's password using admin privileges"""
+        try:
+            if not self.admin_supabase:
+                return False
+
+            response = self.admin_supabase.auth.admin.update_user_by_id(
+                user_id, {"password": new_password}
+            )
+
+            if response.user:
+                return True
+            else:
+                return False
+
+        except Exception as e:
+            return False
+
+    def update_password_by_email(self, email: str, new_password: str) -> bool:
+        """Update user's password by email using admin privileges"""
+        try:
+            if not self.admin_supabase:
+                return False
+
+            # First, get the user by email
+            user_data = self.get_user_by_email(email)
+            if not user_data:
+                return False
+
+            # Update the password using the user ID
+            response = self.admin_supabase.auth.admin.update_user_by_id(
+                user_data["id"], {"password": new_password}
             )
 
             if response.user:

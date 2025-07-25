@@ -46,15 +46,28 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     clearErrors,
   } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
-  // Handle OAuth errors from location state
+  // Track success messages from location state
+  const [successMessage, setSuccessMessage] = React.useState<string>("");
+
+  // Handle OAuth errors and success messages from location state
   React.useEffect(() => {
-    const state = location.state as { oauthError?: string } | null;
+    const state = location.state as {
+      oauthError?: string;
+      successMessage?: string;
+    } | null;
+
     if (state?.oauthError) {
       setError("root", {
         type: "manual",
         message: state.oauthError,
       });
       // Clear the state to prevent showing error again on re-render
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+
+    if (state?.successMessage) {
+      setSuccessMessage(state.successMessage);
+      // Clear the state to prevent showing message again on re-render
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, setError, navigate, location.pathname]);
@@ -81,9 +94,12 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         }
       },
       onFocus: () => {
-        // Clear root API error when any input gets focus
+        // Clear root API error and success message when any input gets focus
         if (errors.root) {
           clearErrors("root");
+        }
+        if (successMessage) {
+          setSuccessMessage("");
         }
       },
       onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
@@ -134,6 +150,14 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
+          {/* Success message */}
+          {successMessage && (
+            <div className={styles.success}>
+              <span className={styles.span}>✓</span>
+              {successMessage}
+            </div>
+          )}
+
           {/* Root error for API errors */}
           {errors.root && (
             <div className={styles.alert}>
@@ -187,6 +211,10 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
             {isSubmitting ? "Logging In..." : "Log In"}
           </button>
         </form>
+
+        <Link to="/forgot-password" className={styles.forgotPassword}>
+          Forgot your password?
+        </Link>
 
         <div className={styles.divider}>
           <span className={styles.dividerSpan}>OR</span>
