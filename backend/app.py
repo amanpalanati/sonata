@@ -320,9 +320,9 @@ def api_oauth_callback():
         )
 
 
-@app.route("/api/verify-email", methods=["POST"])
-def api_verify_email():
-    """API endpoint to verify if email exists for password reset"""
+@app.route("/api/forgot-password", methods=["POST"])
+def api_forgot_password():
+    """API endpoint to initiate password reset via email"""
     try:
         data = request.get_json()
 
@@ -332,19 +332,13 @@ def api_verify_email():
 
         email = data["email"].lower().strip()
 
-        # Check if user exists with this email
-        user_data = user_model.get_user_by_email(email)
+        # Initiate password reset (always returns success to prevent email enumeration)
+        user_model.initiate_password_reset(email)
 
-        if user_data:
-            return jsonify({
-                "success": True, 
-                "message": "Email verified successfully"
-            }), 200
-        else:
-            return jsonify({
-                "success": False, 
-                "error": "An account with this email does not exist. Please try again or sign up."
-            }), 404
+        return jsonify({
+            "success": True, 
+            "message": "If an account with this email exists, a password reset link has been sent."
+        }), 200
 
     except Exception as e:
         return jsonify({
@@ -355,34 +349,41 @@ def api_verify_email():
 
 @app.route("/api/reset-password", methods=["POST"])
 def api_reset_password():
-    """API endpoint for password reset"""
+    """API endpoint for password reset using token from email"""
     try:
         data = request.get_json()
 
         # Validate required fields
-        if not data or not data.get("newPassword") or not data.get("email"):
-            return jsonify({"success": False, "error": "Email and new password are required"}), 400
+        if not data or not data.get("newPassword") or not data.get("access_token"):
+            return jsonify({"success": False, "error": "Access token and new password are required"}), 400
 
-        email = data["email"].lower().strip()
+        access_token = data["access_token"]
         new_password = data["newPassword"]
 
         # Validate password length (basic validation)
         if len(new_password) < 8:
             return jsonify({"success": False, "error": "Password must be at least 8 characters long"}), 400
 
-        # Update the password using the user model
-        success = user_model.update_password_by_email(email, new_password)
+        # Reset the password using the token
+        result = user_model.reset_password_with_token(access_token, new_password)
 
-        if success:
+        if result["success"]:
             return jsonify({
                 "success": True, 
                 "message": "Password updated successfully"
             }), 200
         else:
+            # Return specific error message based on error type
+            status_code = 400
+            if result.get("error_type") == "token_reused":
+                status_code = 409  # Conflict
+            elif result.get("error_type") == "server_error":
+                status_code = 500
+            
             return jsonify({
                 "success": False, 
-                "error": "Failed to update password. Please try again."
-            }), 500
+                "error": result["error"]
+            }), status_code
 
     except Exception as e:
         return jsonify({

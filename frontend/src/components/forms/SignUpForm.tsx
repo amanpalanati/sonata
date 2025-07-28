@@ -140,7 +140,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         await onSubmit(formData);
       } else {
         // Default logic when no onSubmit function is provided
-        console.log("Form submitted:", formData);
+        // User registration completed
       }
     } catch (error) {
       // Clear password fields on API errors while keeping other fields

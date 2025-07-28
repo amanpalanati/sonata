@@ -12,6 +12,7 @@ import AccountType from "./components/authentication/AccountType";
 import SignUp from "./components/authentication/SignUp";
 import Login from "./components/authentication/Login";
 import ForgotPassword from "./components/authentication/ForgotPassword";
+import ResetPassword from "./components/authentication/ResetPassword";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
 
@@ -61,6 +62,14 @@ const AppRoutes: React.FC = () => {
         element={
           <PublicRoute>
             <ForgotPassword />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <PublicRoute>
+            <ResetPassword />
           </PublicRoute>
         }
       />

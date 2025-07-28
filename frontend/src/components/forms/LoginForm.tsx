@@ -120,7 +120,6 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         await onSubmit(data);
       } else {
         // Default logic when no onSubmit function is provided
-        console.log("Form submitted:", data);
         navigate("/dashboard");
       }
     } catch (error) {

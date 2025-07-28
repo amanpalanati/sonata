@@ -131,9 +131,9 @@ export const authService = {
     return result;
   },
 
-  // Verify email exists for password reset
-  verifyEmailForReset: async (formData: ForgotPasswordEmailData) => {
-    const response = await fetch(`${API_BASE_URL}/api/verify-email`, {
+  // Initiate forgot password flow
+  forgotPassword: async (formData: ForgotPasswordEmailData) => {
+    const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,8 +144,8 @@ export const authService = {
     return handleResponse(response);
   },
 
-  // Reset password
-  resetPassword: async (formData: ForgotPasswordFormData & { email: string }) => {
+  // Reset password with token
+  resetPasswordWithToken: async (formData: ForgotPasswordFormData & { access_token: string }) => {
     const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
       method: "POST",
       headers: {

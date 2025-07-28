@@ -86,7 +86,7 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
         await onSubmit(data);
       } else {
         // Default logic when no onSubmit function is provided
-        console.log("Form submitted:", data);
+        // Email submitted successfully
       }
     } catch (error) {
       // Handle API errors

@@ -1,25 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ForgotPasswordFormData, ForgotPasswordEmailData } from "../../types";
+import { ForgotPasswordEmailData } from "../../types";
 import { authService } from "../../services/auth";
 
 import Header from "./Header";
 import ForgotPasswordEmailForm from "../forms/ForgotPasswordEmailForm";
-import ForgotPasswordForm from "../forms/ForgotPasswordForm";
+import ForgotPasswordEmailSent from "../forms/ForgotPasswordEmailSent";
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'email' | 'password'>('email');
-  const [verifiedEmail, setVerifiedEmail] = useState<string>('');
+  const [step, setStep] = useState<'email' | 'sent'>('email');
+  const [email, setEmail] = useState<string>('');
 
   const handleEmailSubmit = async (data: ForgotPasswordEmailData): Promise<void> => {
     try {
-      const result = await authService.verifyEmailForReset(data);
+      const result = await authService.forgotPassword(data);
 
       if (result.success) {
-        setVerifiedEmail(data.email);
-        setStep('password');
+        setEmail(data.email);
+        setStep('sent');
       }
     } catch (error) {
       // Error will be handled by the form component
@@ -27,25 +27,8 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  const handlePasswordSubmit = async (data: ForgotPasswordFormData): Promise<void> => {
-    try {
-      const result = await authService.resetPassword({
-        ...data,
-        email: verifiedEmail
-      });
-
-      if (result.success) {
-        // Redirect to login page with success message
-        navigate("/login", {
-          state: {
-            successMessage: "Password reset successfully! Please log in with your new password."
-          }
-        });
-      }
-    } catch (error) {
-      // Error will be handled by the form component
-      throw error;
-    }
+  const handleBackToLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -54,7 +37,10 @@ const ForgotPassword: React.FC = () => {
       {step === 'email' ? (
         <ForgotPasswordEmailForm onSubmit={handleEmailSubmit} />
       ) : (
-        <ForgotPasswordForm onSubmit={handlePasswordSubmit} />
+        <ForgotPasswordEmailSent 
+          email={email}
+          onBackToLogin={handleBackToLogin}
+        />
       )}
     </>
   );
