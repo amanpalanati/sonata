@@ -6,8 +6,8 @@ import * as yup from "yup";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
 import { authService } from "../../services/auth";
-import FloatingLabelInput from "../forms/FloatingLabelInput";
-import Header from "./Header";
+import FloatingLabelInput from "./FloatingLabelInput";
+import Header from "../authentication/Header";
 import styles from "../../styles/forms/LoginForm.module.css";
 
 interface ResetPasswordFormData {

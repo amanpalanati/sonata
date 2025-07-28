@@ -6,7 +6,7 @@ import { authService } from "../../services/auth";
 
 import Header from "./Header";
 import ForgotPasswordEmailForm from "../forms/ForgotPasswordEmailForm";
-import ForgotPasswordEmailSent from "../forms/ForgotPasswordEmailSent";
+import ForgotPasswordEmailSent from "./ForgotPasswordEmailSent";
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();

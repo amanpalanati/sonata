@@ -12,7 +12,7 @@ import AccountType from "./components/authentication/AccountType";
 import SignUp from "./components/authentication/SignUp";
 import Login from "./components/authentication/Login";
 import ForgotPassword from "./components/authentication/ForgotPassword";
-import ResetPassword from "./components/authentication/ResetPassword";
+import ResetPassword from "./components/forms/ResetPasswordForm";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
 
