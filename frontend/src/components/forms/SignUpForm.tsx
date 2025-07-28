@@ -46,6 +46,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     new Set()
   );
 
+  // Track which fields have been touched (blurred)
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(
+    new Set()
+  );
+
   // Validate account type
   const validAccountTypes = ["student", "teacher", "parent"];
   const normalizedAccountType = accountType?.toLowerCase();
@@ -108,6 +113,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         if (touchedWithErrors.has(name)) {
           await trigger(name);
         }
+        // If password field changes and confirm password has been touched, validate confirm password
+        if (name === "password" && touchedFields.has("confirmPassword")) {
+          await trigger("confirmPassword");
+        }
       },
       onFocus: () => {
         // Clear root API error when any input gets focus
@@ -117,6 +126,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
       },
       onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
         registration.onBlur(e);
+        // Mark field as touched
+        setTouchedFields((prev) => new Set(prev).add(name));
         // Always validate on blur
         await trigger(name);
         // If there's an error after blur, add to touchedWithErrors
@@ -198,12 +209,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               errors={errors.firstName}
               ariaInvalid={errors.firstName ? "true" : "false"}
             />
-            {errors.firstName && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.firstName.message}
-              </div>
-            )}
+            <div className={errors.firstName ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.firstName?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -216,12 +225,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               errors={errors.lastName}
               ariaInvalid={errors.lastName ? "true" : "false"}
             />
-            {errors.lastName && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.lastName.message}
-              </div>
-            )}
+            <div className={errors.lastName ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.lastName?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -234,12 +241,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               errors={errors.email}
               ariaInvalid={errors.email ? "true" : "false"}
             />
-            {errors.email && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.email.message}
-              </div>
-            )}
+            <div className={errors.email ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.email?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -252,12 +257,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               errors={errors.password}
               ariaInvalid={errors.password ? "true" : "false"}
             />
-            {errors.password && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.password.message}
-              </div>
-            )}
+            <div className={errors.password ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.password?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -270,12 +273,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               errors={errors.confirmPassword}
               ariaInvalid={errors.confirmPassword ? "true" : "false"}
             />
-            {errors.confirmPassword && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.confirmPassword.message}
-              </div>
-            )}
+            <div className={errors.confirmPassword ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.confirmPassword?.message || '\u00A0'}
+            </div>
           </div>
 
           <button

@@ -176,12 +176,10 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               errors={errors.email}
               ariaInvalid={errors.email ? "true" : "false"}
             />
-            {errors.email && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.email.message}
-              </div>
-            )}
+            <div className={errors.email ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.email?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -194,12 +192,10 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               errors={errors.password}
               ariaInvalid={errors.password ? "true" : "false"}
             />
-            {errors.password && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.password.message}
-              </div>
-            )}
+            <div className={errors.password ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.password?.message || '\u00A0'}
+            </div>
           </div>
 
           <button

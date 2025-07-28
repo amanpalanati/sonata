@@ -130,12 +130,10 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
               errors={errors.email}
               ariaInvalid={errors.email ? "true" : "false"}
             />
-            {errors.email && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.email.message}
-              </div>
-            )}
+            <div className={errors.email ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.email?.message || '\u00A0'}
+            </div>
           </div>
 
           <button

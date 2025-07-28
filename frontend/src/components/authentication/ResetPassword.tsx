@@ -39,12 +39,16 @@ const ResetPassword: React.FC = () => {
     new Set()
   );
 
+  // Track which fields have been touched (blurred)
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(
+    new Set()
+  );
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     trigger,
-    clearErrors,
   } = useForm<ResetPasswordFormData>({
     resolver: yupResolver(schema),
   });
@@ -71,6 +75,10 @@ const ResetPassword: React.FC = () => {
         if (touchedWithErrors.has(name)) {
           await trigger(name);
         }
+        // If password field changes and confirm password has been touched, validate confirm password
+        if (name === "password" && touchedFields.has("confirmPassword")) {
+          await trigger("confirmPassword");
+        }
       },
       onFocus: () => {
         // Clear API error when any input gets focus
@@ -78,6 +86,8 @@ const ResetPassword: React.FC = () => {
       },
       onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
         registration.onBlur(e);
+        // Mark field as touched
+        setTouchedFields((prev) => new Set(prev).add(name));
         // Always validate on blur
         await trigger(name);
         // Check for errors after validation and add to touchedWithErrors if there are any
@@ -223,12 +233,10 @@ const ResetPassword: React.FC = () => {
               errors={errors.password}
               ariaInvalid={errors.password ? "true" : "false"}
             />
-            {errors.password && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.password.message}
-              </div>
-            )}
+            <div className={errors.password ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.password?.message || '\u00A0'}
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -240,12 +248,10 @@ const ResetPassword: React.FC = () => {
               errors={errors.confirmPassword}
               ariaInvalid={errors.confirmPassword ? "true" : "false"}
             />
-            {errors.confirmPassword && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.confirmPassword.message}
-              </div>
-            )}
+            <div className={errors.confirmPassword ? styles.errorVisible : styles.errorHidden}>
+              <span className={styles.span}>&#9888;</span>
+              {errors.confirmPassword?.message || '\u00A0'}
+            </div>
           </div>
 
           <button
