@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -7,7 +8,7 @@ import { ForgotPasswordEmailData } from "../../types";
 import FloatingLabelInput from "./FloatingLabelInput";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/forms/LoginForm.module.css";
+import styles from "../../styles/forms/ForgotPassword.module.css";
 
 // Validation schema
 const emailSchema = yup.object().shape({
@@ -22,7 +23,9 @@ interface ForgotPasswordEmailFormProps {
   onSubmit?: (data: ForgotPasswordEmailData) => void | Promise<void>;
 }
 
-const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSubmit }) => {
+const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({
+  onSubmit,
+}) => {
   useBodyClass("auth");
 
   // Track which fields have been blurred and had errors
@@ -106,8 +109,9 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
       <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Reset Password</h1>
-        <p style={{ textAlign: 'center', marginBottom: '1rem', color: '#666' }}>
-          Enter your email address and we'll help you reset your password.
+        <p className={styles.p}>
+          Enter the email address associated with your account and we'll help
+          reset your password.
         </p>
 
         {/* Root error for API errors */}
@@ -118,7 +122,11 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
           </div>
         )}
 
-        <form className={styles.form} onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit(handleFormSubmit)}
+          noValidate
+        >
           {/* Form Fields */}
           <div className={styles.formGroup}>
             <FloatingLabelInput
@@ -130,9 +138,13 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
               errors={errors.email}
               ariaInvalid={errors.email ? "true" : "false"}
             />
-            <div className={errors.email ? styles.errorVisible : styles.errorHidden}>
+            <div
+              className={
+                errors.email ? styles.errorVisible : styles.errorHidden
+              }
+            >
               <span className={styles.span}>&#9888;</span>
-              {errors.email?.message || '\u00A0'}
+              {errors.email?.message || "\u00A0"}
             </div>
           </div>
 
@@ -144,6 +156,10 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({ onSub
             {isSubmitting ? "Verifying..." : "Continue"}
           </button>
         </form>
+
+        <Link className={styles.link} to="/login">
+          Back to Log In
+        </Link>
       </div>
     </>
   );
