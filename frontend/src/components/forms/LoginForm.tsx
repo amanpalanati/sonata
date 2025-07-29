@@ -152,7 +152,6 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           {/* Success message */}
           {successMessage && (
             <div className={styles.success}>
-              <span className={styles.span}>✓</span>
               {successMessage}
             </div>
           )}

@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 class User:
     # Class variable to track used tokens (in production, use database/Redis)
     _used_tokens = set()
-    
+
     @classmethod
     def cleanup_used_tokens(cls):
         """Clean up used tokens periodically (in production, implement with TTL)"""
@@ -13,7 +13,7 @@ class User:
         # For now, just clear the set periodically
         if len(cls._used_tokens) > 1000:  # Arbitrary limit
             cls._used_tokens.clear()
-    
+
     def __init__(
         self, supabase_url: str, supabase_key: str, service_role_key: str = None
     ):
@@ -60,22 +60,40 @@ class User:
                 }
                 return {"success": True, "user": user_data}
             else:
-                return {"success": False, "error": "Unable to create account. Please try again."}
+                return {
+                    "success": False,
+                    "error": "Unable to create account. Please try again.",
+                }
 
         except Exception as e:
             error_message = str(e)
-        
+
             # Custom error messages
             if "User already registered" in error_message:
-                return {"success": False, "error": "An account with this email already exists. Please log in or use a different email address."}
+                return {
+                    "success": False,
+                    "error": "An account with this email already exists. Please log in or use a different email address.",
+                }
             elif "Password should be at least" in error_message:
-                return {"success": False, "error": "Password must be at least 8 characters long."}
+                return {
+                    "success": False,
+                    "error": "Password must be at least 8 characters long.",
+                }
             elif "Unable to validate email address" in error_message:
-                return {"success": False, "error": "Please enter a valid email address."}
+                return {
+                    "success": False,
+                    "error": "Please enter a valid email address.",
+                }
             elif "signup is disabled" in error_message:
-                return {"success": False, "error": "Account creation is temporarily disabled. Please try again later."}
+                return {
+                    "success": False,
+                    "error": "Account creation is temporarily disabled. Please try again later.",
+                }
             else:
-                return {"success": False, "error": "Unable to create account. Please try again."}
+                return {
+                    "success": False,
+                    "error": "Unable to create account. Please try again.",
+                }
 
     def authenticate_user(self, email: str, password: str) -> Dict[str, Any]:
         """Authenticate user login using Supabase Auth"""
@@ -97,21 +115,36 @@ class User:
                 }
                 return {"success": True, "user": user_data}
             else:
-                return {"success": False, "error": "Your email or password is incorrect. Please try again."}
+                return {
+                    "success": False,
+                    "error": "Your email or password is incorrect. Please try again.",
+                }
 
         except Exception as e:
             error_message = str(e)
-        
+
             # Custom error messages for authentication
             if "Invalid login credentials" in error_message:
-                return {"success": False, "error": "Your email or password is incorrect. Please try again."}
+                return {
+                    "success": False,
+                    "error": "Your email or password is incorrect. Please try again.",
+                }
             elif "Email not confirmed" in error_message:
-                return {"success": False, "error": "Please check your email and confirm your account before logging in."}
+                return {
+                    "success": False,
+                    "error": "Please check your email and confirm your account before logging in.",
+                }
             elif "Too many requests" in error_message:
-                return {"success": False, "error": "Too many login attempts. Please wait a moment and try again."}
+                return {
+                    "success": False,
+                    "error": "Too many login attempts. Please wait a moment and try again.",
+                }
             else:
-                return {"success": False, "error": "There was an error logging in. Please try again later."}
-   
+                return {
+                    "success": False,
+                    "error": "There was an error logging in. Please try again later.",
+                }
+
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user by ID from Supabase Auth"""
         try:
@@ -144,16 +177,16 @@ class User:
 
             # List users and search for email match
             response = self.admin_supabase.auth.admin.list_users()
-            
+
             if response:
                 # Handle both direct list response and object with users attribute
                 if isinstance(response, list):
                     users = response
-                elif hasattr(response, 'users'):
+                elif hasattr(response, "users"):
                     users = response.users
                 else:
                     return None
-                
+
                 # Search through users for email match
                 for user in users:
                     if user.email and user.email.lower() == email.lower():
@@ -164,7 +197,7 @@ class User:
                             "first_name": user.user_metadata.get("first_name"),
                             "last_name": user.user_metadata.get("last_name"),
                         }
-            
+
             return None
         except Exception as e:
             return None
@@ -254,7 +287,6 @@ class User:
         except Exception as e:
             return False
 
-
     # This could be used in the future to update all user info at once when needed
     # Also add a check to see if the user exists in the database before updating,
     # else, log out the user
@@ -281,26 +313,26 @@ class User:
         try:
             # Check if user exists first (but don't reveal this to the client)
             user_exists = self.get_user_by_email(email) is not None
-            
+
             if user_exists:
                 # For now, use Supabase's built-in email service
                 # Later, replace this with generate_link + SMTP
                 response = self.supabase.auth.reset_password_email(
                     email,
-                    options={
-                        "redirect_to": "http://localhost:3000/reset-password"
-                    }
+                    options={"redirect_to": "http://localhost:3000/reset-password"},
                 )
                 return True
             else:
                 # Don't send email but return True to not reveal if user exists
                 return True
-                
+
         except Exception as e:
             # Don't reveal errors to prevent email enumeration
             return True
 
-    def reset_password_with_token(self, access_token: str, new_password: str) -> Dict[str, Any]:
+    def reset_password_with_token(
+        self, access_token: str, new_password: str
+    ) -> Dict[str, Any]:
         """Reset password using token from email link"""
         try:
             # Check if token has already been used
@@ -308,64 +340,63 @@ class User:
                 return {
                     "success": False,
                     "error": "This reset link has already been used. Please request a new password reset.",
-                    "error_type": "token_reused"
+                    "error_type": "token_reused",
                 }
-            
+
             # Create a new supabase client instance for this session
             from supabase import create_client, Client
+
             temp_supabase: Client = create_client(
-                self.supabase.supabase_url, 
-                self.supabase.supabase_key
+                self.supabase.supabase_url, self.supabase.supabase_key
             )
-            
+
             # Set session with access token to verify the token and get user info
             response = temp_supabase.auth.set_session(access_token, "")
-            
+
             if response and response.user:
                 user_id = response.user.id
-                
+
                 # Use admin API to update the password directly
                 if self.admin_supabase:
                     admin_response = self.admin_supabase.auth.admin.update_user_by_id(
-                        user_id, 
-                        {"password": new_password}
+                        user_id, {"password": new_password}
                     )
-                    
+
                     if admin_response and admin_response.user:
                         # Mark token as used to prevent reuse
                         self._used_tokens.add(access_token)
-                        
+
                         # Sign out from the temporary session to clean up
                         try:
                             temp_supabase.auth.sign_out()
                         except Exception:
                             pass  # Continue even if sign out fails
-                        
+
                         return {"success": True}
                     else:
                         return {
                             "success": False,
                             "error": "Failed to update password. Please try again.",
-                            "error_type": "update_failed"
+                            "error_type": "update_failed",
                         }
                 else:
                     return {
                         "success": False,
                         "error": "Server configuration error. Please try again later.",
-                        "error_type": "config_error"
+                        "error_type": "config_error",
                     }
             else:
                 return {
                     "success": False,
                     "error": "Invalid or expired reset link. Please request a new password reset.",
-                    "error_type": "invalid_token"
+                    "error_type": "invalid_token",
                 }
-            
+
         except Exception as e:
             return {
                 "success": False,
                 "error": "An error occurred while resetting your password. Please try again.",
-                "error_type": "server_error"
+                "error_type": "server_error",
             }
 
     def update_password_by_email(self, email: str, new_password: str) -> bool:

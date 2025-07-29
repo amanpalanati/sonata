@@ -172,7 +172,7 @@ const ResetPassword: React.FC = () => {
         navigate("/login", {
           state: {
             successMessage:
-              "Password reset successfully! Please log in with your new password.",
+              "Your password has been reset. Please log in with your new password.",
           },
         });
       }

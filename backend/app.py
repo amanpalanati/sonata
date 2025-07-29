@@ -39,7 +39,6 @@ def refresh_session():
 
 # API Routes for React Frontend
 
-
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
     """API endpoint for user signup"""
@@ -335,16 +334,26 @@ def api_forgot_password():
         # Initiate password reset (always returns success to prevent email enumeration)
         user_model.initiate_password_reset(email)
 
-        return jsonify({
-            "success": True, 
-            "message": "If an account with this email exists, a password reset link has been sent."
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "If an account with this email exists, a password reset link has been sent.",
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
-        return jsonify({
-            "success": False, 
-            "error": "An unexpected error occurred. Please try again."
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "An unexpected error occurred. Please try again.",
+                }
+            ),
+            500,
+        )
 
 
 @app.route("/api/reset-password", methods=["POST"])
@@ -355,41 +364,60 @@ def api_reset_password():
 
         # Validate required fields
         if not data or not data.get("newPassword") or not data.get("access_token"):
-            return jsonify({"success": False, "error": "Access token and new password are required"}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Access token and new password are required",
+                    }
+                ),
+                400,
+            )
 
         access_token = data["access_token"]
         new_password = data["newPassword"]
 
         # Validate password length (basic validation)
         if len(new_password) < 8:
-            return jsonify({"success": False, "error": "Password must be at least 8 characters long"}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Password must be at least 8 characters long",
+                    }
+                ),
+                400,
+            )
 
         # Reset the password using the token
-        result = user_model.reset_password_with_token(access_token, new_password)
+        success = user_model.reset_password_with_token(access_token, new_password)
 
-        if result["success"]:
-            return jsonify({
-                "success": True, 
-                "message": "Password updated successfully"
-            }), 200
+        if success:
+            return (
+                jsonify({"success": True, "message": "Password updated successfully"}),
+                200,
+            )
         else:
-            # Return specific error message based on error type
-            status_code = 400
-            if result.get("error_type") == "token_reused":
-                status_code = 409  # Conflict
-            elif result.get("error_type") == "server_error":
-                status_code = 500
-            
-            return jsonify({
-                "success": False, 
-                "error": result["error"]
-            }), status_code
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Invalid or expired reset link. Please request a new password reset.",
+                    }
+                ),
+                400,
+            )
 
     except Exception as e:
-        return jsonify({
-            "success": False, 
-            "error": "An unexpected error occurred. Please try again."
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "An unexpected error occurred. Please try again.",
+                }
+            ),
+            500,
+        )
 
 
 if __name__ == "__main__":
