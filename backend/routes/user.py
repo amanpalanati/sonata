@@ -36,7 +36,7 @@ def create_user_routes(user_service: UserService):
             last_verified = session.get("user_verified_at", 0)
             current_time = time.time()
 
-            if current_time - last_verified > 300:  # 5 minutes CHANGE
+            if current_time - last_verified > 300:  # 5 minutes
                 # Verify user still exists in Supabase
                 user_data = user_service.get_user(session["user_id"])
                 if not user_data:

@@ -5,7 +5,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { authService } from "../../services/auth";
-import FloatingLabelInput from "./FloatingLabelInput";
+import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
+
+import FormField from "./FormField";
+import RootMessage from "./RootMessage";
 import Header from "../authentication/Header";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
@@ -35,73 +38,25 @@ const ResetPassword: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  // Track which fields have been blurred and had errors
-  const [touchedWithErrors, setTouchedWithErrors] = useState<Set<string>>(
-    new Set()
-  );
-
-  // Track which fields have been touched (blurred)
-  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    trigger,
-  } = useForm<ResetPasswordFormData>({
+  const form = useForm<ResetPasswordFormData>({
     resolver: yupResolver(schema),
   });
 
-  // Watch for error changes and add fields to touchedWithErrors
-  useEffect(() => {
-    const fieldNames: (keyof ResetPasswordFormData)[] = [
-      "password",
-      "confirmPassword",
-    ];
-    fieldNames.forEach((fieldName) => {
-      if (errors[fieldName]) {
-        setTouchedWithErrors((prev) => new Set(prev).add(fieldName));
-      }
-    });
-  }, [errors]);
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
-  // Custom register function that adds onChange validation for fields with errors
-  const customRegister = (name: keyof ResetPasswordFormData) => {
-    const registration = register(name);
-
-    return {
-      ...registration,
-      onChange: async (e: React.ChangeEvent<HTMLInputElement>) => {
-        registration.onChange(e);
-        // If this field has had an error before, validate on change
-        if (touchedWithErrors.has(name)) {
-          await trigger(name);
-        }
-        // If password field changes and confirm password has been touched, validate confirm password
-        if (name === "password" && touchedFields.has("confirmPassword")) {
-          await trigger("confirmPassword");
-        }
-      },
-      onFocus: () => {
-        // Clear API error when any input gets focus
-        setError(null);
-      },
-      onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
-        registration.onBlur(e);
-        // Mark field as touched
-        setTouchedFields((prev) => new Set(prev).add(name));
-        // Always validate on blur
-        await trigger(name);
-        // Check for errors after validation and add to touchedWithErrors if there are any
-        // Use setTimeout to ensure the error state is updated
-        setTimeout(() => {
-          if (errors[name]) {
-            setTouchedWithErrors((prev) => new Set(prev).add(name));
-          }
-        }, 0);
-      },
-    };
-  };
+  // Use the custom hook for field management
+  const { customRegister } = useFormFieldManagement({
+    form,
+    passwordField: "password",
+    confirmPasswordField: "confirmPassword",
+    onFocus: () => {
+      // Clear API error when any input gets focus
+      setError(null);
+    },
+  });
 
   useEffect(() => {
     // Check for error in hash fragment first
@@ -211,52 +166,35 @@ const ResetPassword: React.FC = () => {
         <h1 className={styles.h1}>Reset Your Password</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-          {error && (
-            <div className={styles.resetTokenAlert}>
-              <span className={styles.span}>&#9888;</span>
-              {error}
-            </div>
-          )}
+          <RootMessage
+            message={error || undefined}
+            type="error"
+            styles={{
+              alert: styles.resetTokenAlert,
+              span: styles.span,
+            }}
+          />
 
-          <div className={styles.resetFirstFormGroup}>
-            <FloatingLabelInput
-              id="password"
-              label="New Password"
-              type="password"
-              register={customRegister("password")}
-              errors={errors.password}
-              ariaInvalid={errors.password ? "true" : "false"}
-            />
-            <div
-              className={
-                errors.password ? styles.errorVisible : styles.errorHidden
-              }
-            >
-              <span className={styles.span}>&#9888;</span>
-              {errors.password?.message || "\u00A0"}
-            </div>
-          </div>
+          <FormField
+            id="password"
+            label="New Password"
+            type="password"
+            placeholder="New Password"
+            register={customRegister("password")}
+            error={errors.password}
+            styles={styles}
+            className={styles.resetFirstFormGroup}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="confirmPassword"
-              label="Confirm New Password"
-              type="password"
-              register={customRegister("confirmPassword")}
-              errors={errors.confirmPassword}
-              ariaInvalid={errors.confirmPassword ? "true" : "false"}
-            />
-            <div
-              className={
-                errors.confirmPassword
-                  ? styles.errorVisible
-                  : styles.errorHidden
-              }
-            >
-              <span className={styles.span}>&#9888;</span>
-              {errors.confirmPassword?.message || "\u00A0"}
-            </div>
-          </div>
+          <FormField
+            id="confirmPassword"
+            label="Confirm New Password"
+            type="password"
+            placeholder="Confirm New Password"
+            register={customRegister("confirmPassword")}
+            error={errors.confirmPassword}
+            styles={styles}
+          />
 
           <button
             className={styles.submitButton}

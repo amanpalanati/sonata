@@ -39,12 +39,14 @@ password_service = PasswordService(
     user_service,
 )
 
+
 # Resets session lifetime only for authenticated users who are actively using the app
 @app.before_request
 def refresh_session():
     # Only refresh if this is not a logout request and user is authenticated
     if "user_id" in session and request.endpoint != "api_logout":
         session.permanent = True
+
 
 # Register blueprints with dependency injection
 auth_blueprint = create_auth_routes(auth_service, user_service)

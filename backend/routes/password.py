@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from services.password_service import PasswordService
 
-password_bp = Blueprint('password', __name__)
+password_bp = Blueprint("password", __name__)
+
 
 def create_password_routes(password_service: PasswordService):
     """Factory function to create password routes with dependency injection"""
-    
+
     @password_bp.route("/api/forgot-password", methods=["POST"])
     def api_forgot_password():
         """API endpoint to initiate password reset via email"""
@@ -76,11 +77,15 @@ def create_password_routes(password_service: PasswordService):
                 )
 
             # Reset the password using the token
-            result = password_service.reset_password_with_token(access_token, new_password)
+            result = password_service.reset_password_with_token(
+                access_token, new_password
+            )
 
             if result.get("success"):
                 return (
-                    jsonify({"success": True, "message": "Password updated successfully"}),
+                    jsonify(
+                        {"success": True, "message": "Password updated successfully"}
+                    ),
                     200,
                 )
             else:

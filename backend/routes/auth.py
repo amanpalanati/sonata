@@ -3,11 +3,12 @@ from services.auth_service import AuthService
 from services.user_service import UserService
 import time
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint("auth", __name__)
+
 
 def create_auth_routes(auth_service: AuthService, user_service: UserService):
     """Factory function to create auth routes with dependency injection"""
-    
+
     @auth_bp.route("/api/signup", methods=["POST"])
     def api_signup():
         """API endpoint for user signup"""
@@ -15,10 +16,19 @@ def create_auth_routes(auth_service: AuthService, user_service: UserService):
             data = request.get_json()
 
             # Validate required fields
-            required_fields = ["email", "password", "accountType", "firstName", "lastName"]
+            required_fields = [
+                "email",
+                "password",
+                "accountType",
+                "firstName",
+                "lastName",
+            ]
             for field in required_fields:
                 if not data.get(field):
-                    return jsonify({"success": False, "error": f"{field} is required"}), 400
+                    return (
+                        jsonify({"success": False, "error": f"{field} is required"}),
+                        400,
+                    )
 
             # Validate account type
             valid_account_types = ["student", "teacher", "parent"]
@@ -78,7 +88,9 @@ def create_auth_routes(auth_service: AuthService, user_service: UserService):
             # Validate required fields
             if not data.get("email") or not data.get("password"):
                 return (
-                    jsonify({"success": False, "error": "Email and password are required"}),
+                    jsonify(
+                        {"success": False, "error": "Email and password are required"}
+                    ),
                     400,
                 )
 
@@ -142,7 +154,9 @@ def create_auth_routes(auth_service: AuthService, user_service: UserService):
                 )
 
             # Get mode from request data
-            mode = data.get("mode", "signup")  # Default to signup for backward compatibility
+            mode = data.get(
+                "mode", "signup"
+            )  # Default to signup for backward compatibility
 
             # Get user data from Supabase using the access token
             user_data = user_service.get_oauth_user(
