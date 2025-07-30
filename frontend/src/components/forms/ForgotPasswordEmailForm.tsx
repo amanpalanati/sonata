@@ -7,8 +7,8 @@ import * as yup from "yup";
 import { ForgotPasswordEmailData } from "../../types";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 
-import FormField from "./FormField";
-import RootMessage from "./RootMessage";
+import FormField from "./fields/FormField";
+import RootMessage from "./fields/RootMessage";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
 import styles from "../../styles/forms/ForgotPassword.module.css";

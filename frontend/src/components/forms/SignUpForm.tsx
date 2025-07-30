@@ -7,8 +7,8 @@ import * as yup from "yup";
 import { SignUpFormData } from "../../types";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 
-import FormField from "./FormField";
-import RootMessage from "./RootMessage";
+import FormField from "./fields/FormField";
+import RootMessage from "./fields/RootMessage";
 import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";

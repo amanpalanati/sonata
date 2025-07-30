@@ -7,8 +7,8 @@ import * as yup from "yup";
 import { authService } from "../../services/auth";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 
-import FormField from "./FormField";
-import RootMessage from "./RootMessage";
+import FormField from "./fields/FormField";
+import RootMessage from "./fields/RootMessage";
 import Header from "../authentication/Header";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
