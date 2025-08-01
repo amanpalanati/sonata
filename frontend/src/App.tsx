@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 
 import OAuthCallback from "./components/authentication/OAuthCallback";
-import ProtectedRoute from "./components/authentication/ProtectedRoute";
-import PublicRoute from "./components/authentication/PublicRoute";
-import ProfileGuard from "./components/authentication/ProfileGuard";
+import ProtectedRoute from "./components/authentication/guards/ProtectedRouteGuard";
+import PublicRoute from "./components/authentication/guards/PublicRouteGuard";
+import ProfileGuard from "./components/authentication/guards/ProfileGuard";
 
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
