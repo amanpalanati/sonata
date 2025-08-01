@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { ForgotPasswordEmailData } from "../../types";
 import { authService } from "../../services/auth";
@@ -9,7 +8,6 @@ import ForgotPasswordEmailForm from "../forms/ForgotPasswordEmailForm";
 import ForgotPasswordEmailSent from "./ForgotPasswordEmailSent";
 
 const ForgotPassword: React.FC = () => {
-  const navigate = useNavigate();
   const [step, setStep] = useState<'email' | 'sent'>('email');
   const [email, setEmail] = useState<string>('');
 
@@ -27,10 +25,6 @@ const ForgotPassword: React.FC = () => {
     }
   };
 
-  const handleBackToLogin = () => {
-    navigate("/login");
-  };
-
   return (
     <>
       <Header />
@@ -39,7 +33,6 @@ const ForgotPassword: React.FC = () => {
       ) : (
         <ForgotPasswordEmailSent 
           email={email}
-          onBackToLogin={handleBackToLogin}
         />
       )}
     </>
