@@ -19,8 +19,13 @@ const SignUp: React.FC = () => {
       if (result.success) {
         // Update auth state
         login(result.user);
-        // Redirect to dashboard after successful signup
-        navigate("/dashboard");
+
+        // Redirect based on profile completion status
+        if (result.user.profile_completed) {
+          navigate("/dashboard");
+        } else {
+          navigate("/complete-profile");
+        }
       }
     } catch (error) {
       // Error will be handled by the form component

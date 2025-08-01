@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import OAuthCallback from "./components/authentication/OAuthCallback";
 import ProtectedRoute from "./components/authentication/ProtectedRoute";
 import PublicRoute from "./components/authentication/PublicRoute";
+import ProfileGuard from "./components/authentication/ProfileGuard";
 
 import Homepage from "./components/home_page/Homepage";
 import About from "./components/about/About";
@@ -13,6 +14,7 @@ import SignUp from "./components/authentication/SignUp";
 import Login from "./components/authentication/Login";
 import ForgotPassword from "./components/authentication/ForgotPassword";
 import ResetPassword from "./components/forms/ResetPasswordForm";
+import CompleteProfile from "./components/authentication/profile_completion/CompleteProfile";
 import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/dashboard/Profile";
 
@@ -76,10 +78,21 @@ const AppRoutes: React.FC = () => {
 
       {/* Protected routes - redirect to login if not authenticated */}
       <Route
+        path="/complete-profile"
+        element={
+          <ProtectedRoute>
+            <CompleteProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <ProfileGuard>
+              <Dashboard />
+            </ProfileGuard>
           </ProtectedRoute>
         }
       />
@@ -87,7 +100,9 @@ const AppRoutes: React.FC = () => {
         path="/profile"
         element={
           <ProtectedRoute>
-            <Profile />
+            <ProfileGuard>
+              <Profile />
+            </ProfileGuard>
           </ProtectedRoute>
         }
       />

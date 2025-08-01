@@ -122,8 +122,12 @@ const OAuthCallback: React.FC = () => {
           login(data.user);
         }
 
-        // Redirect to dashboard
-        navigate("/dashboard", { replace: true });
+        // Redirect based on profile completion status
+        if (data.user && data.user.profile_completed) {
+          navigate("/dashboard", { replace: true });
+        } else {
+          navigate("/complete-profile", { replace: true });
+        }
       } catch (error) {
         // Determine where to redirect based on account type or default to login
         const errorMessage =

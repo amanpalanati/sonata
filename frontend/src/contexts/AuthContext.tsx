@@ -13,6 +13,8 @@ interface User {
   account_type: string;
   first_name: string;
   last_name: string;
+  profile_image?: string;
+  profile_completed?: boolean;
 }
 
 interface AuthContextType {
@@ -24,6 +26,7 @@ interface AuthContextType {
   logout: () => void;
   logoutAndRedirect: (redirectUrl?: string) => void;
   checkAuth: () => Promise<void>;
+  updateUserProfile: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,6 +70,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             account_type: result.account_type,
             first_name: result.first_name,
             last_name: result.last_name,
+            ...(result.profile_image && {
+              profile_image: result.profile_image,
+            }),
+            profile_completed: result.profile_completed || false,
           };
 
           setIsAuthenticated(true);
@@ -127,6 +134,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 100);
   };
 
+  const updateUserProfile = (updates: Partial<User>) => {
+    setUser((prevUser) => (prevUser ? { ...prevUser, ...updates } : null));
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     user,
@@ -136,6 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     logoutAndRedirect,
     checkAuth,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
