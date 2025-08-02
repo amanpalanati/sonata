@@ -26,6 +26,8 @@ class UserService(SupabaseService):
                 "account_type": user_metadata.get("account_type"),
                 "first_name": user_metadata.get("first_name"),
                 "last_name": user_metadata.get("last_name"),
+                "profile_image": user_metadata.get("profile_image"),
+                "profile_completed": user_metadata.get("profile_completed", False),
                 "email_confirmed_at": user.email_confirmed_at,
                 "created_at": user.created_at,
                 "updated_at": user.updated_at,
@@ -61,6 +63,10 @@ class UserService(SupabaseService):
                             "account_type": user.user_metadata.get("account_type"),
                             "first_name": user.user_metadata.get("first_name"),
                             "last_name": user.user_metadata.get("last_name"),
+                            "profile_image": user.user_metadata.get("profile_image"),
+                            "profile_completed": user.user_metadata.get(
+                                "profile_completed", False
+                            ),
                         }
 
             return None
@@ -99,6 +105,9 @@ class UserService(SupabaseService):
                 ],  # Keep the saved account_type
                 "first_name": oauth_first_name or existing_user.get("first_name", ""),
                 "last_name": oauth_last_name or existing_user.get("last_name", ""),
+                "profile_image": user_metadata.get("picture")
+                or existing_user.get("profile_image"),
+                "profile_completed": existing_user.get("profile_completed", False),
             }
 
             return user_data
@@ -130,26 +139,65 @@ class UserService(SupabaseService):
             "account_type": account_type,
             "first_name": first_name,
             "last_name": last_name,
+            "profile_image": user_metadata.get("picture"),  # Google profile picture
+            "profile_completed": False,
         }
 
         return user_data
 
     # Could be used as a general update user data function that also checks if
     # the user exists and if it doesnt then end the session
-    def update_user_metadata(self, user_id: str, metadata: Dict[str, Any]) -> bool:
-        """Update user metadata in Supabase Auth"""
+    def update_user_metadata(
+        self, user_id: str, metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Update user metadata in Supabase Auth
+
+        Returns:
+            Dict with keys:
+            - success: bool - Whether the operation was successful
+            - user_deleted: bool - Whether the user was found to be deleted
+            - error: str - Error message if any
+        """
         try:
             if not self.admin_supabase:
-                return False
+                return {
+                    "success": False,
+                    "error": "Admin client not available",
+                    "user_deleted": False,
+                }
 
+            # First, check if user still exists
+            try:
+                existing_user = self.admin_supabase.auth.admin.get_user_by_id(user_id)
+                if not existing_user or not existing_user.user:
+                    # User has been deleted, return flag to clear session
+                    return {
+                        "success": False,
+                        "user_deleted": True,
+                        "error": "User not found",
+                    }
+            except Exception as check_error:
+                # If user lookup fails, assume user might be deleted
+                return {
+                    "success": False,
+                    "user_deleted": True,
+                    "error": "User verification failed",
+                }
+
+            # User exists, proceed with metadata update
             response = self.admin_supabase.auth.admin.update_user_by_id(
                 user_id, {"user_metadata": metadata}
             )
 
             if response.user:
-                return True
+                return {"success": True, "user_deleted": False}
             else:
-                return False
+                return {
+                    "success": False,
+                    "error": "Update failed",
+                    "user_deleted": False,
+                }
 
         except Exception as e:
-            return False
+            # On any exception, it might indicate the user is deleted
+            return {"success": False, "user_deleted": True, "error": str(e)}

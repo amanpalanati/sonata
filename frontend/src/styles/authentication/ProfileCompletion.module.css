@@ -1,0 +1,148 @@
+.wrapper {
+  display: none;
+}
+
+.container {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  padding: 32px;
+  width: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  gap: 24px;
+}
+
+.h1 {
+  font-size: 24px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.p {
+  color: black;
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  margin-top: -10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.alert {
+  font-size: 16px;
+  color: rgb(255, 67, 67);
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 2px;
+}
+
+.success {
+  font-size: 16px;
+  color: #28a745;
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 2px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.errorHidden {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: hidden;
+}
+
+.errorVisible {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: visible;
+}
+
+.span {
+  margin-right: 6px;
+}
+
+.nextDiv {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  width: 100%;
+}
+
+.nextPrevDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.prevNext {
+  color: rgb(80, 80, 80);
+  text-decoration: none;
+  font-size: 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.prevNext:hover {
+  text-decoration: underline;
+}
+
+.rightArrow {
+  transform: translateY(-8%);
+  vertical-align: middle;
+}
+
+.leftArrow {
+  transform: translateY(-4%) rotate(180deg);
+  vertical-align: middle;
+  margin-right: 1px;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 600px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    width: 85%;
+  }
+}
+
+@media (max-height: 640px) and (min-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 600px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    min-height: fit-content;
+    overflow-y: auto;
+  }
+}

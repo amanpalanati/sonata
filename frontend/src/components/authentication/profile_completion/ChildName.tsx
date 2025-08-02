@@ -13,36 +13,32 @@ import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
 // Validation schema
-const nameEmailSchema = yup.object().shape({
-  firstName: yup.string().required("First name is required").trim(),
-  lastName: yup.string().required("Last name is required").trim(),
-  email: yup
+const childNameSchema = yup.object().shape({
+  childFirstName: yup
     .string()
-    .required("Email is required")
-    .email("Please enter a valid email address")
+    .required("Child's first name is required")
     .trim(),
+  childLastName: yup.string().required("Child's last name is required").trim(),
 });
 
 // Form data type that matches the schema (required fields)
-interface NameEmailFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+interface ChildNameFormData {
+  childFirstName: string;
+  childLastName: string;
 }
 
 // Extract just the properties this component needs (optional for props)
-interface NameEmailData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+interface ChildNameData {
+  childFirstName?: string;
+  childLastName?: string;
 }
 
-interface NameEmailProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
-  data: NameEmailData;
-  onUpdate: (data: Partial<NameEmailData>) => void;
+interface ChildNameProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+  data: ChildNameData;
+  onUpdate: (data: Partial<ChildNameData>) => void;
 }
 
-const NameEmail: React.FC<NameEmailProps> = ({
+const ChildName: React.FC<ChildNameProps> = ({
   data,
   onUpdate,
   onNext,
@@ -50,12 +46,11 @@ const NameEmail: React.FC<NameEmailProps> = ({
 }) => {
   useBodyClass("auth");
 
-  const form = useForm<NameEmailFormData>({
-    resolver: yupResolver(nameEmailSchema),
+  const form = useForm<ChildNameFormData>({
+    resolver: yupResolver(childNameSchema),
     defaultValues: {
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
-      email: data.email || "",
+      childFirstName: data.childFirstName || "",
+      childLastName: data.childLastName || "",
     },
   });
 
@@ -70,13 +65,12 @@ const NameEmail: React.FC<NameEmailProps> = ({
     form,
   });
 
-  const handleFormSubmit = async (formData: NameEmailFormData) => {
+  const handleFormSubmit = async (formData: ChildNameFormData) => {
     try {
       // Update parent state with current values
       onUpdate({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        childFirstName: formData.childFirstName.trim(),
+        childLastName: formData.childLastName.trim(),
       });
       onNext();
     } catch (error) {
@@ -97,7 +91,7 @@ const NameEmail: React.FC<NameEmailProps> = ({
       <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Complete Your Profile</h1>
-        <p className={styles.p}>Please provide your name and email.</p>
+        <p className={styles.p}>Please provide your child's name.</p>
 
         <form
           className={styles.form}
@@ -116,32 +110,22 @@ const NameEmail: React.FC<NameEmailProps> = ({
 
           {/* Form Fields */}
           <FormField
-            id="firstName"
-            label="First Name"
+            id="childFirstName"
+            label="Child's First Name"
             type="text"
-            placeholder="First Name"
-            register={customRegister("firstName")}
-            error={errors.firstName}
+            placeholder="Child's First Name"
+            register={customRegister("childFirstName")}
+            error={errors.childFirstName}
             styles={styles}
           />
 
           <FormField
-            id="lastName"
-            label="Last Name"
+            id="childLastName"
+            label="Child's Last Name"
             type="text"
-            placeholder="Last Name"
-            register={customRegister("lastName")}
-            error={errors.lastName}
-            styles={styles}
-          />
-
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            placeholder="Email"
-            register={customRegister("email")}
-            error={errors.email}
+            placeholder="Child's Last Name"
+            register={customRegister("childLastName")}
+            error={errors.childLastName}
             styles={styles}
           />
 
@@ -225,4 +209,4 @@ const NameEmail: React.FC<NameEmailProps> = ({
   );
 };
 
-export default NameEmail;
+export default ChildName;

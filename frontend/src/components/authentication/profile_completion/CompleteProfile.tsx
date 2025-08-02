@@ -5,6 +5,9 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { ProfileData, StepType } from "../../../types/profileCompletion";
 
 import Header from "../Header";
+import NameEmail from "./NameEmail";
+import ChildName from "./ChildName";
+import Bio from "./Bio";
 
 // Import your step components (create these as needed)
 // import NameEmail from "./NameEmail";
@@ -48,11 +51,17 @@ const CompleteProfile: React.FC = () => {
       steps.push("childName");
     }
 
-    // Profile image step - always include (users can skip if they want)
-    steps.push("pfp");
+    // Profile image step (only if not already included with Google OAuth)
+    if (!user.profile_image) {
+      steps.push("pfp");
+    }
 
-    // Bio and instruments - always include but content varies by account type
-    steps.push("bio");
+    // Bio - only for teachers
+    if (user.account_type === "teacher") {
+      steps.push("bio");
+    }
+
+    // Instruments step - always include but content varies by account type
     steps.push("instruments");
 
     setRequiredSteps(steps);
@@ -144,39 +153,27 @@ const CompleteProfile: React.FC = () => {
     <>
       <Header />
       <main>
-        {/* Progress indicator */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          Step {currentStepIndex + 1} of {requiredSteps.length}
-        </div>
-
         {/* Render current step component */}
         {currentStep === "nameEmail" && (
-          <div>
-            <h2>Complete Your Name and Email</h2>
-            {/* <NameEmail 
-              data={profileData}
-              onUpdate={setProfileData}
-              onNext={nextStep}
-            /> */}
-            <p>NameEmail component will go here</p>
-            <p>Current data: {JSON.stringify(profileData)}</p>
-            <button onClick={nextStep}>Next</button>
-          </div>
+          <NameEmail
+            data={profileData}
+            onUpdate={(data) =>
+              setProfileData((prev) => ({ ...prev, ...data }))
+            }
+            onNext={nextStep}
+            onPrev={currentStepIndex > 0 ? prevStep : undefined}
+          />
         )}
 
         {currentStep === "childName" && (
-          <div>
-            <h2>Child's Information</h2>
-            {/* <ChildName 
-              data={profileData}
-              onUpdate={setProfileData}
-              onNext={nextStep}
-              onPrev={prevStep}
-            /> */}
-            <p>ChildName component will go here</p>
-            <button onClick={prevStep}>Back</button>
-            <button onClick={nextStep}>Next</button>
-          </div>
+          <ChildName
+            data={profileData}
+            onUpdate={(data) =>
+              setProfileData((prev) => ({ ...prev, ...data }))
+            }
+            onNext={nextStep}
+            onPrev={currentStepIndex > 0 ? prevStep : undefined}
+          />
         )}
 
         {currentStep === "pfp" && (
@@ -196,17 +193,14 @@ const CompleteProfile: React.FC = () => {
 
         {currentStep === "bio" && (
           <div>
-            <h2>Tell us about yourself</h2>
-            {/* <Bio 
-              accountType={user?.account_type}
+            <Bio
               data={profileData}
-              onUpdate={setProfileData}
+              onUpdate={(data) =>
+                setProfileData((prev) => ({ ...prev, ...data }))
+              }
               onNext={nextStep}
               onPrev={prevStep}
-            /> */}
-            <p>Bio component for {user?.account_type} will go here</p>
-            <button onClick={prevStep}>Back</button>
-            <button onClick={nextStep}>Next</button>
+            />
           </div>
         )}
 

@@ -6,56 +6,39 @@ import * as yup from "yup";
 import { StepComponentProps } from "../../../types/profileCompletion";
 import { useFormFieldManagement } from "../../../hooks/useFormFieldManagement";
 
-import FormField from "../../forms/fields/FormField";
+import TextAreaField from "../../forms/fields/TextAreaField";
 import RootMessage from "../../forms/fields/RootMessage";
 
 import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
 // Validation schema
-const nameEmailSchema = yup.object().shape({
-  firstName: yup.string().required("First name is required").trim(),
-  lastName: yup.string().required("Last name is required").trim(),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address")
-    .trim(),
+const bioSchema = yup.object().shape({
+  bio: yup.string().default(""),
 });
 
-// Form data type that matches the schema (required fields)
-interface NameEmailFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
+// Form data type that matches the schema
+interface BioFormData {
+  bio: string;
 }
 
 // Extract just the properties this component needs (optional for props)
-interface NameEmailData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+interface BioData {
+  bio?: string;
 }
 
-interface NameEmailProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
-  data: NameEmailData;
-  onUpdate: (data: Partial<NameEmailData>) => void;
+interface BioProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+  data: BioData;
+  onUpdate: (data: Partial<BioData>) => void;
 }
 
-const NameEmail: React.FC<NameEmailProps> = ({
-  data,
-  onUpdate,
-  onNext,
-  onPrev,
-}) => {
+const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
   useBodyClass("auth");
 
-  const form = useForm<NameEmailFormData>({
-    resolver: yupResolver(nameEmailSchema),
+  const form = useForm<BioFormData>({
+    resolver: yupResolver(bioSchema),
     defaultValues: {
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
-      email: data.email || "",
+      bio: data.bio || "",
     },
   });
 
@@ -70,13 +53,11 @@ const NameEmail: React.FC<NameEmailProps> = ({
     form,
   });
 
-  const handleFormSubmit = async (formData: NameEmailFormData) => {
+  const handleFormSubmit = async (formData: BioFormData) => {
     try {
       // Update parent state with current values
       onUpdate({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        bio: formData.bio.trim(),
       });
       onNext();
     } catch (error) {
@@ -97,7 +78,7 @@ const NameEmail: React.FC<NameEmailProps> = ({
       <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Complete Your Profile</h1>
-        <p className={styles.p}>Please provide your name and email.</p>
+        <p className={styles.p}>Tell us about yourself.</p>
 
         <form
           className={styles.form}
@@ -115,34 +96,16 @@ const NameEmail: React.FC<NameEmailProps> = ({
           />
 
           {/* Form Fields */}
-          <FormField
-            id="firstName"
-            label="First Name"
-            type="text"
-            placeholder="First Name"
-            register={customRegister("firstName")}
-            error={errors.firstName}
+          <TextAreaField
+            id="bio"
+            label="Bio"
+            placeholder="What you hope to accomplish as a music teacher..."
+            register={customRegister("bio")}
+            error={errors.bio}
             styles={styles}
-          />
-
-          <FormField
-            id="lastName"
-            label="Last Name"
-            type="text"
-            placeholder="Last Name"
-            register={customRegister("lastName")}
-            error={errors.lastName}
-            styles={styles}
-          />
-
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            placeholder="Email"
-            register={customRegister("email")}
-            error={errors.email}
-            styles={styles}
+            rows={3}
+            maxRows={8}
+            maxChar={500}
           />
 
           {/* Navigation buttons */}
@@ -225,4 +188,4 @@ const NameEmail: React.FC<NameEmailProps> = ({
   );
 };
 
-export default NameEmail;
+export default Bio;
