@@ -149,7 +149,10 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
       )}
 
       <textarea
-        ref={textareaRef}
+        ref={(e) => {
+          textareaRef.current = e;
+          register.ref(e);
+        }}
         id={id}
         placeholder={!isFloating ? placeholder : ""}
         aria-invalid={ariaInvalid}

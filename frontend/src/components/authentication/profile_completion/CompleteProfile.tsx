@@ -8,13 +8,7 @@ import Header from "../Header";
 import NameEmail from "./NameEmail";
 import ChildName from "./ChildName";
 import Bio from "./Bio";
-
-// Import your step components (create these as needed)
-// import NameEmail from "./NameEmail";
-// import ChildName from "./ChildName";
-// import ProfileImage from "./ProfileImage";
-// import Bio from "./Bio";
-// import Instruments from "./Instruments";
+import Instruments from "./Instruments";
 
 const CompleteProfile: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
@@ -37,15 +31,6 @@ const CompleteProfile: React.FC = () => {
       steps.push("nameEmail");
     }
 
-    // Pre-populate with existing data if available
-    setProfileData((prev) => ({
-      ...prev,
-      firstName: user.first_name || "",
-      lastName: user.last_name || "",
-      email: user.email || "",
-      ...(user.profile_image && { profileImageUrl: user.profile_image }),
-    }));
-
     // Child name step - only for parents
     if (user.account_type === "parent") {
       steps.push("childName");
@@ -63,6 +48,23 @@ const CompleteProfile: React.FC = () => {
 
     // Instruments step - always include but content varies by account type
     steps.push("instruments");
+
+    // Pre-populate with existing user data (only if profileData is empty)
+    setProfileData((prev) => {
+      // Populate data that users entered in profile completion components
+      if (Object.keys(prev).length > 0) {
+        return prev;
+      }
+
+      // Initial population from user data before rendering steps
+      return {
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        email: user.email || "",
+        ...(user.profile_image && { profileImageUrl: user.profile_image }),
+        accountType: user.account_type, // For conditional messaging
+      };
+    });
 
     setRequiredSteps(steps);
     setIsLoading(false);
@@ -179,12 +181,12 @@ const CompleteProfile: React.FC = () => {
         {currentStep === "pfp" && (
           <div>
             <h2>Profile Picture</h2>
-            {/* <ProfileImage 
-              data={profileData}
-              onUpdate={setProfileData}
-              onNext={nextStep}
-              onPrev={prevStep}
-            /> */}
+            {/* <ProfileImage
+                    data={profileData}
+                    onUpdate={setProfileData}
+                    onNext={nextStep}
+                    onPrev={prevStep}
+                  /> */}
             <p>ProfileImage component will go here</p>
             <button onClick={prevStep}>Back</button>
             <button onClick={nextStep}>Next</button>
@@ -192,32 +194,28 @@ const CompleteProfile: React.FC = () => {
         )}
 
         {currentStep === "bio" && (
-          <div>
-            <Bio
-              data={profileData}
-              onUpdate={(data) =>
-                setProfileData((prev) => ({ ...prev, ...data }))
-              }
-              onNext={nextStep}
-              onPrev={prevStep}
-            />
-          </div>
+          <Bio
+            data={profileData}
+            onUpdate={(data) =>
+              setProfileData((prev) => ({ ...prev, ...data }))
+            }
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
         )}
 
         {currentStep === "instruments" && (
-          <div>
-            <h2>Instruments</h2>
-            {/* <Instruments 
-              accountType={user?.account_type}
-              data={profileData}
-              onUpdate={setProfileData}
-              onNext={handleFinalStep}
-              onPrev={prevStep}
-            /> */}
-            <p>Instruments component for {user?.account_type} will go here</p>
-            <button onClick={prevStep}>Back</button>
-            <button onClick={handleFinalStep}>Complete Profile</button>
-          </div>
+          <Instruments
+            data={{
+              ...profileData,
+              accountType: user?.account_type, // Add accountType from user
+            }}
+            onUpdate={(data) => {
+              setProfileData((prev) => ({ ...prev, ...data }));
+            }}
+            onNext={handleFinalStep}
+            onPrev={prevStep}
+          />
         )}
       </main>
     </>

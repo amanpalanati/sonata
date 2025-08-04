@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { StepComponentProps } from "../../../types/profileCompletion";
-import { useFormFieldManagement } from "../../../hooks/useFormFieldManagement";
 
 import TextAreaField from "../../forms/fields/TextAreaField";
 import RootMessage from "../../forms/fields/RootMessage";
@@ -46,12 +45,18 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    reset,
+    register,
   } = form;
 
-  // Use the custom hook for field management
-  const { customRegister } = useFormFieldManagement({
-    form,
-  });
+  // Reset form when component mounts or data changes
+  useEffect(() => {
+    reset({
+      bio: data.bio || "",
+    });
+  }, [data.bio, reset]);
+
+
 
   const handleFormSubmit = async (formData: BioFormData) => {
     try {
@@ -100,7 +105,7 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
             id="bio"
             label="Bio"
             placeholder="What you hope to accomplish as a music teacher..."
-            register={customRegister("bio")}
+            register={register("bio")}
             error={errors.bio}
             styles={styles}
             rows={3}
@@ -120,15 +125,15 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="19"
                   height="19"
                   className={styles.leftArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
                 Back

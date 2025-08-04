@@ -2,6 +2,19 @@
   display: none;
 }
 
+.outer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* or center if you want vertical center */
+  min-height: 300px; /* prevents height collapsing on transition */
+  padding: 1rem;
+  width: 100%;
+}
+.step {
+  width: 100%;
+  max-width: 600px;
+}
+
 .container {
   position: absolute;
   left: 50%;
