@@ -133,6 +133,78 @@
   margin-right: 1px;
 }
 
+.imageUploadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background-color: transparent;
+}
+
+.imageUploadContainer:hover {
+  border-color: #007bff;
+}
+
+.imageUploadContainer.dragActive {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.imageContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 3px solid #f0f0f0;
+}
+
+.removeButton {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.removeButton:hover {
+  background-color: #c82333;
+}
+
+.uploadText {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.uploadSubtext {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .wrapper {
     display: block;

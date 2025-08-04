@@ -7,6 +7,7 @@ import { ProfileData, StepType } from "../../../types/profileCompletion";
 import Header from "../Header";
 import NameEmail from "./NameEmail";
 import ChildName from "./ChildName";
+import ProfileImage from "./ProfileImage";
 import Bio from "./Bio";
 import Instruments from "./Instruments";
 
@@ -179,18 +180,14 @@ const CompleteProfile: React.FC = () => {
         )}
 
         {currentStep === "pfp" && (
-          <div>
-            <h2>Profile Picture</h2>
-            {/* <ProfileImage
-                    data={profileData}
-                    onUpdate={setProfileData}
-                    onNext={nextStep}
-                    onPrev={prevStep}
-                  /> */}
-            <p>ProfileImage component will go here</p>
-            <button onClick={prevStep}>Back</button>
-            <button onClick={nextStep}>Next</button>
-          </div>
+          <ProfileImage
+            data={profileData}
+            onUpdate={(data) =>
+              setProfileData((prev) => ({ ...prev, ...data }))
+            }
+            onNext={nextStep}
+            onPrev={currentStepIndex > 0 ? prevStep : undefined}
+          />
         )}
 
         {currentStep === "bio" && (
