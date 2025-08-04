@@ -56,8 +56,6 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
     });
   }, [data.bio, reset]);
 
-
-
   const handleFormSubmit = async (formData: BioFormData) => {
     try {
       // Update parent state with current values

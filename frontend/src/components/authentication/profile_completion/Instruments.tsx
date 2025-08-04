@@ -139,10 +139,12 @@ const Instruments: React.FC<InstrumentsProps> = ({
             control={control}
             render={({ field }) => {
               // Convert string values back to option objects for react-select
-              const selectedOptions = Array.isArray(field.value) 
-                ? instrumentOptions.filter((option) => field.value.includes(option.value))
+              const selectedOptions = Array.isArray(field.value)
+                ? instrumentOptions.filter((option) =>
+                    field.value.includes(option.value)
+                  )
                 : [];
-              
+
               return (
                 <Select
                   id="instruments"
@@ -155,7 +157,7 @@ const Instruments: React.FC<InstrumentsProps> = ({
                       ? selectedOptions.map((option) => option.value)
                       : [];
                     field.onChange(values);
-                    
+
                     // Update parent state immediately when user makes changes
                     onUpdate({
                       instruments: values,

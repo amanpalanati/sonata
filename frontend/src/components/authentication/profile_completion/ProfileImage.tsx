@@ -9,7 +9,8 @@ interface ProfileImageData {
   profileImageUrl?: string;
 }
 
-interface ProfileImageProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+interface ProfileImageProps
+  extends Pick<StepComponentProps, "onNext" | "onPrev"> {
   data: ProfileImageData;
   onUpdate: (data: Partial<ProfileImageData>) => void;
 }
@@ -21,7 +22,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
   onPrev,
 }) => {
   useBodyClass("auth");
-  
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,24 +40,24 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
   const handleFileSelect = (file: File) => {
     // Clear any previous errors
     setError(null);
-    
+
     // Validate file type
     if (!file.type.startsWith("image/")) {
       setError("Please select a valid image file (JPG, PNG, GIF)");
       return;
     }
-    
+
     // Validate file size (10MB limit)
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
       setError("File size must be less than 10MB");
       return;
     }
-    
+
     // Create preview URL
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
-    
+
     // Update profile data
     onUpdate({
       profileImage: file,
@@ -64,7 +65,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     });
   };
 
-  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       handleFileSelect(file);
@@ -74,7 +77,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setDragActive(false);
-    
+
     const file = event.dataTransfer.files?.[0];
     if (file) {
       handleFileSelect(file);
@@ -127,15 +130,13 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
 
         <div className={styles.form}>
           {/* Error message */}
-          {error && (
-            <div className={styles.alert}>
-              {error}
-            </div>
-          )}
+          {error && <div className={styles.alert}>{error}</div>}
 
           {/* Profile Image Display and Upload Area */}
           <div
-            className={`${styles.imageUploadContainer} ${dragActive ? styles.dragActive : ""}`}
+            className={`${styles.imageUploadContainer} ${
+              dragActive ? styles.dragActive : ""
+            }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -162,9 +163,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
             <p className={styles.uploadText}>
               Click to upload or drag and drop an image
             </p>
-            <p className={styles.uploadSubtext}>
-              JPG, PNG, GIF up to 10MB
-            </p>
+            <p className={styles.uploadSubtext}>JPG, PNG, GIF up to 10MB</p>
           </div>
 
           {/* Hidden file input */}
@@ -257,4 +256,3 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
 };
 
 export default ProfileImage;
-
