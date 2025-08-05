@@ -1,6 +1,5 @@
 from flask import Blueprint, session, jsonify
 from services.user_service import UserService
-import time
 
 user_bp = Blueprint("user", __name__)
 
@@ -36,34 +35,22 @@ def create_user_routes(user_service: UserService):
     def api_check_auth():
         """API endpoint to check if user is authenticated"""
         if "user_id" in session:
-            # Only verify user exists in database if we haven't checked recently
-            # Check if we have cached user verification (expires after 5 minutes)
-            last_verified = session.get("user_verified_at", 0)
-            current_time = time.time()
+            # Get full user data from database
+            user_data = user_service.get_user(session["user_id"])
+            if not user_data:
+                # User no longer exists, clear session
+                session.clear()
+                return (
+                    jsonify({"authenticated": False, "session_cleared": True}),
+                    200,
+                )
 
-            if current_time - last_verified > 300:  # 5 minutes
-                # Verify user still exists in Supabase
-                user_data = user_service.get_user(session["user_id"])
-                if not user_data:
-                    # User no longer exists, clear session
-                    session.clear()
-                    return (
-                        jsonify({"authenticated": False, "session_cleared": True}),
-                        200,
-                    )
-
-                # Update verification timestamp
-                session["user_verified_at"] = current_time
-
+            # Return full user data
             return (
                 jsonify(
                     {
                         "authenticated": True,
-                        "user_id": session["user_id"],
-                        "user_email": session.get("user_email"),
-                        "account_type": session.get("account_type"),
-                        "first_name": session.get("first_name"),
-                        "last_name": session.get("last_name"),
+                        **user_data,  # Spread all user data from the service
                     }
                 ),
                 200,
@@ -112,9 +99,26 @@ def create_user_routes(user_service: UserService):
             if "profileImage" in request.files:
                 file = request.files["profileImage"]
                 if file and file.filename:
-                    # TODO: Implement file upload to storage (S3, Cloudinary, etc.)
-                    # For now, we'll just note that an image was uploaded
-                    profile_data["profile_image"] = "uploaded_image_placeholder"
+                    # TODO: Implement proper file upload to storage (S3, Cloudinary, etc.)
+                    # For now, we'll create a data URL from the uploaded file for immediate use
+                    import base64
+
+                    file_content = file.read()
+                    file_base64 = base64.b64encode(file_content).decode("utf-8")
+                    file_mime = file.content_type or "image/jpeg"
+                    profile_data["profile_image"] = (
+                        f"data:{file_mime};base64,{file_base64}"
+                    )
+
+            # If no profile image was uploaded and user doesn't already have one, set default
+            current_user = user_service.get_user(user_id)
+            if "profile_image" not in profile_data and not current_user.get(
+                "profile_image"
+            ):
+                # Set default profile image URL that points to frontend static assets
+                profile_data["profile_image"] = (
+                    "http://localhost:3000/public/images/default_pfp.png"
+                )
 
             # Mark profile as completed
             profile_data["profile_completed"] = True
@@ -150,9 +154,16 @@ def create_user_routes(user_service: UserService):
                     }
                 )
 
+                # Get updated user data to return to frontend
+                updated_user_data = user_service.get_user(user_id)
+
                 return (
                     jsonify(
-                        {"success": True, "message": "Profile completed successfully"}
+                        {
+                            "success": True,
+                            "message": "Profile completed successfully",
+                            **updated_user_data,  # Include all updated user data
+                        }
                     ),
                     200,
                 )

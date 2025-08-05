@@ -85,7 +85,7 @@ class AuthService(SupabaseService):
             )
 
             if auth_response.user:
-                # Get user metadata from auth response
+                # Get user metadata from auth response - this contains all profile data
                 user_metadata = auth_response.user.user_metadata or {}
 
                 user_data = {
@@ -94,6 +94,20 @@ class AuthService(SupabaseService):
                     "account_type": user_metadata.get("account_type"),
                     "first_name": user_metadata.get("first_name"),
                     "last_name": user_metadata.get("last_name"),
+                    "child_first_name": user_metadata.get("child_first_name"),
+                    "child_last_name": user_metadata.get("child_last_name"),
+                    "bio": user_metadata.get("bio"),
+                    "instruments": user_metadata.get("instruments"),
+                    "profile_completed": user_metadata.get("profile_completed", False),
+                    # Handle OAuth profile images (picture, avatar_url) and regular profile_image
+                    "profile_image": (
+                        user_metadata.get("profile_image")
+                        or user_metadata.get("picture")
+                        or user_metadata.get("avatar_url")
+                    ),
+                    "email_confirmed_at": auth_response.user.email_confirmed_at,
+                    "created_at": auth_response.user.created_at,
+                    "updated_at": auth_response.user.updated_at,
                 }
                 return {"success": True, "user": user_data}
             else:

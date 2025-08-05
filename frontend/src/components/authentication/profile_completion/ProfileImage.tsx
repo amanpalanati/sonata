@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
+
 import { StepComponentProps } from "../../../types/profileCompletion";
+
 import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
@@ -34,7 +36,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     if (previewUrl) return previewUrl;
     if (data.profileImage) return URL.createObjectURL(data.profileImage);
     if (data.profileImageUrl) return data.profileImageUrl;
-    return "/src/public/images/default_pfp.png";
+    return "/images/default_pfp.png";
   };
 
   const handleFileSelect = (file: File) => {
@@ -205,7 +207,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 type="button"
                 onClick={handleNext}
               >
-                Next
+                {previewUrl || data.profileImage || data.profileImageUrl
+                  ? "Next"
+                  : "Skip"}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
@@ -230,7 +234,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 type="button"
                 onClick={handleNext}
               >
-                Next
+                {previewUrl || data.profileImage || data.profileImageUrl
+                  ? "Next"
+                  : "Skip"}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"

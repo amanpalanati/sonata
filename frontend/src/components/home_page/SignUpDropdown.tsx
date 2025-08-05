@@ -62,7 +62,7 @@ const SignUpDropdown: React.FC = () => {
             <p>Student</p>
             <img
               className={styles.icon}
-              src="/src/public/icons/piano_icon.svg"
+              src="/icons/piano_icon.svg"
               alt="student-icon"
             />
           </Link>
@@ -74,7 +74,7 @@ const SignUpDropdown: React.FC = () => {
             <p>Teacher</p>
             <img
               className={styles.icon}
-              src="/src/public/icons/baton_icon.svg"
+              src="/icons/baton_icon.svg"
               alt="teacher-icon"
             />
           </Link>
@@ -86,7 +86,7 @@ const SignUpDropdown: React.FC = () => {
             <p>Parent</p>
             <img
               className={styles.parentIcon}
-              src="/src/public/icons/person_heart_icon.svg"
+              src="/icons/person_heart_icon.svg"
               alt="parent-icon"
             />
           </Link>

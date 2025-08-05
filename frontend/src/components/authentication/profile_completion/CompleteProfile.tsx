@@ -110,8 +110,28 @@ const CompleteProfile: React.FC = () => {
         throw new Error("Failed to complete profile");
       }
 
-      // Mark profile as completed in the auth context
-      updateUserProfile({ profile_completed: true });
+      // Get the updated user data from the response
+      const updatedUser = await response.json();
+
+      // Update the auth context with all the new profile data
+      updateUserProfile({
+        profile_completed: true,
+        first_name: profileData.firstName || user?.first_name,
+        last_name: profileData.lastName || user?.last_name,
+        email: profileData.email || user?.email,
+        ...(profileData.childFirstName && {
+          child_first_name: profileData.childFirstName,
+        }),
+        ...(profileData.childLastName && {
+          child_last_name: profileData.childLastName,
+        }),
+        // Backend will always provide a profile_image (either uploaded or default)
+        profile_image: updatedUser.profile_image,
+        ...(profileData.bio && { bio: profileData.bio }),
+        ...(profileData.instruments && {
+          instruments: profileData.instruments,
+        }),
+      });
 
       // Profile completed successfully - redirect to dashboard
       navigate("/dashboard");
@@ -197,7 +217,7 @@ const CompleteProfile: React.FC = () => {
               setProfileData((prev) => ({ ...prev, ...data }))
             }
             onNext={nextStep}
-            onPrev={prevStep}
+            onPrev={currentStepIndex > 0 ? prevStep : undefined}
           />
         )}
 
@@ -211,7 +231,7 @@ const CompleteProfile: React.FC = () => {
               setProfileData((prev) => ({ ...prev, ...data }));
             }}
             onNext={handleFinalStep}
-            onPrev={prevStep}
+            onPrev={currentStepIndex > 0 ? prevStep : undefined}
           />
         )}
       </main>

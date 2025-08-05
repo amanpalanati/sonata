@@ -25,11 +25,31 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Authentication is now handled at the route level in App.tsx
   return (
     <>
       <h1>Dashboard</h1>
       <p>Welcome, {user?.first_name}!</p>
+
+      <p>Last name: {user?.last_name}</p>
+      <p>Account type: {user?.account_type}</p>
+      <p>Email: {user?.email}</p>
+
+      <p>Child's first name: {user?.child_first_name || "Not provided"}</p>
+      <p>Child's last name: {user?.child_last_name || "Not provided"}</p>
+      <p>
+        Profile image:
+        <img src={user?.profile_image} alt="profile picture" />
+      </p>
+      <p>Bio: {user?.bio || "Not provided"}</p>
+      <p>
+        Instruments:{" "}
+        {user?.instruments?.length
+          ? user.instruments.join(", ")
+          : "Not provided"}
+      </p>
+
+      <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
+
       <button onClick={handleLogout} disabled={isLoggingOut}>
         {isLoggingOut ? "Logging out..." : "Log Out"}
       </button>

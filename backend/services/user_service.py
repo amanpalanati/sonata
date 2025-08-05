@@ -24,9 +24,19 @@ class UserService(SupabaseService):
                 "id": user.id,
                 "email": user.email,
                 "account_type": user_metadata.get("account_type"),
+                # Get all profile data from metadata only
                 "first_name": user_metadata.get("first_name"),
                 "last_name": user_metadata.get("last_name"),
-                "profile_image": user_metadata.get("profile_image"),
+                # Handle OAuth profile images (picture, avatar_url) and regular profile_image
+                "profile_image": (
+                    user_metadata.get("profile_image")
+                    or user_metadata.get("picture")
+                    or user_metadata.get("avatar_url")
+                ),
+                "child_first_name": user_metadata.get("child_first_name"),
+                "child_last_name": user_metadata.get("child_last_name"),
+                "bio": user_metadata.get("bio"),
+                "instruments": user_metadata.get("instruments"),
                 "profile_completed": user_metadata.get("profile_completed", False),
                 "email_confirmed_at": user.email_confirmed_at,
                 "created_at": user.created_at,
@@ -184,19 +194,20 @@ class UserService(SupabaseService):
                     "error": "User verification failed",
                 }
 
-            # User exists, proceed with metadata update
-            response = self.admin_supabase.auth.admin.update_user_by_id(
+            # User exists, proceed with updates
+            # Put everything in metadata for consistency
+            metadata_response = self.admin_supabase.auth.admin.update_user_by_id(
                 user_id, {"user_metadata": metadata}
             )
 
-            if response.user:
-                return {"success": True, "user_deleted": False}
-            else:
+            if not metadata_response.user:
                 return {
                     "success": False,
-                    "error": "Update failed",
+                    "error": "Metadata update failed",
                     "user_deleted": False,
                 }
+
+            return {"success": True, "user_deleted": False}
 
         except Exception as e:
             # On any exception, it might indicate the user is deleted
