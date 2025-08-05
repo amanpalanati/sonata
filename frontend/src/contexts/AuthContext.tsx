@@ -73,8 +73,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (result.authenticated) {
           const userData = {
-            id: result.user_id,
-            email: result.user_email,
+            id: result.id,
+            email: result.email,
             account_type: result.account_type,
             first_name: result.first_name,
             last_name: result.last_name,
@@ -93,7 +93,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             profile_completed: result.profile_completed || false,
           };
-
           setIsAuthenticated(true);
           setUser(userData);
         } else {
