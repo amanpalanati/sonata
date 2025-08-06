@@ -205,28 +205,27 @@
 }
 
 @media (max-width: 768px) {
-  .wrapper {
-    display: block;
-    padding-bottom: 600px;
+  .outer {
+    padding: 16px;
+    min-height: calc(100vh - 150px);
   }
 
   .container {
-    transform: translateX(-50%);
-    top: 120px;
     width: 85%;
+    padding: 24px;
+    margin-bottom: 100px;;
   }
 }
 
 @media (max-height: 640px) and (min-width: 768px) {
-  .wrapper {
-    display: block;
-    padding-bottom: 600px;
+  .outer {
+    min-height: calc(100vh - 150px);
+    padding: 16px;
   }
 
   .container {
-    transform: translateX(-50%);
-    top: 120px;
-    min-height: fit-content;
+    padding: 24px;
+    margin-bottom: 100px;
     overflow-y: auto;
   }
 }
