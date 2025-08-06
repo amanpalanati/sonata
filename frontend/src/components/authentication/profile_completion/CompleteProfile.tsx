@@ -45,10 +45,8 @@ const CompleteProfile: React.FC = () => {
       steps.push("childName");
     }
 
-    // Profile image step (only if not already included with Google OAuth)
-    if (!user.profile_image) {
-      steps.push("pfp");
-    }
+    // Profile image step - always included
+    steps.push("pfp");
 
     // Bio - only for teachers
     if (user.account_type === "teacher") {
@@ -98,7 +96,7 @@ const CompleteProfile: React.FC = () => {
   const submitProfile = async () => {
     try {
       setShowCompleting(true);
-      
+
       const formData = new FormData();
 
       // Add text fields
@@ -146,7 +144,7 @@ const CompleteProfile: React.FC = () => {
       });
 
       // Add a small delay to allow the success animation to show
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       // Profile completed successfully - redirect to dashboard
       navigate("/dashboard");
@@ -162,7 +160,7 @@ const CompleteProfile: React.FC = () => {
     if (currentStepIndex === requiredSteps.length - 1) {
       // Trigger the slide-out animation and then submit
       setDirection("forward");
-      await new Promise(resolve => setTimeout(resolve, 250)); // Wait for exit animation
+      await new Promise((resolve) => setTimeout(resolve, 250)); // Wait for exit animation
       await submitProfile();
     } else {
       setDirection("forward");
@@ -248,7 +246,7 @@ const CompleteProfile: React.FC = () => {
                 duration: 0.25,
                 ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier for smooth motion
                 opacity: { duration: 0.2 },
-                x: { duration: 0.25 }
+                x: { duration: 0.25 },
               }}
             >
               {currentStep === "nameEmail" && (

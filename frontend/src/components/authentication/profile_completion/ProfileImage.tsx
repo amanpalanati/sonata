@@ -110,7 +110,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     setError(null);
     onUpdate({
       profileImage: null,
-      // Keep existing profileImageUrl if it exists
+      profileImageUrl: undefined, // Clear the existing profile image URL
     });
   };
 
