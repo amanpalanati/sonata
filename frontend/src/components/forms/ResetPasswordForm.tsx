@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { motion, AnimatePresence } from "motion/react";
 
 import { authService } from "../../services/auth";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
@@ -142,18 +143,37 @@ const ResetPassword: React.FC = () => {
     return (
       <>
         <Header />
-        <div className={styles.wrapper}></div>
-        <div className={styles.container}>
-          <h1 className={styles.h1}>Reset Password</h1>
+        <main>
+          <div className={styles.outer}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="error"
+                className={styles.step}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{
+                  duration: 0.25,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                  opacity: { duration: 0.2 },
+                  x: { duration: 0.25 }
+                }}
+              >
+                <div className={styles.container}>
+                  <h1 className={styles.h1}>Reset Password</h1>
 
-          <p className={styles.emoji}>⚠️</p>
+                  <p className={styles.emoji}>⚠️</p>
 
-          <p className={styles.invalidLinkAlert}>{error}</p>
+                  <p className={styles.invalidLinkAlert}>{error}</p>
 
-          <Link className={styles.back} to="/forgot-password">
-            Request New Reset Link
-          </Link>
-        </div>
+                  <Link className={styles.back} to="/forgot-password">
+                    Request New Reset Link
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
       </>
     );
   }
@@ -161,58 +181,77 @@ const ResetPassword: React.FC = () => {
   return (
     <>
       <Header />
-      <div className={styles.wrapper}></div>
-      <div className={styles.container}>
-        <h1 className={styles.h1}>Reset Your Password</h1>
+      <main>
+        <div className={styles.outer}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="form"
+              className={styles.step}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{
+                duration: 0.25,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                opacity: { duration: 0.2 },
+                x: { duration: 0.25 }
+              }}
+            >
+            <div className={styles.container}>
+              <h1 className={styles.h1}>Reset Your Password</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-          <RootMessage
-            message={error || undefined}
-            type="error"
-            styles={{
-              alert: styles.resetTokenAlert,
-              span: styles.span,
-            }}
-          />
+              <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+                <RootMessage
+                  message={error || undefined}
+                  type="error"
+                  styles={{
+                    alert: styles.resetTokenAlert,
+                    span: styles.span,
+                  }}
+                />
 
-          <FormField
-            id="password"
-            label="New Password"
-            type="password"
-            placeholder="New Password"
-            register={customRegister("password")}
-            error={errors.password}
-            styles={styles}
-            className={styles.resetFirstFormGroup}
-          />
+                <FormField
+                  id="password"
+                  label="New Password"
+                  type="password"
+                  placeholder="New Password"
+                  register={customRegister("password")}
+                  error={errors.password}
+                  styles={styles}
+                  className={styles.resetFirstFormGroup}
+                />
 
-          <FormField
-            id="confirmPassword"
-            label="Confirm New Password"
-            type="password"
-            placeholder="Confirm New Password"
-            register={customRegister("confirmPassword")}
-            error={errors.confirmPassword}
-            styles={styles}
-          />
+                <FormField
+                  id="confirmPassword"
+                  label="Confirm New Password"
+                  type="password"
+                  placeholder="Confirm New Password"
+                  register={customRegister("confirmPassword")}
+                  error={errors.confirmPassword}
+                  styles={styles}
+                />
 
-          <button
-            className={styles.submitButton}
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? "Resetting Password..." : "Reset Password"}
-          </button>
-        </form>
+                <button
+                  className={styles.submitButton}
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Resetting Password..." : "Reset Password"}
+                </button>
+              </form>
 
-        <div className={styles.links}>
-          <Link to="/login" className={styles.link}>
-            Back to Login
-          </Link>
-        </div>
+              <div className={styles.links}>
+                <Link to="/login" className={styles.link}>
+                  Back to Login
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </>
-  );
+    </main>
+  </>
+);
 };
 
 export default ResetPassword;

@@ -5,21 +5,20 @@
 .outer {
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* or center if you want vertical center */
-  min-height: 300px; /* prevents height collapsing on transition */
-  padding: 1rem;
+  align-items: center;
+  min-height: calc(100vh - 200px); /* Account for header height */
+  padding: 32px 16px;
   width: 100%;
 }
+
 .step {
   width: 100%;
   max-width: 600px;
+  display: flex;
+  justify-content: center;
 }
 
 .container {
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   justify-content: center;

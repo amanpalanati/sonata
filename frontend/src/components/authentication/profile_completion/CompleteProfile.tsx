@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import { ProfileData, StepType } from "../../../types/profileCompletion";
@@ -10,6 +11,9 @@ import ChildName from "./ChildName";
 import ProfileImage from "./ProfileImage";
 import Bio from "./Bio";
 import Instruments from "./Instruments";
+import Submitting from "./Submitting";
+
+import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
 const CompleteProfile: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
@@ -20,6 +24,10 @@ const CompleteProfile: React.FC = () => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [requiredSteps, setRequiredSteps] = useState<StepType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCompleting, setShowCompleting] = useState(false);
+
+  // State to set animation direction
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
 
   // Determine which steps are needed based on user data and account type
   useEffect(() => {
@@ -74,12 +82,14 @@ const CompleteProfile: React.FC = () => {
   // Navigation functions
   const nextStep = () => {
     if (currentStepIndex < requiredSteps.length - 1) {
+      setDirection("forward");
       setCurrentStepIndex(currentStepIndex + 1);
     }
   };
 
   const prevStep = () => {
     if (currentStepIndex > 0) {
+      setDirection("backward");
       setCurrentStepIndex(currentStepIndex - 1);
     }
   };
@@ -87,6 +97,8 @@ const CompleteProfile: React.FC = () => {
   // Submit complete profile to backend
   const submitProfile = async () => {
     try {
+      setShowCompleting(true);
+      
       const formData = new FormData();
 
       // Add text fields
@@ -133,19 +145,27 @@ const CompleteProfile: React.FC = () => {
         }),
       });
 
+      // Add a small delay to allow the success animation to show
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       // Profile completed successfully - redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
       console.error("Profile completion error:", error);
+      setShowCompleting(false);
       // Handle error (show toast, etc.)
     }
   };
 
   // Handle final step completion
-  const handleFinalStep = () => {
+  const handleFinalStep = async () => {
     if (currentStepIndex === requiredSteps.length - 1) {
-      submitProfile();
+      // Trigger the slide-out animation and then submit
+      setDirection("forward");
+      await new Promise(resolve => setTimeout(resolve, 250)); // Wait for exit animation
+      await submitProfile();
     } else {
+      setDirection("forward");
       nextStep();
     }
   };
@@ -172,68 +192,125 @@ const CompleteProfile: React.FC = () => {
 
   const currentStep = requiredSteps[currentStepIndex];
 
+  // Animation variants based on direction
+  const slideVariants = {
+    initial: (direction: "forward" | "backward") => ({
+      opacity: 0,
+      x: direction === "forward" ? 50 : -50,
+    }),
+    animate: {
+      opacity: 1,
+      x: 0,
+    },
+    exit: (direction: "forward" | "backward") => ({
+      opacity: 0,
+      x: direction === "forward" ? -50 : 50,
+    }),
+  };
+
+  // Show completing state if submission is in progress
+  if (showCompleting) {
+    return (
+      <>
+        <Header />
+        <main>
+          <div className={styles.outer}>
+            <motion.div
+              className={styles.step}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Submitting />
+            </motion.div>
+          </div>
+        </main>
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
       <main>
         {/* Render current step component */}
-        {currentStep === "nameEmail" && (
-          <NameEmail
-            data={profileData}
-            onUpdate={(data) =>
-              setProfileData((prev) => ({ ...prev, ...data }))
-            }
-            onNext={nextStep}
-            onPrev={currentStepIndex > 0 ? prevStep : undefined}
-          />
-        )}
+        <div className={styles.outer}>
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={currentStep}
+              className={styles.step}
+              custom={direction}
+              variants={slideVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{
+                duration: 0.25,
+                ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier for smooth motion
+                opacity: { duration: 0.2 },
+                x: { duration: 0.25 }
+              }}
+            >
+              {currentStep === "nameEmail" && (
+                <NameEmail
+                  data={profileData}
+                  onUpdate={(data) =>
+                    setProfileData((prev) => ({ ...prev, ...data }))
+                  }
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
 
-        {currentStep === "childName" && (
-          <ChildName
-            data={profileData}
-            onUpdate={(data) =>
-              setProfileData((prev) => ({ ...prev, ...data }))
-            }
-            onNext={nextStep}
-            onPrev={currentStepIndex > 0 ? prevStep : undefined}
-          />
-        )}
+              {currentStep === "childName" && (
+                <ChildName
+                  data={profileData}
+                  onUpdate={(data) =>
+                    setProfileData((prev) => ({ ...prev, ...data }))
+                  }
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
 
-        {currentStep === "pfp" && (
-          <ProfileImage
-            data={profileData}
-            onUpdate={(data) =>
-              setProfileData((prev) => ({ ...prev, ...data }))
-            }
-            onNext={nextStep}
-            onPrev={currentStepIndex > 0 ? prevStep : undefined}
-          />
-        )}
+              {currentStep === "pfp" && (
+                <ProfileImage
+                  data={profileData}
+                  onUpdate={(data) =>
+                    setProfileData((prev) => ({ ...prev, ...data }))
+                  }
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
 
-        {currentStep === "bio" && (
-          <Bio
-            data={profileData}
-            onUpdate={(data) =>
-              setProfileData((prev) => ({ ...prev, ...data }))
-            }
-            onNext={nextStep}
-            onPrev={currentStepIndex > 0 ? prevStep : undefined}
-          />
-        )}
+              {currentStep === "bio" && (
+                <Bio
+                  data={profileData}
+                  onUpdate={(data) =>
+                    setProfileData((prev) => ({ ...prev, ...data }))
+                  }
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
 
-        {currentStep === "instruments" && (
-          <Instruments
-            data={{
-              ...profileData,
-              accountType: user?.account_type, // Add accountType from user
-            }}
-            onUpdate={(data) => {
-              setProfileData((prev) => ({ ...prev, ...data }));
-            }}
-            onNext={handleFinalStep}
-            onPrev={currentStepIndex > 0 ? prevStep : undefined}
-          />
-        )}
+              {currentStep === "instruments" && (
+                <Instruments
+                  data={{
+                    ...profileData,
+                    accountType: user?.account_type, // Add accountType from user
+                  }}
+                  onUpdate={(data) => {
+                    setProfileData((prev) => ({ ...prev, ...data }));
+                  }}
+                  onNext={handleFinalStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
     </>
   );
