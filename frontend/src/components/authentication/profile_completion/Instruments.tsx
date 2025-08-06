@@ -5,30 +5,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { StepComponentProps } from "../../../types/profileCompletion";
-
 import RootMessage from "../../forms/fields/RootMessage";
+import GroupedInstruments from "../../../types/Instruments";
 
 import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
-
-// Dropdown options
-const instrumentOptions = [
-  { value: "guitar", label: "Guitar" },
-  { value: "piano", label: "Piano" },
-  { value: "violin", label: "Violin" },
-  { value: "drumset", label: "Drumset" },
-  { value: "singing", label: "Singing" },
-  { value: "flute", label: "Flute" },
-  { value: "saxophone", label: "Saxophone" },
-  { value: "trumpet", label: "Trumpet" },
-  { value: "ukulele", label: "Ukulele" },
-  { value: "bass", label: "Bass" },
-  { value: "trombone", label: "Trombone" },
-  { value: "cello", label: "Cello" },
-  { value: "clarinet", label: "Clarinet" },
-  // Make grouped options when you add more instruments
-  // https://react-select.com/home#getting-started
-];
 
 const instrumentsSchema = yup.object().shape({
   instruments: yup
@@ -140,15 +121,15 @@ const Instruments: React.FC<InstrumentsProps> = ({
             render={({ field }) => {
               // Convert string values back to option objects for react-select
               const selectedOptions = Array.isArray(field.value)
-                ? instrumentOptions.filter((option) =>
-                    field.value.includes(option.value)
+                ? GroupedInstruments.flatMap((group) => group.options).filter(
+                    (option) => field.value.includes(option.value)
                   )
                 : [];
 
               return (
                 <Select
                   id="instruments"
-                  options={instrumentOptions}
+                  options={GroupedInstruments}
                   isMulti
                   placeholder="Select instruments..."
                   value={selectedOptions}
