@@ -27,11 +27,16 @@ class UserService(SupabaseService):
                 # Get all profile data from metadata only
                 "first_name": user_metadata.get("first_name"),
                 "last_name": user_metadata.get("last_name"),
-                # Handle OAuth profile images (picture, avatar_url) and regular profile_image
+                # Handle profile images - check for special default marker
                 "profile_image": (
-                    user_metadata.get("profile_image")
-                    or user_metadata.get("picture")
-                    or user_metadata.get("avatar_url")
+                    None
+                    if (user_metadata.get("profile_image") == "__DEFAULT_IMAGE__")
+                    else (
+                        user_metadata.get("profile_image")
+                        or user_metadata.get(
+                            "picture"
+                        )  # Fall back to picture for OAuth users
+                    )
                 ),
                 "child_first_name": user_metadata.get("child_first_name"),
                 "child_last_name": user_metadata.get("child_last_name"),
@@ -73,7 +78,7 @@ class UserService(SupabaseService):
                             "account_type": user.user_metadata.get("account_type"),
                             "first_name": user.user_metadata.get("first_name"),
                             "last_name": user.user_metadata.get("last_name"),
-                            "profile_image": user.user_metadata.get("profile_image"),
+                            "profile_image": (user.user_metadata.get("profile_image")),
                             "profile_completed": user.user_metadata.get(
                                 "profile_completed", False
                             ),
@@ -115,8 +120,7 @@ class UserService(SupabaseService):
                 ],  # Keep the saved account_type
                 "first_name": oauth_first_name or existing_user.get("first_name", ""),
                 "last_name": oauth_last_name or existing_user.get("last_name", ""),
-                "profile_image": user_metadata.get("picture")
-                or existing_user.get("profile_image"),
+                "profile_image": existing_user.get("profile_image"),
                 "profile_completed": existing_user.get("profile_completed", False),
             }
 
@@ -149,7 +153,8 @@ class UserService(SupabaseService):
             "account_type": account_type,
             "first_name": first_name,
             "last_name": last_name,
-            "profile_image": user_metadata.get("picture"),  # Google profile picture
+            "profile_image": user_metadata.get("profile_image")
+            or user_metadata.get("picture"),  # Check profile_image first, then picture
             "profile_completed": False,
         }
 
@@ -160,14 +165,7 @@ class UserService(SupabaseService):
     def update_user_metadata(
         self, user_id: str, metadata: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Update user metadata in Supabase Auth
-
-        Returns:
-            Dict with keys:
-            - success: bool - Whether the operation was successful
-            - user_deleted: bool - Whether the user was found to be deleted
-            - error: str - Error message if any
-        """
+        """Update user metadata in Supabase Auth"""
         try:
             if not self.admin_supabase:
                 return {

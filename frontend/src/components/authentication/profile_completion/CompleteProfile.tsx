@@ -105,6 +105,9 @@ const CompleteProfile: React.FC = () => {
           formData.append("profileImage", value);
         } else if (key === "instruments" && Array.isArray(value)) {
           formData.append("instruments", JSON.stringify(value));
+        } else if (key === "profileImageUrl") {
+          // Always send profileImageUrl, even if empty (indicates user wants default)
+          formData.append(key, String(value || ""));
         } else if (value !== undefined && value !== null && value !== "") {
           formData.append(key, String(value));
         }

@@ -96,6 +96,7 @@ def create_user_routes(user_service: UserService):
                     profile_data["instruments"] = []
 
             # Handle file upload (profile image)
+            profile_image_handled = False
             if "profileImage" in request.files:
                 file = request.files["profileImage"]
                 if file and file.filename:
@@ -106,19 +107,23 @@ def create_user_routes(user_service: UserService):
                     file_content = file.read()
                     file_base64 = base64.b64encode(file_content).decode("utf-8")
                     file_mime = file.content_type or "image/jpeg"
-                    profile_data["profile_image"] = (
-                        f"data:{file_mime};base64,{file_base64}"
-                    )
+                    # Store in profile_image
+                    profile_image_data = f"data:{file_mime};base64,{file_base64}"
+                    profile_data["profile_image"] = profile_image_data
+                    profile_image_handled = True
 
-            # If no profile image was uploaded and user doesn't already have one, set default
+            # Check if profileImageUrl is explicitly set to empty/undefined (user removed image)
+            # BUT only if no file was uploaded (file upload takes priority)
+            if not profile_image_handled and request.form.get("profileImageUrl") == "":
+                # User explicitly removed their profile image, use special marker
+                profile_data["profile_image"] = "__DEFAULT_IMAGE__"
+                profile_image_handled = True
+
+            # If no profile image was handled and user doesn't already have one, set default
             current_user = user_service.get_user(user_id)
-            if "profile_image" not in profile_data and not current_user.get(
-                "profile_image"
-            ):
+            if not profile_image_handled and not current_user.get("profile_image"):
                 # Set default profile image URL that points to frontend static assets
-                profile_data["profile_image"] = (
-                    "http://localhost:3000/public/images/default_pfp.png"
-                )
+                profile_data["profile_image"] = "__DEFAULT_IMAGE__"
 
             # Mark profile as completed
             profile_data["profile_completed"] = True

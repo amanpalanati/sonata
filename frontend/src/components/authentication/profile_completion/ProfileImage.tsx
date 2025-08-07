@@ -63,7 +63,6 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     // Update profile data
     onUpdate({
       profileImage: file,
-      // Keep existing profileImageUrl if it exists (don't clear it)
     });
   };
 
@@ -110,7 +109,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     setError(null);
     onUpdate({
       profileImage: null,
-      profileImageUrl: undefined, // Clear the existing profile image URL
+      profileImageUrl: "", // Send empty string to indicate user wants default
     });
   };
 
@@ -147,11 +146,13 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
             <div className={styles.imageContainer}>
               <img
                 src={getDisplayImage()}
-                alt="Profile"
+                alt="profile picture"
                 className={styles.profileImage}
               />
               {/* Show remove button only if there's a custom image (not default) */}
-              {(previewUrl || data.profileImage || data.profileImageUrl) && (
+              {(previewUrl ||
+                data.profileImage ||
+                (data.profileImageUrl && data.profileImageUrl !== "")) && (
                 <button
                   type="button"
                   onClick={handleRemoveImage}
@@ -207,7 +208,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 type="button"
                 onClick={handleNext}
               >
-                {previewUrl || data.profileImage || data.profileImageUrl
+                {previewUrl ||
+                data.profileImage ||
+                (data.profileImageUrl && data.profileImageUrl !== "")
                   ? "Next"
                   : "Skip"}
                 <svg
@@ -234,7 +237,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 type="button"
                 onClick={handleNext}
               >
-                {previewUrl || data.profileImage || data.profileImageUrl
+                {previewUrl ||
+                data.profileImage ||
+                (data.profileImageUrl && data.profileImageUrl !== "")
                   ? "Next"
                   : "Skip"}
                 <svg

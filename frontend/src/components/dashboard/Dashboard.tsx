@@ -25,6 +25,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Handle the special marker case
+  const getProfileImageSrc = () => {
+    if (!user?.profile_image || user.profile_image === "__DEFAULT_IMAGE__") {
+      return "/images/default_pfp.png";
+    }
+    return user.profile_image;
+  };
+
   return (
     <>
       <h1>Dashboard</h1>
@@ -38,7 +46,16 @@ const Dashboard: React.FC = () => {
       <p>Child's last name: {user?.child_last_name || "Not provided"}</p>
       <p>
         Profile image:
-        <img src={user?.profile_image} alt="profile picture" />
+        <img
+          src={getProfileImageSrc()}
+          alt="profile picture"
+          style={{
+            marginLeft: "10px",
+            maxWidth: "100px",
+            maxHeight: "100px",
+            borderRadius: "50%",
+          }}
+        />
       </p>
       <p>Bio: {user?.bio || "Not provided"}</p>
       <p>
