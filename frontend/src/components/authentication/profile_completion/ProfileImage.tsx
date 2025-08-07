@@ -49,10 +49,10 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
       return;
     }
 
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    // Validate file size (2MB limit)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
     if (file.size > maxSize) {
-      setError("File size must be less than 10MB");
+      setError("File size must be less than 2MB");
       return;
     }
 

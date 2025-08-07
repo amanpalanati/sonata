@@ -4,7 +4,7 @@ from flask_cors import CORS
 from config import Config
 
 # Import services
-from services import AuthService, UserService, PasswordService
+from services import AuthService, UserService, PasswordService, StorageService
 
 # Import route factories
 from routes import create_auth_routes, create_user_routes, create_password_routes
@@ -20,6 +20,12 @@ CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 Session(app)
 
 # Initialize services
+storage_service = StorageService(
+    app.config["SUPABASE_URL"],
+    app.config["SUPABASE_KEY"],
+    app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
+)
+
 auth_service = AuthService(
     app.config["SUPABASE_URL"],
     app.config["SUPABASE_KEY"],
@@ -30,6 +36,7 @@ user_service = UserService(
     app.config["SUPABASE_URL"],
     app.config["SUPABASE_KEY"],
     app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
+    storage_service,  # Inject storage service
 )
 
 password_service = PasswordService(
@@ -50,7 +57,9 @@ def refresh_session():
 
 # Register blueprints with dependency injection
 auth_blueprint = create_auth_routes(auth_service, user_service)
-user_blueprint = create_user_routes(user_service)
+user_blueprint = create_user_routes(
+    user_service, storage_service
+)  # Pass storage service
 password_blueprint = create_password_routes(password_service)
 
 app.register_blueprint(auth_blueprint)

@@ -51,9 +51,10 @@ const Dashboard: React.FC = () => {
           alt="profile picture"
           style={{
             marginLeft: "10px",
-            maxWidth: "100px",
-            maxHeight: "100px",
+            width: "100px",
+            height: "100px",
             borderRadius: "50%",
+            objectFit: "cover",
           }}
         />
       </p>

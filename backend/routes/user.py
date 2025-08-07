@@ -1,10 +1,11 @@
 from flask import Blueprint, session, jsonify
 from services.user_service import UserService
+from services.storage_service import StorageService
 
 user_bp = Blueprint("user", __name__)
 
 
-def create_user_routes(user_service: UserService):
+def create_user_routes(user_service: UserService, storage_service: StorageService):
     """Factory function to create user routes with dependency injection"""
 
     @user_bp.route("/api/user", methods=["GET"])
@@ -97,32 +98,105 @@ def create_user_routes(user_service: UserService):
 
             # Handle file upload (profile image)
             profile_image_handled = False
+            old_profile_image_path = None
+
+            # Get current user to check for existing profile image
+            current_user = user_service.get_user(user_id)
+            if current_user:
+                # We need to get the raw storage path from user metadata, not the signed URL
+                # The get_user method returns signed URLs, but we need the actual storage path
+                try:
+                    auth_user = user_service.admin_supabase.auth.admin.get_user_by_id(
+                        user_id
+                    )
+                    if auth_user and auth_user.user:
+                        user_metadata = auth_user.user.user_metadata or {}
+                        stored_path = user_metadata.get("profile_image")
+                        # Check if it's a storage path (not a base64 or external URL)
+                        if stored_path and not stored_path.startswith(
+                            ("data:", "http", "__DEFAULT_IMAGE__")
+                        ):
+                            old_profile_image_path = stored_path
+                except Exception as e:
+                    pass  # Silently handle metadata lookup errors
+
             if "profileImage" in request.files:
                 file = request.files["profileImage"]
                 if file and file.filename:
-                    # TODO: Implement proper file upload to storage (S3, Cloudinary, etc.)
-                    # For now, we'll create a data URL from the uploaded file for immediate use
-                    import base64
+                    # Validate file type
+                    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+                    file_extension = file.filename.lower().split(".")[-1]
 
+                    if f".{file_extension}" not in allowed_extensions:
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": "Invalid file type. Please upload an image file.",
+                                }
+                            ),
+                            400,
+                        )
+
+                    # Validate file size (2MB limit)
+                    file.seek(0, 2)  # Seek to end
+                    file_size = file.tell()
+                    file.seek(0)  # Reset to beginning
+
+                    if file_size > 2 * 1024 * 1024:  # 2MB
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": "File too large. Please upload an image smaller than 2MB.",
+                                }
+                            ),
+                            400,
+                        )
+
+                    # Upload to Supabase Storage
                     file_content = file.read()
-                    file_base64 = base64.b64encode(file_content).decode("utf-8")
-                    file_mime = file.content_type or "image/jpeg"
-                    # Store in profile_image
-                    profile_image_data = f"data:{file_mime};base64,{file_base64}"
-                    profile_data["profile_image"] = profile_image_data
-                    profile_image_handled = True
+                    upload_result = storage_service.upload_profile_image(
+                        user_id,
+                        file_content,
+                        file.filename,
+                        file.content_type or "image/jpeg",
+                        old_profile_image_path,  # Pass old image path for cleanup
+                    )
+
+                    if upload_result["success"]:
+                        # Store the file path in profile_image (not the signed URL)
+                        profile_data["profile_image"] = upload_result["file_path"]
+                        profile_image_handled = True
+
+                        # Clean up old profile image if it exists
+                        if old_profile_image_path:
+                            storage_service.delete_file(old_profile_image_path)
+                    else:
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": f"Failed to upload image: {upload_result.get('error')}",
+                                }
+                            ),
+                            500,
+                        )
 
             # Check if profileImageUrl is explicitly set to empty/undefined (user removed image)
             # BUT only if no file was uploaded (file upload takes priority)
             if not profile_image_handled and request.form.get("profileImageUrl") == "":
-                # User explicitly removed their profile image, use special marker
+                # User explicitly removed their profile image
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
                 profile_image_handled = True
 
+                # Clean up old profile image if it exists
+                if old_profile_image_path:
+                    storage_service.delete_file(old_profile_image_path)
+
             # If no profile image was handled and user doesn't already have one, set default
-            current_user = user_service.get_user(user_id)
             if not profile_image_handled and not current_user.get("profile_image"):
-                # Set default profile image URL that points to frontend static assets
+                # Set default profile image marker
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
 
             # Mark profile as completed

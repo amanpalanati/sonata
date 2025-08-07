@@ -5,6 +5,17 @@ from .base_service import SupabaseService
 class UserService(SupabaseService):
     """Service for handling user management operations"""
 
+    def __init__(
+        self,
+        supabase_url: str,
+        supabase_key: str,
+        service_role_key: str,
+        storage_service=None,
+    ):
+        """Initialize UserService with optional StorageService dependency"""
+        super().__init__(supabase_url, supabase_key, service_role_key)
+        self.storage_service = storage_service
+
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user data by user ID"""
         try:
@@ -20,6 +31,27 @@ class UserService(SupabaseService):
             user = auth_user.user
             user_metadata = user.user_metadata or {}
 
+            # Handle profile image - get signed URL if it's a storage path
+            profile_image = None
+            stored_image_path = user_metadata.get("profile_image")
+
+            if stored_image_path and stored_image_path != "__DEFAULT_IMAGE__":
+                # Check if it's a storage path (not a base64 or external URL)
+                if self.storage_service and not stored_image_path.startswith(
+                    ("data:", "http")
+                ):
+                    # It's a storage path, get signed URL
+                    profile_image = self.storage_service.get_profile_image_url(
+                        user_id, stored_image_path
+                    )
+                else:
+                    # It's a base64 data URL or external URL (OAuth), use as-is
+                    profile_image = stored_image_path
+
+            # Fall back to OAuth picture if no profile image
+            if not profile_image:
+                profile_image = user_metadata.get("picture")
+
             return {
                 "id": user.id,
                 "email": user.email,
@@ -27,17 +59,7 @@ class UserService(SupabaseService):
                 # Get all profile data from metadata only
                 "first_name": user_metadata.get("first_name"),
                 "last_name": user_metadata.get("last_name"),
-                # Handle profile images - check for special default marker
-                "profile_image": (
-                    None
-                    if (user_metadata.get("profile_image") == "__DEFAULT_IMAGE__")
-                    else (
-                        user_metadata.get("profile_image")
-                        or user_metadata.get(
-                            "picture"
-                        )  # Fall back to picture for OAuth users
-                    )
-                ),
+                "profile_image": profile_image,
                 "child_first_name": user_metadata.get("child_first_name"),
                 "child_last_name": user_metadata.get("child_last_name"),
                 "bio": user_metadata.get("bio"),
