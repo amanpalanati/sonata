@@ -31,6 +31,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
 
   // Auto-resize function based on line counting approach
   const autoResize = () => {
@@ -59,14 +60,22 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
 
   const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(true);
+    setShowPlaceholder(false); // Hide placeholder immediately when focused
     register.onFocus?.(e);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(false);
     const value = e.target.value;
-    setHasValue(value !== "");
+    const isEmpty = value === "";
+    setHasValue(!isEmpty);
     setCharCount(value.length);
+
+    // Only show placeholder after label transition completes (150ms + small buffer)
+    if (isEmpty) {
+      setTimeout(() => setShowPlaceholder(true), 90);
+    }
+
     register.onBlur?.(e);
   };
 
@@ -81,8 +90,14 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
       target.value = value;
     }
 
-    setHasValue(value !== "");
+    const isEmpty = value === "";
+    setHasValue(!isEmpty);
     setCharCount(value.length);
+
+    // Hide placeholder when user starts typing
+    if (!isEmpty) {
+      setShowPlaceholder(false);
+    }
 
     // Call the register onChange first
     if (register && register.onChange) {
@@ -103,8 +118,10 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
     if (textarea) {
       // Check if textarea has initial content
       const value = textarea.value;
-      setHasValue(value !== "");
+      const isEmpty = value === "";
+      setHasValue(!isEmpty);
       setCharCount(value.length);
+      setShowPlaceholder(isEmpty); // Show placeholder only if empty
 
       // Initial resize to handle any existing content
       requestAnimationFrame(() => autoResize());
@@ -117,8 +134,10 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
       const textarea = textareaRef.current;
       if (textarea) {
         const value = textarea.value;
-        setHasValue(value !== "");
+        const isEmpty = value === "";
+        setHasValue(!isEmpty);
         setCharCount(value.length);
+        setShowPlaceholder(isEmpty); // Show placeholder only if empty
         autoResize();
       }
     }, 0);
@@ -142,7 +161,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
   return (
     <div className={styles.floatingGroup}>
       {/* Character counter */}
-      {maxChar && (
+      {maxChar && hasValue && (
         <div className={getCharCounterClass()}>
           {charCount}/{maxChar}
         </div>
@@ -154,7 +173,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
           register.ref(e);
         }}
         id={id}
-        placeholder={!isFloating ? placeholder : ""}
+        placeholder={showPlaceholder ? placeholder : ""}
         aria-invalid={ariaInvalid}
         name={register.name}
         onFocus={handleFocus}

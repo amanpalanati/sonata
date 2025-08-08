@@ -126,7 +126,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     <>
       <div className={styles.wrapper}></div>
       <div className={styles.container}>
-        <h1 className={styles.h1}>Profile Picture</h1>
+        <h1 className={styles.h1}>Complete Your Profile</h1>
         <p className={styles.p}>Choose a profile picture.</p>
 
         <div className={styles.form}>
