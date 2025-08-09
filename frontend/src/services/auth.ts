@@ -11,7 +11,7 @@ let authCheckCache: {
   timestamp: number;
 } | null = null;
 
-const CACHE_DURATION = 1000; // Reduced to 1 second for faster response
+const CACHE_DURATION = 1000; // 1 second for reasonable caching
 
 // Function to clear auth cache
 const clearAuthCache = () => {

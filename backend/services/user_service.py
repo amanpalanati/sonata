@@ -35,7 +35,10 @@ class UserService(SupabaseService):
             profile_image = None
             stored_image_path = user_metadata.get("profile_image")
 
-            if stored_image_path and stored_image_path != "__DEFAULT_IMAGE__":
+            # Check if user explicitly chose default image
+            if stored_image_path == "__DEFAULT_IMAGE__":
+                profile_image = "__DEFAULT_IMAGE__"
+            elif stored_image_path:
                 # Check if it's a storage path (not a base64 or external URL)
                 if self.storage_service and not stored_image_path.startswith(
                     ("data:", "http")
@@ -47,10 +50,11 @@ class UserService(SupabaseService):
                 else:
                     # It's a base64 data URL or external URL (OAuth), use as-is
                     profile_image = stored_image_path
-
-            # Fall back to OAuth picture if no profile image
-            if not profile_image:
-                profile_image = user_metadata.get("picture")
+            else:
+                # No profile_image in metadata, fall back to OAuth picture for new OAuth users
+                oauth_picture = user_metadata.get("picture")
+                if oauth_picture:
+                    profile_image = oauth_picture
 
             return {
                 "id": user.id,

@@ -150,7 +150,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const updateUserProfile = (updates: Partial<User>) => {
-    setUser((prevUser) => (prevUser ? { ...prevUser, ...updates } : null));
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+
+      const updatedUser = { ...prevUser, ...updates };
+
+      // Clear cache when profile image changes to ensure fresh data
+      if (updates.profile_image !== undefined) {
+        clearAuthCache();
+      }
+
+      return updatedUser;
+    });
   };
 
   const value: AuthContextType = {

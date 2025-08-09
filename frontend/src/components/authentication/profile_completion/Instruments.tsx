@@ -5,8 +5,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { StepComponentProps } from "../../../types/profileCompletion";
+import GroupedInstruments from "../../../types/instruments";
+
 import RootMessage from "../../forms/fields/RootMessage";
-import GroupedInstruments from "../../../types/Instruments";
 
 import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";

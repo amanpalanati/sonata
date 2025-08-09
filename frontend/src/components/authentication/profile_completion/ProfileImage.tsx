@@ -35,7 +35,9 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     // Priority: 1. Preview URL (newly uploaded), 2. Existing profileImage, 3. profileImageUrl, 4. Default
     if (previewUrl) return previewUrl;
     if (data.profileImage) return URL.createObjectURL(data.profileImage);
-    if (data.profileImageUrl) return data.profileImageUrl;
+    if (data.profileImageUrl && data.profileImageUrl !== "__DEFAULT_IMAGE__") {
+      return data.profileImageUrl;
+    }
     return "/images/default_pfp.png";
   };
 
@@ -49,10 +51,10 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
       return;
     }
 
-    // Validate file size (2MB limit)
-    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
-      setError("File size must be less than 2MB");
+      setError("File size must be less than 5MB");
       return;
     }
 
@@ -148,6 +150,11 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 src={getDisplayImage()}
                 alt="profile picture"
                 className={styles.profileImage}
+                onError={(e) => {
+                  // Fallback to default image if loading fails
+                  (e.target as HTMLImageElement).src =
+                    "/images/default_pfp.png";
+                }}
               />
               {/* Show remove button only if there's a custom image (not default) */}
               {(previewUrl ||
@@ -166,7 +173,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
             <p className={styles.uploadText}>
               Click to upload or drag and drop an image
             </p>
-            <p className={styles.uploadSubtext}>JPG, PNG, GIF up to 10MB</p>
+            <p className={styles.uploadSubtext}>JPG, PNG, GIF up to 5MB</p>
           </div>
 
           {/* Hidden file input */}

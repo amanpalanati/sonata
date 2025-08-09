@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { authService } from "../../services/auth";
 import { useAuth } from "../../contexts/AuthContext";
@@ -6,6 +6,16 @@ import { useAuth } from "../../contexts/AuthContext";
 const Dashboard: React.FC = () => {
   const { logoutAndRedirect, user } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [imageKey, setImageKey] = useState(0); // Force image re-render
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+
+  // Force image reload when user profile updates
+  useEffect(() => {
+    setImageKey((prev) => prev + 1);
+    setImageLoaded(false);
+    setShowFallback(false);
+  }, [user?.profile_image]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
@@ -25,11 +35,17 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Handle the special marker case
+  // Handle the special marker case and image loading with fallback
   const getProfileImageSrc = () => {
     if (!user?.profile_image || user.profile_image === "__DEFAULT_IMAGE__") {
       return "/images/default_pfp.png";
     }
+
+    // For custom images that might not be immediately available, show default until loaded
+    if (!imageLoaded && !showFallback) {
+      return "/images/default_pfp.png";
+    }
+
     return user.profile_image;
   };
 
@@ -47,14 +63,43 @@ const Dashboard: React.FC = () => {
       <p>
         Profile image:
         <img
+          key={imageKey}
           src={getProfileImageSrc()}
           alt="profile picture"
           style={{
-            marginLeft: "10px",
-            width: "100px",
-            height: "100px",
+            width: "120px",
+            height: "120px",
             borderRadius: "50%",
             objectFit: "cover",
+            border: "3px solid #f0f0f0",
+          }}
+          onLoad={() => {
+            setImageLoaded(true);
+          }}
+          onError={(e) => {
+            // If the custom image fails to load, show fallback
+            if (
+              !showFallback &&
+              user?.profile_image &&
+              user.profile_image !== "__DEFAULT_IMAGE__"
+            ) {
+              setShowFallback(true);
+              // Try loading the actual custom image in the background
+              const img = new Image();
+              img.onload = () => {
+                setImageLoaded(true);
+                setShowFallback(false);
+                setImageKey((prev) => prev + 1); // Force re-render with loaded image
+              };
+              img.onerror = () => {
+                // If it still fails, just use fallback permanently
+                (e.target as HTMLImageElement).src = "/images/default_pfp.png";
+              };
+              img.src = user.profile_image;
+            } else {
+              // Final fallback to default image
+              (e.target as HTMLImageElement).src = "/images/default_pfp.png";
+            }
           }}
         />
       </p>

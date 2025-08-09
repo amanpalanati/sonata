@@ -138,17 +138,17 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                             400,
                         )
 
-                    # Validate file size (2MB limit)
+                    # Validate file size (5MB limit)
                     file.seek(0, 2)  # Seek to end
                     file_size = file.tell()
                     file.seek(0)  # Reset to beginning
 
-                    if file_size > 2 * 1024 * 1024:  # 2MB
+                    if file_size > 5 * 1024 * 1024:  # 5MB
                         return (
                             jsonify(
                                 {
                                     "success": False,
-                                    "error": "File too large. Please upload an image smaller than 2MB.",
+                                    "error": "File too large. Please upload an image smaller than 5MB.",
                                 }
                             ),
                             400,
@@ -194,8 +194,17 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 if old_profile_image_path:
                     storage_service.delete_file(old_profile_image_path)
 
-            # If no profile image was handled and user doesn't already have one, set default
-            if not profile_image_handled and not current_user.get("profile_image"):
+            # If no profile image was handled but user has existing profile_image, keep it
+            # This prevents overwriting existing images when other fields are updated
+            elif (
+                not profile_image_handled
+                and current_user
+                and current_user.get("profile_image")
+            ):
+                # Keep existing profile image as-is
+                pass
+            # If no profile image was handled and user doesn't have one, set default marker
+            elif not profile_image_handled:
                 # Set default profile image marker
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
 
