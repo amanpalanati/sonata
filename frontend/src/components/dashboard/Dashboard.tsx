@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-import { authService } from "../../services/auth";
 import { useAuth } from "../../contexts/AuthContext";
 
 import Header from "./Header";
@@ -24,7 +23,7 @@ const Dashboard: React.FC = () => {
           : "Not provided"}
       </p>
       <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 };
