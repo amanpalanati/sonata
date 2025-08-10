@@ -75,7 +75,7 @@ const ProfileDropdown: React.FC = () => {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        Hello, {user?.first_name}
+        <span className={styles.text}>Hello, {user?.first_name}</span>
         <span className={isOpen ? styles.caretUp : styles.caretDown}>
           &#x25BC;
         </span>
@@ -83,10 +83,53 @@ const ProfileDropdown: React.FC = () => {
       {isOpen && (
         <div className={styles.dropdownContent}>
           <div className={styles.dropdownHeader}>
-            <ProfileImageDisplay styles={styles} />
-            <p className={styles.subtext}>
-              {user?.first_name} {user?.last_name} <br /> {user?.email}
-            </p>
+            <div className={styles.imageWrapper}>
+              <ProfileImageDisplay styles={styles} />
+            </div>
+            <div>
+              <p className={styles.subtext}>
+                {user?.first_name} {user?.last_name}
+              </p>
+              <p className={styles.subtext}>{user?.email}</p>
+            </div>
+            <div className={styles.optionsContainer}>
+              <Link
+                className={styles.option}
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+              >
+                <img
+                  className={styles.optionIcon}
+                  src="/icons/piano_icon.svg"
+                  alt="student-icon"
+                />
+                Dashboard
+              </Link>
+              <Link
+                className={styles.option}
+                to="#"
+                onClick={() => setIsOpen(false)}
+              >
+                <img
+                  className={styles.optionIcon}
+                  src="/icons/piano_icon.svg"
+                  alt="student-icon"
+                />
+                Calendar
+              </Link>
+              <Link
+                className={styles.option}
+                to="#"
+                onClick={() => setIsOpen(false)}
+              >
+                <img
+                  className={styles.optionIcon}
+                  src="/icons/piano_icon.svg"
+                  alt="student-icon"
+                />
+                Messages
+              </Link>
+            </div>
           </div>
           <Link
             className={styles.dropdownItem}
@@ -94,7 +137,7 @@ const ProfileDropdown: React.FC = () => {
             onClick={() => setIsOpen(false)}
           >
             <img
-              className={styles.icon}
+              className={styles.dropdownIcon}
               src="/icons/piano_icon.svg"
               alt="student-icon"
             />
@@ -106,7 +149,19 @@ const ProfileDropdown: React.FC = () => {
             onClick={() => setIsOpen(false)}
           >
             <img
-              className={styles.icon}
+              className={styles.dropdownIcon}
+              src="/icons/piano_icon.svg"
+              alt="student-icon"
+            />
+            <p>Wallet</p>
+          </Link>
+          <Link
+            className={styles.dropdownItem}
+            to="#"
+            onClick={() => setIsOpen(false)}
+          >
+            <img
+              className={styles.dropdownIcon}
               src="/icons/piano_icon.svg"
               alt="student-icon"
             />
@@ -118,7 +173,7 @@ const ProfileDropdown: React.FC = () => {
             onClick={() => setIsOpen(false)}
           >
             <img
-              className={styles.icon}
+              className={styles.dropdownIcon}
               src="/icons/piano_icon.svg"
               alt="student-icon"
             />

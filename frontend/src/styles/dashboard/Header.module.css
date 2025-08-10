@@ -18,14 +18,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.left {
-  width: 325px;
-}
-
-.right {
-  width: 176px;
+  gap: 8px;
 }
 
 @media (max-width: 768px) {
@@ -46,7 +39,6 @@
   border-radius: 20px;
   transition: 0.15s;
   white-space: nowrap;
-  background-color: lightblue;
 }
 
 .leftNavItem:hover,

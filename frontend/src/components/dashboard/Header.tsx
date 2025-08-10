@@ -23,6 +23,12 @@ const Header: React.FC = () => {
         </Link>
       </nav>
       <nav className={styles.right}>
+        <Link className={styles.rightNavItem} to="#">
+          Calendar
+        </Link>
+        <Link className={styles.rightNavItem} to="#">
+          Messages
+        </Link>
         <Link className={styles.rightNavItem} to="/help">
           Help
         </Link>
