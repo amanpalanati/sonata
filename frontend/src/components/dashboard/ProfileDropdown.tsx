@@ -85,6 +85,9 @@ const ProfileDropdown: React.FC = () => {
           <div className={styles.dropdownHeader}>
             <div className={styles.imageWrapper}>
               <ProfileImageDisplay styles={styles} />
+              <div className={styles.editIcon}>
+                <img src="/icons/edit_icon.svg" alt="Edit" />
+              </div>
             </div>
             <div>
               <p className={styles.subtext}>
@@ -100,8 +103,8 @@ const ProfileDropdown: React.FC = () => {
               >
                 <img
                   className={styles.optionIcon}
-                  src="/icons/piano_icon.svg"
-                  alt="student-icon"
+                  src="/icons/dashboard_icon.svg"
+                  alt="Dashboard"
                 />
                 Dashboard
               </Link>
@@ -112,8 +115,8 @@ const ProfileDropdown: React.FC = () => {
               >
                 <img
                   className={styles.optionIcon}
-                  src="/icons/piano_icon.svg"
-                  alt="student-icon"
+                  src="/icons/calendar_icon.svg"
+                  alt="Calendar"
                 />
                 Calendar
               </Link>
@@ -124,8 +127,8 @@ const ProfileDropdown: React.FC = () => {
               >
                 <img
                   className={styles.optionIcon}
-                  src="/icons/piano_icon.svg"
-                  alt="student-icon"
+                  src="/icons/messages_icon.svg"
+                  alt="Messages"
                 />
                 Messages
               </Link>
@@ -138,8 +141,8 @@ const ProfileDropdown: React.FC = () => {
           >
             <img
               className={styles.dropdownIcon}
-              src="/icons/piano_icon.svg"
-              alt="student-icon"
+              src="/icons/person_icon.svg"
+              alt="Account Settings"
             />
             <p>Account Settings</p>
           </Link>
@@ -150,8 +153,8 @@ const ProfileDropdown: React.FC = () => {
           >
             <img
               className={styles.dropdownIcon}
-              src="/icons/piano_icon.svg"
-              alt="student-icon"
+              src="/icons/wallet_icon.svg"
+              alt="Wallet"
             />
             <p>Wallet</p>
           </Link>
@@ -162,8 +165,8 @@ const ProfileDropdown: React.FC = () => {
           >
             <img
               className={styles.dropdownIcon}
-              src="/icons/piano_icon.svg"
-              alt="student-icon"
+              src="/icons/help_icon.svg"
+              alt="Help"
             />
             <p>Help</p>
           </Link>
@@ -173,9 +176,9 @@ const ProfileDropdown: React.FC = () => {
             onClick={() => setIsOpen(false)}
           >
             <img
-              className={styles.dropdownIcon}
-              src="/icons/piano_icon.svg"
-              alt="student-icon"
+              className={styles.feedbackIcon}
+              src="/icons/feedback_icon.svg"
+              alt="Feedback"
             />
             <p>Send Feedback</p>
           </Link>

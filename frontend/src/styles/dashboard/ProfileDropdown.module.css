@@ -85,8 +85,6 @@
 .imageWrapper {
   position: relative;
   display: inline-block;
-  border-radius: 50%;
-  overflow: hidden;
   cursor: pointer;
 }
 
@@ -101,10 +99,39 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 1;
+  border-radius: 50%;
 }
 
 .imageWrapper:hover::before {
   opacity: 1;
+}
+
+.editIcon {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 28px;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #f0f0f0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  opacity: 0;
+}
+
+.imageWrapper:hover .editIcon {
+  opacity: 1;
+}
+
+.editIcon img {
+  width: 14px;
+  height: 14px;
+  filter: brightness(0) invert(1);
 }
 
 .profileImage {
@@ -150,21 +177,20 @@
   transition: 0.4s;
   border-radius: 8px;
   width: 100px;
-  height: 74px;
+  height: 70px;
 }
 
 .option:hover {
-  background-color: rgb(230, 230, 230);
+  background-color: rgb(220, 220, 220);
 }
 
 .option:active {
-  background-color: rgb(220, 220, 220);
+  background-color: rgb(200, 200, 200);
 }
 
 .optionIcon {
   width: 20px;
   height: 20px;
-  margin-bottom: 6px;
 }
 
 .dropdownItem {
@@ -174,17 +200,22 @@
 }
 
 .dropdownItem:hover {
-  background-color: rgb(245, 245, 245);
+  background-color: rgb(240, 240, 240);
 }
 
 .dropdownItem:active {
-  background-color: rgb(230, 230, 230);
+  background-color: rgb(220, 220, 220);
 }
 
-.dropdownIcon {
-  width: 28px;
-  height: 28px;
-  margin-right: 8px;
+.dropdownIcon,
+.feedbackIcon {
+  width: 22px;
+  height: 22px;
+  margin-right: 16px;
+}
+
+.feedbackIcon {
+  padding-top: 1px;
 }
 
 .dropdownItem,
@@ -216,11 +247,11 @@
 }
 
 .logoutButton:hover {
-  background-color: rgb(230, 230, 230);
+  background-color: rgb(220, 220, 220);
 }
 
 .logoutButton:active {
-  background-color: rgb(220, 220, 220);
+  background-color: rgb(200, 200, 200);
 }
 
 /* Mobile responsiveness */
