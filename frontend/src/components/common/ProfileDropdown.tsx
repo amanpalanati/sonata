@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import ProfileImageDisplay from "./ProfileImageDisplay";
 
-import styles from "../../styles/dashboard/ProfileDropdown.module.css";
+import styles from "../../styles/common/ProfileDropdown.module.css";
 import { authService } from "../../services/auth";
 
 const ProfileDropdown: React.FC = () => {
@@ -136,15 +136,15 @@ const ProfileDropdown: React.FC = () => {
           </div>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/account/info"
             onClick={() => setIsOpen(false)}
           >
             <img
               className={styles.dropdownIcon}
               src="/icons/person_icon.svg"
-              alt="Account Settings"
+              alt="Account"
             />
-            <p>Account Settings</p>
+            <p>Manage Account</p>
           </Link>
           <Link
             className={styles.dropdownItem}
@@ -160,7 +160,7 @@ const ProfileDropdown: React.FC = () => {
           </Link>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/help"
             onClick={() => setIsOpen(false)}
           >
             <img

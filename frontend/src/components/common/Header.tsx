@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import ProfileDropdown from "./ProfileDropdown";
 
-import styles from "../../styles/dashboard/Header.module.css";
+import styles from "../../styles/common/Header.module.css";
 
 const Header: React.FC = () => {
   return (

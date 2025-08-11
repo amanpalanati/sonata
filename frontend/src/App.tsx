@@ -16,6 +16,7 @@ import ForgotPassword from "./components/authentication/ForgotPassword";
 import ResetPassword from "./components/forms/ResetPasswordForm";
 import CompleteProfile from "./components/authentication/profile_completion/CompleteProfile";
 import Dashboard from "./components/dashboard/Dashboard";
+import Settings from "./components/settings/Settings";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -91,6 +92,16 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute>
             <ProfileGuard>
               <Dashboard />
+            </ProfileGuard>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/account/:settingsItem"
+        element={
+          <ProtectedRoute>
+            <ProfileGuard>
+              <Settings />
             </ProfileGuard>
           </ProtectedRoute>
         }
