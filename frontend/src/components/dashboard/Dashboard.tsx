@@ -2,8 +2,8 @@ import React from "react";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "../common/Header";
+import Footer from "../common/Footer";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();

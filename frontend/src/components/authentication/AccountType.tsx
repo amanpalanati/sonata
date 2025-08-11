@@ -9,7 +9,6 @@ import styles from "../../styles/authentication/AccountType.module.css";
 const AccountType: React.FC = () => {
   useBodyClass("auth");
 
-  // Authentication check is now handled at the route level in App.tsx
   return (
     <>
       <div className={styles.wrapper}></div>
