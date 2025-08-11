@@ -5,12 +5,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { SignUpFormData } from "../../types";
+import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 
-import FloatingLabelInput from "./FloatingLabelInput";
+import FormField from "./fields/FormField";
+import RootMessage from "./fields/RootMessage";
 import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/forms/AuthForm.module.css";
+import styles from "../../styles/forms/SignUpForm.module.css";
 
 // Validation schema
 const signUpSchema = yup.object().shape({
@@ -41,11 +43,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Track which fields have been blurred and had errors
-  const [touchedWithErrors, setTouchedWithErrors] = React.useState<Set<string>>(
-    new Set()
-  );
-
   // Validate account type
   const validAccountTypes = ["student", "teacher", "parent"];
   const normalizedAccountType = accountType?.toLowerCase();
@@ -61,17 +58,24 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     return null;
   }
 
+  const form = useForm<Omit<SignUpFormData, "accountType">>({
+    resolver: yupResolver(signUpSchema),
+    mode: "onBlur",
+  });
+
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-    trigger,
     setValue,
     clearErrors,
-  } = useForm<Omit<SignUpFormData, "accountType">>({
-    resolver: yupResolver(signUpSchema),
-    mode: "onBlur",
+  } = form;
+
+  // Use the custom hook for field management
+  const { customRegister } = useFormFieldManagement({
+    form,
+    passwordField: "password",
+    confirmPasswordField: "confirmPassword",
   });
 
   // Handle OAuth errors from location state
@@ -87,46 +91,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     }
   }, [location.state, setError, navigate, location.pathname]);
 
-  // Effect to track which fields have errors after blur
-  React.useEffect(() => {
-    Object.keys(errors).forEach((fieldName) => {
-      if (fieldName !== "root") {
-        setTouchedWithErrors((prev) => new Set(prev).add(fieldName));
-      }
-    });
-  }, [errors]);
-
-  // Custom register function that adds onChange validation for fields with errors
-  const customRegister = (name: keyof Omit<SignUpFormData, "accountType">) => {
-    const registration = register(name);
-
-    return {
-      ...registration,
-      onChange: async (e: React.ChangeEvent<HTMLInputElement>) => {
-        registration.onChange(e);
-        // If this field has had an error before, validate on change
-        if (touchedWithErrors.has(name)) {
-          await trigger(name);
-        }
-      },
-      onFocus: () => {
-        // Clear root API error when any input gets focus
-        if (errors.root) {
-          clearErrors("root");
-        }
-      },
-      onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
-        registration.onBlur(e);
-        // Always validate on blur
-        await trigger(name);
-        // If there's an error after blur, add to touchedWithErrors
-        if (errors[name]) {
-          setTouchedWithErrors((prev) => new Set(prev).add(name));
-        }
-      },
-    };
-  };
-
   const handleFormSubmit = async (
     data: Omit<SignUpFormData, "accountType">
   ) => {
@@ -140,7 +104,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         await onSubmit(formData);
       } else {
         // Default logic when no onSubmit function is provided
-        console.log("Form submitted:", formData);
+        // User registration completed
       }
     } catch (error) {
       // Clear password fields on API errors while keeping other fields
@@ -168,115 +132,77 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
   return (
     <>
-      <div className={styles.signUpWrapper}></div>
+      <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>
           Create {capitalizeAccountType(normalizedAccountType)} Account
         </h1>
+
+        {/* Root error for API errors */}
+        <RootMessage
+          message={errors.root?.message}
+          type="error"
+          styles={{
+            alert: styles.alert,
+            span: styles.span,
+          }}
+        />
 
         <form
           className={styles.form}
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
-          {/* Root error for API errors */}
-          {errors.root && (
-            <div className={styles.alert}>
-              <span className={styles.span}>&#9888;</span>
-              {errors.root.message}
-            </div>
-          )}
-
           {/* Form Fields */}
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="firstName"
-              label="First Name"
-              type="text"
-              placeholder="First Name"
-              register={customRegister("firstName")}
-              errors={errors.firstName}
-              ariaInvalid={errors.firstName ? "true" : "false"}
-            />
-            {errors.firstName && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.firstName.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="firstName"
+            label="First Name"
+            type="text"
+            placeholder="First Name"
+            register={customRegister("firstName")}
+            error={errors.firstName}
+            styles={styles}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="lastName"
-              label="Last Name"
-              type="text"
-              placeholder="Last Name"
-              register={customRegister("lastName")}
-              errors={errors.lastName}
-              ariaInvalid={errors.lastName ? "true" : "false"}
-            />
-            {errors.lastName && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.lastName.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="lastName"
+            label="Last Name"
+            type="text"
+            placeholder="Last Name"
+            register={customRegister("lastName")}
+            error={errors.lastName}
+            styles={styles}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="email"
-              label="Email"
-              type="email"
-              placeholder="Email"
-              register={customRegister("email")}
-              errors={errors.email}
-              ariaInvalid={errors.email ? "true" : "false"}
-            />
-            {errors.email && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.email.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="Email"
+            register={customRegister("email")}
+            error={errors.email}
+            styles={styles}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Password"
-              register={customRegister("password")}
-              errors={errors.password}
-              ariaInvalid={errors.password ? "true" : "false"}
-            />
-            {errors.password && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.password.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="Password"
+            register={customRegister("password")}
+            error={errors.password}
+            styles={styles}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              placeholder="Confirm Password"
-              register={customRegister("confirmPassword")}
-              errors={errors.confirmPassword}
-              ariaInvalid={errors.confirmPassword ? "true" : "false"}
-            />
-            {errors.confirmPassword && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.confirmPassword.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            placeholder="Confirm Password"
+            register={customRegister("confirmPassword")}
+            error={errors.confirmPassword}
+            styles={styles}
+          />
 
           <button
             className={styles.submitButton}

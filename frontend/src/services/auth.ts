@@ -1,4 +1,4 @@
-import { SignUpFormData, LoginFormData } from "../types";
+import { SignUpFormData, LoginFormData, ForgotPasswordFormData, ForgotPasswordEmailData } from "../types";
 import { supabase } from "./supabase";
 
 // Since we have a proxy configured in vite.config.ts, we can use relative URLs
@@ -11,7 +11,7 @@ let authCheckCache: {
   timestamp: number;
 } | null = null;
 
-const CACHE_DURATION = 1000; // Reduced to 1 second for faster response
+const CACHE_DURATION = 1000; // 1 second for reasonable caching
 
 // Function to clear auth cache
 const clearAuthCache = () => {
@@ -128,6 +128,34 @@ export const authService = {
       timestamp: now,
     };
 
+    return result;
+  },
+
+  // Initiate forgot password flow
+  forgotPassword: async (formData: ForgotPasswordEmailData) => {
+    const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    return handleResponse(response);
+  },
+
+  // Reset password with token
+  resetPasswordWithToken: async (formData: ForgotPasswordFormData & { access_token: string }) => {
+    const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await handleResponse(response);
+    clearAuthCache(); // Clear cache after password reset
     return result;
   },
 };

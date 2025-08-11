@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+
 import { authService, clearAuthCache } from "../services/auth";
 
 interface User {
@@ -13,6 +14,15 @@ interface User {
   account_type: string;
   first_name: string;
   last_name: string;
+
+  // Optional fields that may not always be present
+  child_first_name?: string;
+  child_last_name?: string;
+  profile_image?: string;
+  bio?: string;
+  instruments?: string[];
+
+  profile_completed?: boolean;
 }
 
 interface AuthContextType {
@@ -24,6 +34,7 @@ interface AuthContextType {
   logout: () => void;
   logoutAndRedirect: (redirectUrl?: string) => void;
   checkAuth: () => Promise<void>;
+  updateUserProfile: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,13 +73,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (result.authenticated) {
           const userData = {
-            id: result.user_id,
-            email: result.user_email,
+            id: result.id,
+            email: result.email,
             account_type: result.account_type,
             first_name: result.first_name,
             last_name: result.last_name,
-          };
 
+            ...(result.child_first_name && {
+              child_first_name: result.child_first_name,
+            }),
+            ...(result.child_last_name && {
+              child_last_name: result.child_last_name,
+            }),
+            ...(result.profile_image && {
+              profile_image: result.profile_image,
+            }),
+            ...(result.bio && { bio: result.bio }),
+            ...(result.instruments && { instruments: result.instruments }),
+
+            profile_completed: result.profile_completed || false,
+          };
           setIsAuthenticated(true);
           setUser(userData);
         } else {
@@ -76,8 +100,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
         }
       } catch (error: any) {
-        console.error("Auth check failed:", error);
-
         // If session was cleared due to deleted user, update auth state
         if (error.sessionCleared) {
           setIsAuthenticated(false);
@@ -127,6 +149,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 100);
   };
 
+  const updateUserProfile = (updates: Partial<User>) => {
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+
+      const updatedUser = { ...prevUser, ...updates };
+
+      // Clear cache when profile image changes to ensure fresh data
+      if (updates.profile_image !== undefined) {
+        clearAuthCache();
+      }
+
+      return updatedUser;
+    });
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     user,
@@ -136,6 +173,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     logoutAndRedirect,
     checkAuth,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

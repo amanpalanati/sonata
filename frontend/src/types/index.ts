@@ -11,3 +11,12 @@ export interface LoginFormData {
   email: string;
   password: string;
 }
+
+export interface ForgotPasswordFormData {
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+export interface ForgotPasswordEmailData {
+  email: string;
+}

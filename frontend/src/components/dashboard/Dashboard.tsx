@@ -1,38 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 
-import { authService } from "../../services/auth";
 import { useAuth } from "../../contexts/AuthContext";
 
+import Header from "./Header";
+import Footer from "./Footer";
+
 const Dashboard: React.FC = () => {
-  const { logoutAndRedirect, user } = useAuth();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { user } = useAuth();
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
-
-    setIsLoggingOut(true);
-
-    try {
-      // Clear backend session first
-      await authService.logout();
-
-      // Use the context method that handles redirect properly
-      logoutAndRedirect("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Even if backend logout fails, still redirect
-      logoutAndRedirect("/");
-    }
-  };
-
-  // Authentication is now handled at the route level in App.tsx
   return (
     <>
+      <Header />
       <h1>Dashboard</h1>
-      <p>Welcome, {user?.first_name}!</p>
-      <button onClick={handleLogout} disabled={isLoggingOut}>
-        {isLoggingOut ? "Logging out..." : "Log Out"}
-      </button>
+
+      <p>Child's first name: {user?.child_first_name || "Not provided"}</p>
+      <p>Child's last name: {user?.child_last_name || "Not provided"}</p>
+      <p>Bio: {user?.bio || "Not provided"}</p>
+      <p>
+        Instruments:{" "}
+        {user?.instruments?.length
+          ? user.instruments.join(", ")
+          : "Not provided"}
+      </p>
+      <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
+      <Footer />
     </>
   );
 };

@@ -5,12 +5,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { LoginFormData } from "../../types";
+import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 
-import FloatingLabelInput from "./FloatingLabelInput";
+import FormField from "./fields/FormField";
+import RootMessage from "./fields/RootMessage";
 import GoogleSignIn from "./GoogleSignIn";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
-import styles from "../../styles/forms/AuthForm.module.css";
+import styles from "../../styles/forms/LoginForm.module.css";
 
 // Validation schema
 const loginSchema = yup.object().shape({
@@ -31,24 +33,36 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Track which fields have been blurred and had errors
-  const [touchedWithErrors, setTouchedWithErrors] = React.useState<Set<string>>(
-    new Set()
-  );
-
+  const form = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-    trigger,
     setValue,
     clearErrors,
-  } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
+  } = form;
 
-  // Handle OAuth errors from location state
+  // Use the custom hook for field management
+  const { customRegister } = useFormFieldManagement({
+    form,
+    onFocus: () => {
+      // Clear success message when any input gets focus
+      if (successMessage) {
+        setSuccessMessage("");
+      }
+    },
+  });
+
+  // Track success messages from location state
+  const [successMessage, setSuccessMessage] = React.useState<string>("");
+
+  // Handle OAuth errors and success messages from location state
   React.useEffect(() => {
-    const state = location.state as { oauthError?: string } | null;
+    const state = location.state as {
+      oauthError?: string;
+      successMessage?: string;
+    } | null;
+
     if (state?.oauthError) {
       setError("root", {
         type: "manual",
@@ -57,46 +71,13 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       // Clear the state to prevent showing error again on re-render
       navigate(location.pathname, { replace: true, state: {} });
     }
+
+    if (state?.successMessage) {
+      setSuccessMessage(state.successMessage);
+      // Clear the state to prevent showing message again on re-render
+      navigate(location.pathname, { replace: true, state: {} });
+    }
   }, [location.state, setError, navigate, location.pathname]);
-
-  // Effect to track which fields have errors after blur
-  React.useEffect(() => {
-    Object.keys(errors).forEach((fieldName) => {
-      if (fieldName !== "root") {
-        setTouchedWithErrors((prev) => new Set(prev).add(fieldName));
-      }
-    });
-  }, [errors]);
-
-  // Custom register function that adds onChange validation for fields with errors
-  const customRegister = (name: keyof LoginFormData) => {
-    const registration = register(name);
-
-    return {
-      ...registration,
-      onChange: async (e: React.ChangeEvent<HTMLInputElement>) => {
-        registration.onChange(e);
-        if (touchedWithErrors.has(name)) {
-          await trigger(name);
-        }
-      },
-      onFocus: () => {
-        // Clear root API error when any input gets focus
-        if (errors.root) {
-          clearErrors("root");
-        }
-      },
-      onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
-        registration.onBlur(e);
-        // Always validate on blur
-        await trigger(name);
-        // If there's an error after blur, add to touchedWithErrors
-        if (errors[name]) {
-          setTouchedWithErrors((prev) => new Set(prev).add(name));
-        }
-      },
-    };
-  };
 
   const handleFormSubmit = async (data: LoginFormData) => {
     try {
@@ -104,7 +85,6 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         await onSubmit(data);
       } else {
         // Default logic when no onSubmit function is provided
-        console.log("Form submitted:", data);
         navigate("/dashboard");
       }
     } catch (error) {
@@ -125,7 +105,7 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   return (
     <>
-      <div className={styles.loginWrapper}></div>
+      <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Log In</h1>
 
@@ -134,50 +114,46 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
+          {/* Success message */}
+          <RootMessage
+            message={successMessage}
+            type="success"
+            styles={{
+              success: styles.success,
+            }}
+            showIcon={false}
+          />
+
           {/* Root error for API errors */}
-          {errors.root && (
-            <div className={styles.alert}>
-              <span className={styles.span}>&#9888;</span>
-              {errors.root.message}
-            </div>
-          )}
+          <RootMessage
+            message={errors.root?.message}
+            type="error"
+            styles={{
+              alert: styles.alert,
+              span: styles.span,
+            }}
+          />
 
           {/* Form Fields */}
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="email"
-              label="Email"
-              type="email"
-              placeholder="Email"
-              register={customRegister("email")}
-              errors={errors.email}
-              ariaInvalid={errors.email ? "true" : "false"}
-            />
-            {errors.email && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.email.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            placeholder="Email"
+            register={customRegister("email")}
+            error={errors.email}
+            styles={styles}
+          />
 
-          <div className={styles.formGroup}>
-            <FloatingLabelInput
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Password"
-              register={customRegister("password")}
-              errors={errors.password}
-              ariaInvalid={errors.password ? "true" : "false"}
-            />
-            {errors.password && (
-              <div className={styles.error}>
-                <span className={styles.span}>&#9888;</span>
-                {errors.password.message}
-              </div>
-            )}
-          </div>
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="Password"
+            register={customRegister("password")}
+            error={errors.password}
+            styles={styles}
+          />
 
           <button
             className={styles.submitButton}
@@ -187,6 +163,10 @@ const LogInForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
             {isSubmitting ? "Logging In..." : "Log In"}
           </button>
         </form>
+
+        <Link to="/forgot-password" className={styles.forgotPassword}>
+          Forgot your password?
+        </Link>
 
         <div className={styles.divider}>
           <span className={styles.dividerSpan}>OR</span>

@@ -7,11 +7,7 @@ const Cards: React.FC = () => {
   return (
     <section className={styles.cardGrid}>
       <div className={styles.card}>
-        <img
-          className={styles.img}
-          src="/src/public/images/student.jpg"
-          alt="Students"
-        />
+        <img className={styles.img} src="/images/student.jpg" alt="Students" />
         <div className={styles.cardText}>
           <h2 className={styles.h2}>For Students</h2>
           <p className={styles.p}>
@@ -36,19 +32,11 @@ const Cards: React.FC = () => {
             Get started
           </Link>
         </div>
-        <img
-          className={styles.img}
-          src="/src/public/images/teacher.jpg"
-          alt="Teachers"
-        />
+        <img className={styles.img} src="/images/teacher.jpg" alt="Teachers" />
       </div>
 
       <div className={styles.card}>
-        <img
-          className={styles.img}
-          src="/src/public/images/parent.jpg"
-          alt="Parents"
-        />
+        <img className={styles.img} src="/images/parent.jpg" alt="Parents" />
         <div className={styles.cardText}>
           <h2 className={styles.h2}>For Parents</h2>
           <p className={styles.p}>

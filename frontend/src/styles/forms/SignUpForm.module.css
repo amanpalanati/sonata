@@ -1,0 +1,180 @@
+.wrapper {
+  display: none;
+}
+
+.container {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  padding: 32px;
+  width: 750px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  gap: 30px;
+}
+
+.h1 {
+  font-size: 24px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-auto-flow: column;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+.alert {
+  font-size: 16px;
+  color: rgb(255, 67, 67);
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 2px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+}
+
+.errorHidden {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: hidden;
+}
+
+.errorVisible {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: visible;
+}
+
+.span {
+  margin-right: 6px;
+}
+
+.submitButton {
+  background-color: black;
+  color: white;
+  border-radius: 20px;
+  border: none;
+  font-size: 16px;
+  transition: 0.15s;
+  padding: 10px 6px;
+  align-self: start;
+}
+
+.submitButton:hover {
+  background: rgb(50, 50, 50);
+}
+
+.submitButton:active {
+  background: rgb(96, 96, 96);
+}
+
+.divider {
+  width: 100%;
+  background-color: gray;
+  height: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -14px;
+}
+
+.dividerSpan {
+  color: gray;
+  font-weight: bold;
+  background-color: white;
+  padding: 0px 4px;
+  font-size: 14px;
+}
+
+.p {
+  color: black;
+  text-decoration: none;
+  font-size: 16px;
+  margin-top: -6px;
+}
+
+.link {
+  color: rgb(21, 57, 216);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 850px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    gap: 22px;
+    top: 120px;
+    width: 85%;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: normal;
+  }
+
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    flex-basis: auto;
+  }
+
+  .submitButton {
+    padding: 6px;
+    align-self: auto;
+  }
+
+  .divider {
+    margin: 8px 0;
+  }
+
+  .p {
+    margin-top: 0;
+  }
+}
+
+@media (max-height: 640px) and (min-width: 768px) {
+  .wrapper {
+    display: block;
+    padding-bottom: 600px;
+  }
+
+  .container {
+    transform: translateX(-50%);
+    top: 120px;
+    min-height: fit-content;
+    overflow-y: auto;
+  }
+}
