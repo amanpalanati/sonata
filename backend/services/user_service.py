@@ -186,8 +186,6 @@ class UserService(SupabaseService):
 
         return user_data
 
-    # Could be used as a general update user data function that also checks if
-    # the user exists and if it doesnt then end the session
     def update_user_metadata(
         self, user_id: str, metadata: Dict[str, Any]
     ) -> Dict[str, Any]:

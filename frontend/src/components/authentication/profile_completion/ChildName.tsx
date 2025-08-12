@@ -17,8 +17,15 @@ const childNameSchema = yup.object().shape({
   childFirstName: yup
     .string()
     .required("Child's first name is required")
+    .min(2, "Child's first name must be at least 2 characters")
+    .max(50, "Child's first name must be less than 50 characters")
     .trim(),
-  childLastName: yup.string().required("Child's last name is required").trim(),
+  childLastName: yup
+    .string()
+    .required("Child's last name is required")
+    .min(2, "Child's last name must be at least 2 characters")
+    .max(50, "Child's last name must be less than 50 characters")
+    .trim(),
 });
 
 // Form data type that matches the schema (required fields)

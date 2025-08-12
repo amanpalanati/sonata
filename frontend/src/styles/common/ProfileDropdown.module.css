@@ -42,7 +42,7 @@
 
 .caretUp {
   transform: rotate(-180deg);
-  padding-top: 1.5px;
+  padding-top: 0.5px;
 }
 
 .dropdownContent {

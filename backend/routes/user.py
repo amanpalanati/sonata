@@ -59,9 +59,9 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
         else:
             return jsonify({"authenticated": False}), 200
 
-    @user_bp.route("/api/complete-profile", methods=["POST"])
-    def api_complete_profile():
-        """API endpoint to complete user profile"""
+    @user_bp.route("/api/update-profile", methods=["POST"])
+    def api_update_profile():
+        """API endpoint to update user profile"""
         from flask import request
 
         if "user_id" not in session:
@@ -249,7 +249,7 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                     jsonify(
                         {
                             "success": True,
-                            "message": "Profile completed successfully",
+                            "message": "Profile updated successfully",
                             **updated_user_data,  # Include all updated user data
                         }
                     ),
@@ -268,5 +268,10 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
 
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
+
+    @user_bp.route("/api/complete-profile", methods=["POST"])
+    def api_complete_profile():
+        """API endpoint to complete user profile for the first time"""
+        return api_update_profile()  # Delegate to the update profile function
 
     return user_bp

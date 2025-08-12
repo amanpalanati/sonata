@@ -1,5 +1,9 @@
+.page {
+  position: relative;
+}
+
 .sidebar {
-  position: absolute;
+  position: fixed;
   top: 72px;
   left: 0;
   bottom: 0;
@@ -8,6 +12,13 @@
   gap: 22px;
   padding: 16px 0px;
   width: 220px;
+  background-color: white;
+  z-index: 10;
+}
+
+.contentArea {
+  margin-left: min(max(250px, 22vw), 400px);
+  padding: 60px 24px;
 }
 
 .sidebarTitle {
@@ -44,4 +55,191 @@
 
 .sidebarItem:hover {
   background-color: rgb(240, 240, 240);
+}
+
+.content {
+  max-width: 60vw;
+  margin: 0;
+  padding: 0;
+}
+
+.contentTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+}
+
+.divider {
+  border: none;
+  border-top: 1.5px solid grey;
+  margin: 20px 0px;
+}
+
+.alert {
+  font-size: 16px;
+  color: rgb(255, 67, 67);
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 2px;
+}
+
+.mainInfo {
+  display: flex;
+}
+
+.textWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.textInputs {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.nameInputs {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.imageWrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  height: 140px;
+}
+
+.imageWrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  border-radius: 50%;
+}
+
+.imageWrapper:hover::before {
+  opacity: 1;
+}
+
+.editIcon {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #f0f0f0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  opacity: 1;
+}
+
+.editIcon img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.profileImage {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f0f0f0;
+  display: block;
+  position: relative;
+  z-index: 0;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+}
+
+.errorHidden {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: hidden;
+}
+
+.errorVisible {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: visible;
+}
+
+.span {
+  margin-right: 6px;
+}
+
+.buttonGroup {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submitButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.submitButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
