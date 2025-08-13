@@ -83,12 +83,16 @@ const ProfileDropdown: React.FC = () => {
       {isOpen && (
         <div className={styles.dropdownContent}>
           <div className={styles.dropdownHeader}>
-            <div className={styles.imageWrapper}>
+            <Link
+              className={styles.imageWrapper}
+              to="/account/info?editProfileImage=true"
+              onClick={() => setIsOpen(false)}
+            >
               <ProfileImageDisplay styles={styles} />
               <div className={styles.editIcon}>
                 <img src="/icons/edit_icon.svg" alt="Edit" />
               </div>
-            </div>
+            </Link>
             <div>
               <p className={styles.subtext}>
                 {user?.first_name} {user?.last_name}
@@ -148,7 +152,7 @@ const ProfileDropdown: React.FC = () => {
           </Link>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/account/wallet"
             onClick={() => setIsOpen(false)}
           >
             <img

@@ -69,10 +69,24 @@
   color: black;
 }
 
+.subTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: grey;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
 .divider {
   border: none;
   border-top: 1.5px solid grey;
   margin: 20px 0px;
+}
+
+.subdivider {
+  border: none;
+  border-top: 1px solid lightgrey;
+  margin: 40px 0px;
 }
 
 .alert {
@@ -83,7 +97,7 @@
   margin-bottom: 2px;
 }
 
-.mainInfo {
+.textFields {
   display: flex;
 }
 
@@ -107,10 +121,24 @@
   gap: 20px;
 }
 
+.bioField {
+  width: 50%;
+  margin-top: -6px;
+}
+
+.childNameField {
+  margin-top: 22px;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .imageWrapper {
   position: relative;
   display: inline-block;
   cursor: pointer;
+  width: 140px;
   height: 140px;
 }
 

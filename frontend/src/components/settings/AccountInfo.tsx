@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
 import { authService } from "../../services/auth";
 import { AccountInfoFormData } from "../../types";
 
-import ProfileImageDisplay from "../common/ProfileImageDisplay";
+import ProfileImagePopup from "./ProfileImagePopup";
 import FormField from "../forms/fields/FormField";
 import RootMessage from "../forms/fields/RootMessage";
 import TextAreaField from "../forms/fields/TextAreaField";
@@ -73,9 +74,31 @@ const createValidationSchema = (accountType?: string) => {
 
 const AccountInfo: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    null
+  );
   const [hasChanges, setHasChanges] = useState(false);
+
+  // Check if popup should be open based on URL parameter
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  // Check URL parameters on mount and location change
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get("editProfileImage") === "true") {
+      setIsPopupOpen(true);
+      // Clean up URL parameter without page reload
+      searchParams.delete("editProfileImage");
+      const newUrl = `${location.pathname}${
+        searchParams.toString() ? "?" + searchParams.toString() : ""
+      }`;
+      navigate(newUrl, { replace: true });
+    }
+  }, [location, navigate]);
 
   // Create validation schema based on user's account type
   const validationSchema = createValidationSchema(user?.account_type);
@@ -93,7 +116,6 @@ const AccountInfo: React.FC = () => {
   });
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     reset,
@@ -153,31 +175,47 @@ const AccountInfo: React.FC = () => {
         originalValues[key as keyof typeof originalValues]
     );
 
-    // Check if profile image has changed
-    const imageHasChanges = profileImage !== null;
+    // Check if profile image has changed (either new file or explicitly removed)
+    const imageHasChanges =
+      profileImage !== null || profileImagePreview === "__REMOVED_IMAGE__";
 
     setHasChanges(formHasChanges || imageHasChanges);
-  }, [watchedValues, user, profileImage]);
+  }, [watchedValues, user, profileImage, profileImagePreview]);
 
-  // Handle profile image selection
-  const handleProfileImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+  // Add beforeunload warning when there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasChanges]);
+
+  // Handle popup for profile image
+  const handleOpenPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handlePopupImageUpdate = (
+    file: File | null,
+    previewUrl: string | null
   ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        setError("root", { message: "Please select a valid image file" });
-        return;
-      }
-
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("root", { message: "Image must be less than 5MB" });
-        return;
-      }
-
-      setProfileImage(file);
+    setProfileImage(file);
+    // If file is null and previewUrl is null, user removed the image
+    if (file === null && previewUrl === null) {
+      setProfileImagePreview("__REMOVED_IMAGE__"); // Special marker for removed image
+    } else {
+      setProfileImagePreview(previewUrl);
     }
   };
 
@@ -202,9 +240,13 @@ const AccountInfo: React.FC = () => {
         formData.append("bio", data.bio);
       }
 
-      // Add profile image if selected
+      // Handle profile image changes
       if (profileImage) {
+        // User selected a new image
         formData.append("profileImage", profileImage);
+      } else if (profileImagePreview === "__REMOVED_IMAGE__") {
+        // User explicitly removed the image - send a special marker
+        formData.append("removeProfileImage", "true");
       }
 
       // Call the update profile API endpoint using the auth service
@@ -223,11 +265,16 @@ const AccountInfo: React.FC = () => {
           ...(user?.account_type === "teacher" && {
             bio: data.bio,
           }),
+          // Update profile image based on what happened
           ...(profileImage && { profile_image: result.profile_image }),
+          ...(profileImagePreview === "__REMOVED_IMAGE__" && {
+            profile_image: "__DEFAULT_IMAGE__",
+          }),
         });
 
-        // Clear the image selection
+        // Clear the image selection and preview
         setProfileImage(null);
+        setProfileImagePreview(null);
         setHasChanges(false); // Reset changes state after successful update
 
         setError("root", {
@@ -261,6 +308,7 @@ const AccountInfo: React.FC = () => {
         bio: user.bio || "",
       });
       setProfileImage(null);
+      setProfileImagePreview(null);
       setHasChanges(false); // Reset changes state when canceling
     }
   };
@@ -280,24 +328,25 @@ const AccountInfo: React.FC = () => {
             span: styles.span,
           }}
         />
-        <div className={styles.mainInfo}>
-          <div className={styles.imageWrapper}>
-            <ProfileImageDisplay styles={styles} />
-            <div
-              className={styles.editIcon}
-              onClick={() =>
-                document.getElementById("profileImageInput")?.click()
+        <div className={styles.textFields}>
+          <div className={styles.imageWrapper} onClick={handleOpenPopup}>
+            <img
+              src={
+                profileImagePreview === "__REMOVED_IMAGE__"
+                  ? "/images/default_pfp.png"
+                  : profileImagePreview ||
+                    (user?.profile_image &&
+                    user.profile_image !== "__DEFAULT_IMAGE__"
+                      ? user.profile_image
+                      : null) ||
+                    "/images/default_pfp.png"
               }
-            >
+              alt="Profile"
+              className={styles.profileImage}
+            />
+            <div className={styles.editIcon}>
               <img src="/icons/edit_icon.svg" alt="Edit" />
             </div>
-            <input
-              id="profileImageInput"
-              type="file"
-              accept="image/*"
-              onChange={handleProfileImageChange}
-              style={{ display: "none" }}
-            />
           </div>
 
           <div className={styles.textWrapper}>
@@ -342,42 +391,58 @@ const AccountInfo: React.FC = () => {
         </div>
 
         {user?.account_type === "parent" && (
-          <div>
-            <FormField
-              id="childFirstName"
-              label="Child's First Name"
-              type="text"
-              placeholder="Child's First Name"
-              register={customRegister("childFirstName")}
-              error={errors.childFirstName}
-              styles={styles}
-            />
+          <>
+            <hr className={styles.subdivider} />
 
-            <FormField
-              id="childLastName"
-              label="Child's Last Name"
-              type="text"
-              placeholder="Child's Last Name"
-              register={customRegister("childLastName")}
-              error={errors.childLastName}
-              styles={styles}
-            />
-          </div>
+            <h2 className={styles.subTitle}>Child Name</h2>
+
+            <div className={styles.childNameField}>
+              <FormField
+                id="childFirstName"
+                label="Child's First Name"
+                type="text"
+                placeholder="Child's First Name"
+                register={customRegister("childFirstName")}
+                error={errors.childFirstName}
+                styles={styles}
+              />
+
+              <FormField
+                id="childLastName"
+                label="Child's Last Name"
+                type="text"
+                placeholder="Child's Last Name"
+                register={customRegister("childLastName")}
+                error={errors.childLastName}
+                styles={styles}
+              />
+            </div>
+          </>
         )}
 
         {user?.account_type === "teacher" && (
-          <TextAreaField
-            id="bio"
-            label="Bio"
-            placeholder="What you hope to accomplish as a music teacher..."
-            register={register("bio")}
-            error={errors.bio}
-            styles={styles}
-            rows={3}
-            maxRows={8}
-            maxChar={500}
-          />
+          <>
+            <hr className={styles.subdivider} />
+
+            <h2 className={styles.subTitle}>Bio</h2>
+
+            <div className={styles.bioField}>
+              <TextAreaField
+                id=""
+                label=""
+                placeholder="What you hope to accomplish as a music teacher..."
+                register={customRegister("bio")}
+                error={errors.bio}
+                styles={styles}
+                rows={3}
+                maxRows={8}
+                maxChar={500}
+              />
+            </div>
+          </>
         )}
+
+        <hr className={styles.divider} />
 
         <div className={styles.buttonGroup}>
           <button
@@ -397,6 +462,18 @@ const AccountInfo: React.FC = () => {
           </button>
         </div>
       </form>
+
+      <ProfileImagePopup
+        isOpen={isPopupOpen}
+        onClose={handleClosePopup}
+        currentImage={profileImage}
+        currentImageUrl={
+          profileImagePreview === "__REMOVED_IMAGE__"
+            ? "__REMOVED_IMAGE__"
+            : profileImagePreview || user?.profile_image
+        }
+        onImageUpdate={handlePopupImageUpdate}
+      />
     </>
   );
 };

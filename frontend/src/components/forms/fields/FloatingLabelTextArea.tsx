@@ -99,13 +99,19 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
       setShowPlaceholder(false);
     }
 
-    // Call the register onChange first
+    // Call the register onChange with the actual event (React Hook Form expects the real event)
     if (register && register.onChange) {
-      const modifiedEvent = {
-        ...e,
-        target: { ...target, value },
-      };
-      register.onChange(modifiedEvent);
+      // If we modified the value, update the event target
+      if (maxChar && e.target.value.length > maxChar) {
+        const modifiedEvent = {
+          ...e,
+          target: { ...target, value },
+        };
+        register.onChange(modifiedEvent);
+      } else {
+        // Use the original event for immediate React Hook Form updates
+        register.onChange(e);
+      }
     }
 
     // Then auto-resize immediately after state updates
@@ -175,7 +181,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
         id={id}
         placeholder={showPlaceholder ? placeholder : ""}
         aria-invalid={ariaInvalid}
-        name={register.name}
+        {...register}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onChange={handleChange}
