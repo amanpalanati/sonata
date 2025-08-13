@@ -125,7 +125,7 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 # Set profile image to default marker
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
                 profile_image_handled = True
-                
+
                 # Clean up old profile image if it exists
                 if old_profile_image_path:
                     storage_service.delete_file(old_profile_image_path)

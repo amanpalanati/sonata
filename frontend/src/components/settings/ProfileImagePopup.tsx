@@ -51,17 +51,17 @@ const ProfileImagePopup: React.FC<ProfileImagePopupProps> = ({
   const getDisplayImage = () => {
     // If user explicitly removed the image in this session, show default
     if (imageRemoved) return "/images/default_pfp.png";
-    
+
     // If there's a new preview from file upload in this session, show it (highest priority)
     if (previewUrl) return previewUrl;
-    
+
     // If current image URL indicates removal, show default
-    if (currentImageUrl === "__REMOVED_IMAGE__") return "/images/default_pfp.png";
-    
+    if (currentImageUrl === "__REMOVED_IMAGE__")
+      return "/images/default_pfp.png";
+
     // Fall back to current image props
     if (currentImage) return URL.createObjectURL(currentImage);
-    if (currentImageUrl && 
-        currentImageUrl !== "__DEFAULT_IMAGE__") {
+    if (currentImageUrl && currentImageUrl !== "__DEFAULT_IMAGE__") {
       return currentImageUrl;
     }
     if (user?.profile_image && user.profile_image !== "__DEFAULT_IMAGE__") {
@@ -159,18 +159,20 @@ const ProfileImagePopup: React.FC<ProfileImagePopupProps> = ({
   };
 
   const displayImage = getDisplayImage();
-  
+
   // Show remove button only if the current display image is NOT the default image
   const isDefaultImage = displayImage === "/images/default_pfp.png";
   const showRemoveButton = !imageRemoved && !isDefaultImage;
 
   return (
-    <div 
-      className={`${styles.popupOverlay} ${isClosing ? styles.closing : ''}`} 
+    <div
+      className={`${styles.popupOverlay} ${isClosing ? styles.closing : ""}`}
       onClick={handleClose}
     >
-      <div 
-        className={`${styles.popupContainer} ${isClosing ? styles.closing : ''}`} 
+      <div
+        className={`${styles.popupContainer} ${
+          isClosing ? styles.closing : ""
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <button className={styles.closeButton} onClick={handleClose}>
@@ -182,51 +184,52 @@ const ProfileImagePopup: React.FC<ProfileImagePopupProps> = ({
 
           {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <div
-          className={`${styles.imageUploadContainer} ${
-            dragActive ? styles.dragActive : ""
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleClick}
-        >
-          <div className={styles.imageContainer}>
-            <img
-              src={displayImage}
-              alt="Profile"
-              className={styles.profileImage}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/images/default_pfp.png";
-              }}
-            />
-            {showRemoveButton && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveImage();
+          <div
+            className={`${styles.imageUploadContainer} ${
+              dragActive ? styles.dragActive : ""
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleClick}
+          >
+            <div className={styles.imageContainer}>
+              <img
+                src={displayImage}
+                alt="Profile"
+                className={styles.profileImage}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "/images/default_pfp.png";
                 }}
-                className={styles.removeButton}
-                title="Remove image"
-              >
-                ×
-              </button>
-            )}
+              />
+              {showRemoveButton && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveImage();
+                  }}
+                  className={styles.removeButton}
+                  title="Remove image"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <p className={styles.uploadText}>
+              Click to upload or drag and drop an image
+            </p>
+            <p className={styles.uploadSubtext}>JPG, PNG, GIF up to 5MB</p>
           </div>
-          <p className={styles.uploadText}>
-            Click to upload or drag and drop an image
-          </p>
-          <p className={styles.uploadSubtext}>JPG, PNG, GIF up to 5MB</p>
-        </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileInputChange}
-          className={styles.hiddenInput}
-        />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInputChange}
+            className={styles.hiddenInput}
+          />
 
           <div className={styles.buttonContainer}>
             <button
