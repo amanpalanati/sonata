@@ -3,6 +3,7 @@ import {
   LoginFormData,
   ForgotPasswordFormData,
   ForgotPasswordEmailData,
+  ChangePasswordFormData,
 } from "../types";
 import { supabase } from "./supabase";
 
@@ -176,6 +177,22 @@ export const authService = {
 
     const result = await handleResponse(response);
     clearAuthCache(); // Clear cache after profile update
+    return result;
+  },
+
+  // Change password
+  changePassword: async (formData: ChangePasswordFormData) => {
+    const response = await fetch(`${API_BASE_URL}/api/change-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(formData),
+    });
+
+    const result = await handleResponse(response);
+    clearAuthCache(); // Clear cache after password change
     return result;
   },
 };

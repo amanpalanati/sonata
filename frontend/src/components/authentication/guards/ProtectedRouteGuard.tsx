@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
     const currentPath = location.pathname;
 
     // Only check auth if:
-    // 1. We're not loading or logging out
+    // 1. Not loading or logging out
     // 2. The pathname actually changed (not just hash or search params)
     // 3. This isn't the initial load (previousPath has been set)
     if (

@@ -78,6 +78,7 @@
   transition: 0.15s;
   padding: 10px 6px;
   align-self: start;
+  cursor: pointer;
 }
 
 .submitButton:hover {

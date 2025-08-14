@@ -159,7 +159,10 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
               {/* Show remove button only if there's a custom image (not default) */}
               {(previewUrl ||
                 data.profileImage ||
-                (data.profileImageUrl && data.profileImageUrl !== "")) && (
+                (data.profileImageUrl &&
+                  data.profileImageUrl !== "" &&
+                  data.profileImageUrl !== "__DEFAULT_IMAGE__" &&
+                  data.profileImageUrl !== "/images/default_pfp.png")) && (
                 <button
                   type="button"
                   onClick={handleRemoveImage}

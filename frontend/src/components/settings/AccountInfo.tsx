@@ -315,153 +315,154 @@ const AccountInfo: React.FC = () => {
 
   return (
     <>
-      <form className={styles.content} onSubmit={handleSubmit(onSubmit)}>
+      <div className={styles.content}>
         <h1 className={styles.contentTitle}>Account Info</h1>
 
         <hr className={styles.divider} />
-
-        <RootMessage
-          message={errors.root?.message}
-          type="error"
-          styles={{
-            alert: styles.alert,
-            span: styles.span,
-          }}
-        />
-        <div className={styles.textFields}>
-          <div className={styles.imageWrapper} onClick={handleOpenPopup}>
-            <img
-              src={
-                profileImagePreview === "__REMOVED_IMAGE__"
-                  ? "/images/default_pfp.png"
-                  : profileImagePreview ||
-                    (user?.profile_image &&
-                    user.profile_image !== "__DEFAULT_IMAGE__"
-                      ? user.profile_image
-                      : null) ||
-                    "/images/default_pfp.png"
-              }
-              alt="Profile"
-              className={styles.profileImage}
-            />
-            <div className={styles.editIcon}>
-              <img src="/icons/edit_icon.svg" alt="Edit" />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <RootMessage
+            message={errors.root?.message}
+            type="error"
+            styles={{
+              alert: styles.alert,
+              span: styles.span,
+            }}
+          />
+          <div className={styles.textFields}>
+            <div className={styles.imageWrapper} onClick={handleOpenPopup}>
+              <img
+                src={
+                  profileImagePreview === "__REMOVED_IMAGE__"
+                    ? "/images/default_pfp.png"
+                    : profileImagePreview ||
+                      (user?.profile_image &&
+                      user.profile_image !== "__DEFAULT_IMAGE__"
+                        ? user.profile_image
+                        : null) ||
+                      "/images/default_pfp.png"
+                }
+                alt="Profile"
+                className={styles.profileImage}
+              />
+              <div className={styles.editIcon}>
+                <img src="/icons/edit_icon.svg" alt="Edit" />
+              </div>
             </div>
-          </div>
 
-          <div className={styles.textWrapper}>
-            <div className={styles.textInputs}>
-              <div className={styles.nameInputs}>
-                <FormField
-                  id="firstName"
-                  label="First Name"
-                  type="text"
-                  placeholder="First Name"
-                  register={customRegister("firstName")}
-                  error={errors.firstName}
-                  styles={styles}
-                />
+            <div className={styles.textWrapper}>
+              <div className={styles.textInputs}>
+                <div className={styles.nameInputs}>
+                  <FormField
+                    id="firstName"
+                    label="First Name"
+                    type="text"
+                    placeholder="First Name"
+                    register={customRegister("firstName")}
+                    error={errors.firstName}
+                    styles={styles}
+                  />
+
+                  <FormField
+                    id="lastName"
+                    label="Last Name"
+                    type="text"
+                    placeholder="Last Name"
+                    register={customRegister("lastName")}
+                    error={errors.lastName}
+                    styles={styles}
+                  />
+                </div>
 
                 <FormField
-                  id="lastName"
-                  label="Last Name"
-                  type="text"
-                  placeholder="Last Name"
-                  register={customRegister("lastName")}
-                  error={errors.lastName}
+                  id="email"
+                  label="Email"
+                  type="email"
+                  placeholder="Email"
+                  register={{
+                    ...customRegister("email"),
+                    disabled: true,
+                    style: { cursor: "not-allowed" },
+                  }}
+                  error={errors.email}
                   styles={styles}
                 />
               </div>
-
-              <FormField
-                id="email"
-                label="Email"
-                type="email"
-                placeholder="Email"
-                register={{
-                  ...customRegister("email"),
-                  disabled: true,
-                  style: { cursor: "not-allowed" },
-                }}
-                error={errors.email}
-                styles={styles}
-              />
             </div>
           </div>
-        </div>
 
-        {user?.account_type === "parent" && (
-          <>
-            <hr className={styles.subdivider} />
+          {user?.account_type === "parent" && (
+            <>
+              <hr className={styles.subdivider} />
 
-            <h2 className={styles.subTitle}>Child Name</h2>
+              <h2 className={styles.subTitle}>Child Name</h2>
 
-            <div className={styles.childNameField}>
-              <FormField
-                id="childFirstName"
-                label="Child's First Name"
-                type="text"
-                placeholder="Child's First Name"
-                register={customRegister("childFirstName")}
-                error={errors.childFirstName}
-                styles={styles}
-              />
+              <div className={styles.childNameField}>
+                <FormField
+                  id="childFirstName"
+                  label="Child's First Name"
+                  type="text"
+                  placeholder="Child's First Name"
+                  register={customRegister("childFirstName")}
+                  error={errors.childFirstName}
+                  styles={styles}
+                />
 
-              <FormField
-                id="childLastName"
-                label="Child's Last Name"
-                type="text"
-                placeholder="Child's Last Name"
-                register={customRegister("childLastName")}
-                error={errors.childLastName}
-                styles={styles}
-              />
-            </div>
-          </>
-        )}
+                <FormField
+                  id="childLastName"
+                  label="Child's Last Name"
+                  type="text"
+                  placeholder="Child's Last Name"
+                  register={customRegister("childLastName")}
+                  error={errors.childLastName}
+                  styles={styles}
+                />
+              </div>
+            </>
+          )}
 
-        {user?.account_type === "teacher" && (
-          <>
-            <hr className={styles.subdivider} />
+          {user?.account_type === "teacher" && (
+            <>
+              <hr className={styles.subdivider} />
 
-            <h2 className={styles.subTitle}>Bio</h2>
+              <h2 className={styles.subTitle}>Bio</h2>
 
-            <div className={styles.bioField}>
-              <TextAreaField
-                id=""
-                label=""
-                placeholder="What you hope to accomplish as a music teacher..."
-                register={customRegister("bio")}
-                error={errors.bio}
-                styles={styles}
-                rows={3}
-                maxRows={8}
-                maxChar={500}
-              />
-            </div>
-          </>
-        )}
+              <div className={styles.bioField}>
+                <TextAreaField
+                  id=""
+                  label=""
+                  placeholder="What you hope to accomplish as a music teacher..."
+                  register={customRegister("bio")}
+                  error={errors.bio}
+                  styles={styles}
+                  rows={3}
+                  maxRows={8}
+                  maxChar={500}
+                />
+              </div>
+            </>
+          )}
 
-        <hr className={styles.divider} />
+          <hr className={styles.divider} />
 
-        <div className={styles.buttonGroup}>
-          <button
-            type="submit"
-            className={styles.submitButton}
-            disabled={isSubmitting || !hasChanges || hasFieldErrors}
-          >
-            {isSubmitting ? "Saving..." : "Save"}
-          </button>
-          <button
-            type="button"
-            className={styles.cancelButton}
-            onClick={handleCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className={styles.buttonGroup}>
+            <button
+              type="submit"
+              className={styles.saveButton}
+              disabled={isSubmitting || !hasChanges || hasFieldErrors}
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </button>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
 
       <ProfileImagePopup
         isOpen={isPopupOpen}

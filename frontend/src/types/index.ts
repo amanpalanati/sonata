@@ -29,3 +29,9 @@ export interface AccountInfoFormData {
   childLastName?: string;
   bio?: string;
 }
+
+export interface ChangePasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
