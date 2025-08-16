@@ -183,20 +183,20 @@ const Location: React.FC<LocationProps> = ({
     setSuggestions([]);
     // Mark that location was selected from dropdown
     setWasSelectedFromDropdown(true);
+    // Persist the dropdown selection state to parent immediately
+    onUpdate({ locationSelectedFromDropdown: true });
     // Clear any custom error
     setCustomError("");
     if (inputRef.current) {
       inputRef.current.blur();
     }
-
+    
     // Clear any pending search timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
       setSearchTimeout(null);
     }
-  };
-
-  // Handle keyboard navigation
+  };  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
@@ -230,11 +230,14 @@ const Location: React.FC<LocationProps> = ({
 
   const handleFormSubmit = async (formData: LocationFormData) => {
     try {
+      // Use the most up-to-date selection state (either from local state or parent data)
+      const isSelectedFromDropdown = wasSelectedFromDropdown || data.locationSelectedFromDropdown;
+      
       // Custom validation: if there's a location value but it wasn't selected from dropdown
       if (
         formData.location &&
         formData.location.trim() &&
-        !wasSelectedFromDropdown
+        !isSelectedFromDropdown
       ) {
         setCustomError("Please select a location from the dropdown");
         return;
@@ -243,7 +246,7 @@ const Location: React.FC<LocationProps> = ({
       // Update data to persist the dropdown selection state
       onUpdate({
         location: formData.location?.trim() || "",
-        locationSelectedFromDropdown: wasSelectedFromDropdown,
+        locationSelectedFromDropdown: isSelectedFromDropdown,
       });
       onNext();
     } catch (error) {
@@ -319,6 +322,8 @@ const Location: React.FC<LocationProps> = ({
                   }
                   // Mark as not selected from dropdown when user manually types
                   setWasSelectedFromDropdown(false);
+                  // Persist the state change to parent immediately
+                  onUpdate({ locationSelectedFromDropdown: false });
                 },
                 onFocus: () => {
                   setIsInputFocused(true);

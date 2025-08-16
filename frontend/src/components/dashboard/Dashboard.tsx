@@ -15,13 +15,15 @@ const Dashboard: React.FC = () => {
 
       <p>Child's first name: {user?.child_first_name || "Not provided"}</p>
       <p>Child's last name: {user?.child_last_name || "Not provided"}</p>
-      <p>Bio: {user?.bio || "Not provided"}</p>
       <p>
         Instruments:{" "}
         {user?.instruments?.length
           ? user.instruments.join(", ")
           : "Not provided"}
       </p>
+      <p>Location: {user?.location || "Not provided"}</p>
+      <p>Bio: {user?.bio || "Not provided"}</p>
+
       <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
       <Footer />
     </>
