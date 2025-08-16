@@ -178,15 +178,15 @@ const Instruments: React.FC<InstrumentsProps> = ({
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="19"
                   height="19"
                   className={styles.leftArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
                 Back
@@ -196,20 +196,20 @@ const Instruments: React.FC<InstrumentsProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                Complete Profile
+                Next
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>
@@ -221,20 +221,20 @@ const Instruments: React.FC<InstrumentsProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                Complete Profile
+                Next
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>

@@ -8,9 +8,10 @@ import { ProfileData, StepType } from "../../../types/profileCompletion";
 import Header from "../Header";
 import NameEmail from "./NameEmail";
 import ChildName from "./ChildName";
-import ProfileImage from "./ProfileImage";
-import Bio from "./Bio";
 import Instruments from "./Instruments";
+import ProfileImage from "./ProfileImage";
+import Location from "./Location";
+import Bio from "./Bio";
 import Submitting from "./Submitting";
 
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
@@ -45,16 +46,19 @@ const CompleteProfile: React.FC = () => {
       steps.push("childName");
     }
 
+    // Instruments step - always include but content varies by account type
+    steps.push("instruments");
+
     // Profile image step - always included
     steps.push("pfp");
+
+    // Location step - always include but content varies by account type
+    steps.push("location");
 
     // Bio - only for teachers
     if (user.account_type === "teacher") {
       steps.push("bio");
     }
-
-    // Instruments step - always include but content varies by account type
-    steps.push("instruments");
 
     // Pre-populate with existing user data (only if profileData is empty)
     setProfileData((prev) => {
@@ -138,12 +142,13 @@ const CompleteProfile: React.FC = () => {
         ...(profileData.childLastName && {
           child_last_name: profileData.childLastName,
         }),
-        // Backend will always provide a profile_image (either uploaded or default)
-        profile_image: updatedUser.profile_image,
-        ...(profileData.bio && { bio: profileData.bio }),
         ...(profileData.instruments && {
           instruments: profileData.instruments,
         }),
+        // Backend will always provide a profile_image (either uploaded or default)
+        profile_image: updatedUser.profile_image,
+        ...(profileData.location && { location: profileData.location }),
+        ...(profileData.bio && { bio: profileData.bio }),
       });
 
       // Add a small delay to allow the success animation to show
@@ -274,6 +279,20 @@ const CompleteProfile: React.FC = () => {
                 />
               )}
 
+              {currentStep === "instruments" && (
+                <Instruments
+                  data={{
+                    ...profileData,
+                    accountType: user?.account_type, // Add accountType from user
+                  }}
+                  onUpdate={(data) => {
+                    setProfileData((prev) => ({ ...prev, ...data }));
+                  }}
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
+
               {currentStep === "pfp" && (
                 <ProfileImage
                   data={profileData}
@@ -285,26 +304,23 @@ const CompleteProfile: React.FC = () => {
                 />
               )}
 
+              {currentStep === "location" && (
+                <Location
+                  data={profileData}
+                  onUpdate={(data) =>
+                    setProfileData((prev) => ({ ...prev, ...data }))
+                  }
+                  onNext={currentStepIndex === requiredSteps.length - 1 ? handleFinalStep : nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
+
               {currentStep === "bio" && (
                 <Bio
                   data={profileData}
                   onUpdate={(data) =>
                     setProfileData((prev) => ({ ...prev, ...data }))
                   }
-                  onNext={nextStep}
-                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
-                />
-              )}
-
-              {currentStep === "instruments" && (
-                <Instruments
-                  data={{
-                    ...profileData,
-                    accountType: user?.account_type, // Add accountType from user
-                  }}
-                  onUpdate={(data) => {
-                    setProfileData((prev) => ({ ...prev, ...data }));
-                  }}
                   onNext={handleFinalStep}
                   onPrev={currentStepIndex > 0 ? prevStep : undefined}
                 />

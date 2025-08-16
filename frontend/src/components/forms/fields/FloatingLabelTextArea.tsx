@@ -31,7 +31,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(false);
   const [charCount, setCharCount] = useState(0);
-  const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const [showPlaceholder, setShowPlaceholder] = useState(true); // Start as true for empty fields
 
   // Auto-resize function based on line counting approach
   const autoResize = () => {
@@ -71,9 +71,11 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
     setHasValue(!isEmpty);
     setCharCount(value.length);
 
-    // Only show placeholder after label transition completes (150ms + small buffer)
+    // Show placeholder after a brief delay if field is empty (allows label animation to complete)
     if (isEmpty) {
-      setTimeout(() => setShowPlaceholder(true), 90);
+      setTimeout(() => setShowPlaceholder(true), 200);
+    } else {
+      setShowPlaceholder(false);
     }
 
     register.onBlur?.(e);
@@ -127,12 +129,12 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
       const isEmpty = value === "";
       setHasValue(!isEmpty);
       setCharCount(value.length);
-      setShowPlaceholder(isEmpty); // Show placeholder only if empty
+      setShowPlaceholder(isEmpty && !isFocused); // Show placeholder only if empty and not focused
 
       // Initial resize to handle any existing content
       requestAnimationFrame(() => autoResize());
     }
-  }, [rows, maxRows]);
+  }, [rows, maxRows, isFocused]);
 
   // Additional useEffect to handle initial resize after component mounts
   useEffect(() => {
@@ -143,7 +145,7 @@ const FloatingLabelTextArea: React.FC<FloatingLabelTextAreaProps> = ({
         const isEmpty = value === "";
         setHasValue(!isEmpty);
         setCharCount(value.length);
-        setShowPlaceholder(isEmpty); // Show placeholder only if empty
+        setShowPlaceholder(isEmpty && !isFocused); // Show placeholder only if empty and not focused
         autoResize();
       }
     }, 0);

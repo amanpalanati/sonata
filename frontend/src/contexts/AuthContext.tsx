@@ -18,9 +18,10 @@ interface User {
   // Optional fields that may not always be present
   child_first_name?: string;
   child_last_name?: string;
-  profile_image?: string;
-  bio?: string;
   instruments?: string[];
+  profile_image?: string;
+  location?: string;
+  bio?: string;
 
   profile_completed?: boolean;
 }
@@ -85,11 +86,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             ...(result.child_last_name && {
               child_last_name: result.child_last_name,
             }),
+            ...(result.instruments && { instruments: result.instruments }),
             ...(result.profile_image && {
               profile_image: result.profile_image,
             }),
+            ...(result.location && { location: result.location }),
             ...(result.bio && { bio: result.bio }),
-            ...(result.instruments && { instruments: result.instruments }),
+            
 
             profile_completed: result.profile_completed || false,
           };

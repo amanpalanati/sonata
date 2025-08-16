@@ -5,18 +5,20 @@ export interface ProfileData {
   email?: string;
   childFirstName?: string;
   childLastName?: string;
+  instruments?: string[];
   profileImage?: File | null; // New file being uploaded
   profileImageUrl?: string; // Existing image URL (e.g., from Google OAuth)
+  location?: string;
   bio?: string;
-  instruments?: string[];
 }
 
 export const ALL_STEPS = [
   "nameEmail",
   "childName",
-  "pfp",
-  "bio",
   "instruments",
+  "pfp",
+  "location",
+  "bio",
 ] as const;
 
 export type StepType = (typeof ALL_STEPS)[number];
