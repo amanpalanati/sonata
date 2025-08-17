@@ -85,6 +85,11 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 profile_data["last_name"] = request.form.get("lastName")
             if request.form.get("email"):
                 profile_data["email"] = request.form.get("email")
+            # Add account type from current user or form data
+            if request.form.get("accountType"):
+                profile_data["account_type"] = request.form.get("accountType")
+            elif current_user.get("account_type"):
+                profile_data["account_type"] = current_user.get("account_type")
             # Always include location, even if empty - UPDATE PROFILE
             profile_data["location"] = request.form.get("location", "")
             

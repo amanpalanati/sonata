@@ -39,6 +39,7 @@ interface LocationProps extends Pick<StepComponentProps, "onPrev"> {
   data: LocationData;
   onUpdate: (data: Partial<LocationData>) => void;
   onNext: (data?: Partial<LocationData>) => void;
+  isFinal?: boolean;
 }
 
 const Location: React.FC<LocationProps> = ({
@@ -46,6 +47,7 @@ const Location: React.FC<LocationProps> = ({
   onUpdate,
   onNext,
   onPrev,
+  isFinal = false, // Default to false
 }) => {
   useBodyClass("auth");
 
@@ -58,18 +60,13 @@ const Location: React.FC<LocationProps> = ({
     null
   );
   const [justSelected, setJustSelected] = useState(false);
-  const [wasSelectedFromDropdown, setWasSelectedFromDropdown] = useState(
-    data.locationSelectedFromDropdown || false
-  );
+  const [wasSelectedFromDropdown, setWasSelectedFromDropdown] = useState(false);
   const [customError, setCustomError] = useState<string>("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   // Refs for handling clicks outside
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Determine if this is the final step
-  const isFinalStep = onNext.name === "handleFinalStep";
 
   const form = useForm<LocationFormData>({
     resolver: yupResolver(locationSchema),
@@ -89,6 +86,14 @@ const Location: React.FC<LocationProps> = ({
     reset,
   } = form;
   const locationValue = watch("location");
+
+  // Helper function to determine button text
+  const getButtonText = () => {
+    if (isFinal) {
+      return "Complete Profile";
+    }
+    return locationValue?.trim() ? "Next" : "Skip";
+  };
 
   // Reset form when component mounts or data changes
   useEffect(() => {
@@ -191,13 +196,13 @@ const Location: React.FC<LocationProps> = ({
     if (inputRef.current) {
       inputRef.current.blur();
     }
-    
+
     // Clear any pending search timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
       setSearchTimeout(null);
     }
-  };  // Handle keyboard navigation
+  }; // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
@@ -232,8 +237,9 @@ const Location: React.FC<LocationProps> = ({
   const handleFormSubmit = async (formData: LocationFormData) => {
     try {
       // Use the most up-to-date selection state (either from local state or parent data)
-      const isSelectedFromDropdown = wasSelectedFromDropdown || data.locationSelectedFromDropdown;
-      
+      const isSelectedFromDropdown =
+        wasSelectedFromDropdown || data.locationSelectedFromDropdown;
+
       // Custom validation: if there's a location value but it wasn't selected from dropdown
       if (
         formData.location &&
@@ -251,7 +257,7 @@ const Location: React.FC<LocationProps> = ({
 
       // Update data to persist the dropdown selection state
       onUpdate(locationData);
-      
+
       // Pass location data directly to onNext for immediate submission
       onNext(locationData);
     } catch (error) {
@@ -422,7 +428,7 @@ const Location: React.FC<LocationProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isFinalStep ? "Complete Profile" : "Next"}
+                {getButtonText()}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
@@ -447,7 +453,7 @@ const Location: React.FC<LocationProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                {isFinalStep ? "Complete Profile" : "Next"}
+                {getButtonText()}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"

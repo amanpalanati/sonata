@@ -230,14 +230,20 @@ const AccountInfo: React.FC = () => {
       formData.append("firstName", data.firstName);
       formData.append("lastName", data.lastName);
       formData.append("email", data.email);
+      
+      // Add account type - this is required by the backend
+      if (user?.account_type) {
+        formData.append("accountType", user.account_type);
+      }
 
       if (user?.account_type === "parent") {
         formData.append("childFirstName", data.childFirstName || "");
         formData.append("childLastName", data.childLastName || "");
       }
 
-      if (user?.account_type === "teacher" && data.bio) {
-        formData.append("bio", data.bio);
+      if (user?.account_type === "teacher") {
+        // Always include bio field for teachers, even if empty
+        formData.append("bio", data.bio || "");
       }
 
       // Handle profile image changes
@@ -276,8 +282,24 @@ const AccountInfo: React.FC = () => {
       }
     } catch (error) {
       console.error("Error updating account info:", error);
+      
+      // Provide more specific error messages
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      
+      if (error instanceof Error) {
+        // Check if it's a network error
+        if (error.message.includes('fetch')) {
+          errorMessage = "Failed to connect to server. Please check your connection and try again.";
+        } else if (error.message.includes('JSON')) {
+          errorMessage = "Invalid server response. Please try again.";
+        } else {
+          // Use the actual error message from the server
+          errorMessage = error.message;
+        }
+      }
+      
       setError("root", {
-        message: "An unexpected error occurred. Please try again.",
+        message: errorMessage,
       });
     } finally {
       setIsSubmitting(false);

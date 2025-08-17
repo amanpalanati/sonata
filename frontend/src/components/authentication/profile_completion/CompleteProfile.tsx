@@ -375,6 +375,7 @@ const CompleteProfile: React.FC = () => {
                   }}
                   onNext={currentStepIndex === requiredSteps.length - 1 ? (data) => handleFinalStep(data) : nextStep}
                   onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                  isFinal={currentStepIndex === requiredSteps.length - 1}
                 />
               )}
 

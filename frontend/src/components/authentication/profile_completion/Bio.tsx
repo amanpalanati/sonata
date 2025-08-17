@@ -104,7 +104,7 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
           {/* Form Fields */}
           <TextAreaField
             id="bio"
-            label="Bio"
+            label="Bio (Optional)"
             placeholder="What you hope to accomplish as a music teacher..."
             register={register("bio")}
             error={errors.bio}
