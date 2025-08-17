@@ -26,9 +26,10 @@ interface BioData {
   bio?: string;
 }
 
-interface BioProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+interface BioProps extends Pick<StepComponentProps, "onPrev"> {
   data: BioData;
   onUpdate: (data: Partial<BioData>) => void;
+  onNext: (data?: Partial<BioData>) => void;
 }
 
 const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
@@ -58,11 +59,13 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
 
   const handleFormSubmit = async (formData: BioFormData) => {
     try {
+      const bioData = { bio: formData.bio.trim() };
+      
       // Update parent state with current values
-      onUpdate({
-        bio: formData.bio.trim(),
-      });
-      onNext();
+      onUpdate(bioData);
+            
+      // Pass bio data directly to onNext for final submission
+      onNext(bioData);
     } catch (error) {
       // Handle any errors
       if (error instanceof Error) {

@@ -35,9 +35,10 @@ interface LocationData {
   locationSelectedFromDropdown?: boolean; // Track if location was selected from dropdown
 }
 
-interface LocationProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+interface LocationProps extends Pick<StepComponentProps, "onPrev"> {
   data: LocationData;
   onUpdate: (data: Partial<LocationData>) => void;
+  onNext: (data?: Partial<LocationData>) => void;
 }
 
 const Location: React.FC<LocationProps> = ({
@@ -243,12 +244,16 @@ const Location: React.FC<LocationProps> = ({
         return;
       }
 
-      // Update data to persist the dropdown selection state
-      onUpdate({
+      const locationData = {
         location: formData.location?.trim() || "",
         locationSelectedFromDropdown: isSelectedFromDropdown,
-      });
-      onNext();
+      };
+
+      // Update data to persist the dropdown selection state
+      onUpdate(locationData);
+      
+      // Pass location data directly to onNext for immediate submission
+      onNext(locationData);
     } catch (error) {
       if (error instanceof Error) {
         setError("root", { type: "manual", message: error.message });

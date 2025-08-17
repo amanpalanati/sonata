@@ -5,6 +5,17 @@ from .base_service import SupabaseService
 class AuthService(SupabaseService):
     """Service for handling user authentication operations"""
 
+    def __init__(
+        self,
+        supabase_url: str,
+        supabase_key: str,
+        service_role_key: str,
+        user_service=None,
+    ):
+        """Initialize AuthService with optional UserService dependency"""
+        super().__init__(supabase_url, supabase_key, service_role_key)
+        self.user_service = user_service
+
     def create_user(
         self,
         email: str,
@@ -85,19 +96,28 @@ class AuthService(SupabaseService):
             )
 
             if auth_response.user:
-                # Get user metadata from auth response - this contains all profile data
-                user_metadata = auth_response.user.user_metadata or {}
+                # Get complete user data from database tables using injected UserService
+                user_data = None
+                if self.user_service:
+                    try:
+                        user_data = self.user_service.get_user(auth_response.user.id)
+                        
+                        if user_data:
+                            return {"success": True, "user": user_data}
+                        
+                    except Exception as db_error:
+                        pass
+                else:
+                    pass
 
+                # Fallback to basic auth data if database lookup fails
+                user_metadata = auth_response.user.user_metadata or {}
                 user_data = {
                     "id": auth_response.user.id,
                     "email": auth_response.user.email,
                     "account_type": user_metadata.get("account_type"),
                     "first_name": user_metadata.get("first_name"),
                     "last_name": user_metadata.get("last_name"),
-                    "child_first_name": user_metadata.get("child_first_name"),
-                    "child_last_name": user_metadata.get("child_last_name"),
-                    "bio": user_metadata.get("bio"),
-                    "instruments": user_metadata.get("instruments"),
                     "profile_completed": user_metadata.get("profile_completed", False),
                     # Handle OAuth profile images (picture, avatar_url) and regular profile_image
                     "profile_image": (
@@ -109,6 +129,7 @@ class AuthService(SupabaseService):
                     "created_at": auth_response.user.created_at,
                     "updated_at": auth_response.user.updated_at,
                 }
+
                 return {"success": True, "user": user_data}
             else:
                 return {

@@ -10,6 +10,7 @@ export interface ProfileData {
   profileImageUrl?: string; // Existing image URL (e.g., from Google OAuth)
   location?: string;
   bio?: string;
+  accountType?: string; // Account type for conditional logic
 }
 
 export const ALL_STEPS = [
@@ -27,7 +28,7 @@ export type StepType = (typeof ALL_STEPS)[number];
 export interface StepComponentProps {
   data: ProfileData;
   onUpdate: (data: Partial<ProfileData>) => void;
-  onNext: () => void;
+  onNext: (data?: Partial<ProfileData>) => void;
   onPrev?: () => void;
   onSkip?: () => void;
   accountType?: string;

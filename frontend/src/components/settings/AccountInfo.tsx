@@ -253,24 +253,12 @@ const AccountInfo: React.FC = () => {
       const result = await authService.updateProfile(formData);
 
       if (result.success) {
-        // Update the auth context with new user data
-        updateUserProfile({
-          first_name: data.firstName,
-          last_name: data.lastName,
-          email: data.email,
-          ...(user?.account_type === "parent" && {
-            child_first_name: data.childFirstName,
-            child_last_name: data.childLastName,
-          }),
-          ...(user?.account_type === "teacher" && {
-            bio: data.bio,
-          }),
-          // Update profile image based on what happened
-          ...(profileImage && { profile_image: result.profile_image }),
-          ...(profileImagePreview === "__REMOVED_IMAGE__" && {
-            profile_image: "__DEFAULT_IMAGE__",
-          }),
-        });
+        // The backend returns the complete updated user data
+        // Extract user data from result (excluding success/message fields)
+        const { success, message, ...updatedUserData } = result;
+        
+        // Update the auth context with the complete user data from backend
+        updateUserProfile(updatedUserData);
 
         // Clear the image selection and preview
         setProfileImage(null);

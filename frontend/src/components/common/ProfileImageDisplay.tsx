@@ -6,65 +6,55 @@ const ProfileImageDisplay: React.FC<{ styles: Record<string, string> }> = ({
   styles,
 }) => {
   const { user } = useAuth();
-  const [imageKey, setImageKey] = useState(0); // Force image re-render
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
+  const [imageSrc, setImageSrc] = useState("/images/default_pfp.png");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Force image reload when user profile updates
   useEffect(() => {
-    setImageKey((prev) => prev + 1);
-    setImageLoaded(false);
-    setShowFallback(false);
-  }, [user?.profile_image]);
+    const loadProfileImage = async () => {
+      // If no profile image or it's the default marker, use default
+      if (!user?.profile_image || user.profile_image === "__DEFAULT_IMAGE__") {
+        setImageSrc("/images/default_pfp.png");
+        return;
+      }
 
-  // Handle the special marker case and image loading with fallback
-  const getProfileImageSrc = () => {
-    if (!user?.profile_image || user.profile_image === "__DEFAULT_IMAGE__") {
-      return "/images/default_pfp.png";
-    }
+      // If it's the same image we already have, don't reload
+      if (imageSrc === user.profile_image) {
+        return;
+      }
 
-    // For custom images that might not be immediately available, show default until loaded
-    if (!imageLoaded && !showFallback) {
-      return "/images/default_pfp.png";
-    }
+      setIsLoading(true);
 
-    return user.profile_image;
-  };
+      // Preload the image to avoid flickering
+      const img = new Image();
+      
+      img.onload = () => {
+        // Only update the src once the image has fully loaded
+        setImageSrc(user.profile_image!);
+        setIsLoading(false);
+      };
+      
+      img.onerror = () => {
+        // If the image fails to load, use default
+        setImageSrc("/images/default_pfp.png");
+        setIsLoading(false);
+      };
+
+      // Start loading the image
+      img.src = user.profile_image;
+    };
+
+    loadProfileImage();
+  }, [user?.profile_image, imageSrc]);
 
   return (
     <div>
       <img
-        key={imageKey}
-        src={getProfileImageSrc()}
+        src={imageSrc}
         alt="profile picture"
         className={styles.profileImage}
-        onLoad={() => {
-          setImageLoaded(true);
-        }}
-        onError={(e) => {
-          // If the custom image fails to load, show fallback
-          if (
-            !showFallback &&
-            user?.profile_image &&
-            user.profile_image !== "__DEFAULT_IMAGE__"
-          ) {
-            setShowFallback(true);
-            // Try loading the actual custom image in the background
-            const img = new Image();
-            img.onload = () => {
-              setImageLoaded(true);
-              setShowFallback(false);
-              setImageKey((prev) => prev + 1); // Force re-render with loaded image
-            };
-            img.onerror = () => {
-              // If it still fails, just use fallback permanently
-              (e.target as HTMLImageElement).src = "/images/default_pfp.png";
-            };
-            img.src = user.profile_image;
-          } else {
-            // Final fallback to default image
-            (e.target as HTMLImageElement).src = "/images/default_pfp.png";
-          }
+        style={{ 
+          opacity: isLoading ? 0.7 : 1,
+          transition: 'opacity 0.2s ease-in-out'
         }}
       />
     </div>
