@@ -25,6 +25,8 @@ export interface AccountInfoFormData {
   firstName: string;
   lastName: string;
   email: string;
+  instruments?: string[];
+  location?: string;
   childFirstName?: string;
   childLastName?: string;
   bio?: string;

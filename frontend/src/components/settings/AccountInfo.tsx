@@ -13,6 +13,8 @@ import ProfileImagePopup from "./ProfileImagePopup";
 import FormField from "../forms/fields/FormField";
 import RootMessage from "../forms/fields/RootMessage";
 import TextAreaField from "../forms/fields/TextAreaField";
+import InstrumentsSelect from "../common/InstrumentsSelect";
+import LocationSelect from "../common/LocationSelect";
 
 import styles from "../../styles/settings/Settings.module.css";
 
@@ -37,6 +39,12 @@ const createValidationSchema = (accountType?: string) => {
       .email("Please enter a valid email address")
       .max(100, "Email must be less than 100 characters")
       .trim(),
+    instruments: yup
+      .array()
+      .of(yup.string().required())
+      .min(1, "At least one instrument is required")
+      .required("At least one instrument is required"),
+    location: yup.string().optional().default("").trim(),
   };
 
   // Add conditional fields based on account type
@@ -82,6 +90,9 @@ const AccountInfo: React.FC = () => {
     null
   );
   const [hasChanges, setHasChanges] = useState(false);
+  const [locationCustomError, setLocationCustomError] = useState<string>("");
+  const [wasLocationSelectedFromDropdown, setWasLocationSelectedFromDropdown] =
+    useState(true);
 
   // Check if popup should be open based on URL parameter
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -104,11 +115,13 @@ const AccountInfo: React.FC = () => {
   const validationSchema = createValidationSchema(user?.account_type);
 
   const form = useForm<AccountInfoFormData>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       firstName: "",
       lastName: "",
       email: "",
+      instruments: [],
+      location: "",
       childFirstName: "",
       childLastName: "",
       bio: "",
@@ -121,6 +134,7 @@ const AccountInfo: React.FC = () => {
     reset,
     setError,
     watch,
+    control,
   } = form;
   const { customRegister } = useFormFieldManagement({ form });
 
@@ -137,12 +151,19 @@ const AccountInfo: React.FC = () => {
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         email: user.email || "",
+        instruments: user.instruments || [],
+        location: user.location || "",
         childFirstName: user.child_first_name || "",
         childLastName: user.child_last_name || "",
         bio: user.bio || "",
       };
       reset(defaultValues);
       setHasChanges(false); // Reset changes when user data loads
+
+      // If user already has a location, assume it was properly validated before
+      if (user.location && user.location.trim()) {
+        setWasLocationSelectedFromDropdown(true);
+      }
     }
   }, [user, reset]);
 
@@ -154,6 +175,8 @@ const AccountInfo: React.FC = () => {
       firstName: watchedValues.firstName || "",
       lastName: watchedValues.lastName || "",
       email: watchedValues.email || "",
+      instruments: watchedValues.instruments || [],
+      location: watchedValues.location || "",
       childFirstName: watchedValues.childFirstName || "",
       childLastName: watchedValues.childLastName || "",
       bio: watchedValues.bio || "",
@@ -163,17 +186,28 @@ const AccountInfo: React.FC = () => {
       firstName: user.first_name || "",
       lastName: user.last_name || "",
       email: user.email || "",
+      instruments: user.instruments || [],
+      location: user.location || "",
       childFirstName: user.child_first_name || "",
       childLastName: user.child_last_name || "",
       bio: user.bio || "",
     };
 
     // Check if any form values have changed from original
-    const formHasChanges = Object.keys(currentValues).some(
-      (key) =>
-        currentValues[key as keyof typeof currentValues] !==
-        originalValues[key as keyof typeof originalValues]
-    );
+    const formHasChanges = Object.keys(currentValues).some((key) => {
+      const current = currentValues[key as keyof typeof currentValues];
+      const original = originalValues[key as keyof typeof originalValues];
+
+      // Special handling for arrays (like instruments)
+      if (Array.isArray(current) && Array.isArray(original)) {
+        return (
+          JSON.stringify(current.sort()) !== JSON.stringify(original.sort())
+        );
+      }
+
+      // Regular comparison for non-arrays
+      return current !== original;
+    });
 
     // Check if profile image has changed (either new file or explicitly removed)
     const imageHasChanges =
@@ -224,13 +258,33 @@ const AccountInfo: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // Custom validation: if location has value but wasn't selected from dropdown
+      if (
+        data.location &&
+        data.location.trim() &&
+        !wasLocationSelectedFromDropdown
+      ) {
+        setLocationCustomError("Please select a location from the dropdown");
+        setIsSubmitting(false);
+        return;
+      }
+
       const formData = new FormData();
 
       // Add text fields
       formData.append("firstName", data.firstName);
       formData.append("lastName", data.lastName);
       formData.append("email", data.email);
-      
+
+      // Handle instruments array - serialize to JSON
+      if (data.instruments && data.instruments.length > 0) {
+        formData.append("instruments", JSON.stringify(data.instruments));
+      } else {
+        formData.append("instruments", JSON.stringify([]));
+      }
+
+      formData.append("location", data.location || "");
+
       // Add account type - this is required by the backend
       if (user?.account_type) {
         formData.append("accountType", user.account_type);
@@ -262,7 +316,7 @@ const AccountInfo: React.FC = () => {
         // The backend returns the complete updated user data
         // Extract user data from result (excluding success/message fields)
         const { success, message, ...updatedUserData } = result;
-        
+
         // Update the auth context with the complete user data from backend
         updateUserProfile(updatedUserData);
 
@@ -282,22 +336,23 @@ const AccountInfo: React.FC = () => {
       }
     } catch (error) {
       console.error("Error updating account info:", error);
-      
+
       // Provide more specific error messages
       let errorMessage = "An unexpected error occurred. Please try again.";
-      
+
       if (error instanceof Error) {
         // Check if it's a network error
-        if (error.message.includes('fetch')) {
-          errorMessage = "Failed to connect to server. Please check your connection and try again.";
-        } else if (error.message.includes('JSON')) {
+        if (error.message.includes("fetch")) {
+          errorMessage =
+            "Failed to connect to server. Please check your connection and try again.";
+        } else if (error.message.includes("JSON")) {
           errorMessage = "Invalid server response. Please try again.";
         } else {
           // Use the actual error message from the server
           errorMessage = error.message;
         }
       }
-      
+
       setError("root", {
         message: errorMessage,
       });
@@ -313,6 +368,8 @@ const AccountInfo: React.FC = () => {
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         email: user.email || "",
+        instruments: user.instruments || [],
+        location: user.location || "",
         childFirstName: user.child_first_name || "",
         childLastName: user.child_last_name || "",
         bio: user.bio || "",
@@ -400,6 +457,46 @@ const AccountInfo: React.FC = () => {
             </div>
           </div>
 
+          <hr className={styles.subdivider} />
+
+          <h2 className={styles.subTitle}>Instruments</h2>
+
+          <div className={styles.instrumentsField}>
+            <InstrumentsSelect
+              name="instruments"
+              control={control}
+              error={errors.instruments as any}
+              placeholder="Select instruments..."
+            />
+          </div>
+
+          <hr className={styles.subdivider} />
+
+          <h2 className={styles.subTitle}>Location</h2>
+
+          <div className={styles.locationField}>
+            <LocationSelect
+              name="location"
+              control={control}
+              error={errors.location}
+              customError={locationCustomError}
+              placeholder="Search for an address, city, or zip code..."
+              label=""
+              onSelectionChange={(_location, selectedFromDropdown) => {
+                setWasLocationSelectedFromDropdown(selectedFromDropdown);
+                // Clear custom error when location is selected from dropdown
+                if (selectedFromDropdown) {
+                  setLocationCustomError("");
+                }
+              }}
+              onCustomError={setLocationCustomError}
+              onFocus={() => {
+                // Clear custom error when user focuses the field
+                setLocationCustomError("");
+              }}
+            />
+          </div>
+
           {user?.account_type === "parent" && (
             <>
               <hr className={styles.subdivider} />
@@ -434,7 +531,9 @@ const AccountInfo: React.FC = () => {
             <>
               <hr className={styles.subdivider} />
 
-              <h2 className={styles.subTitle}>Bio</h2>
+              <h2 className={styles.subTitle} style={{ marginBottom: "18px" }}>
+                Bio
+              </h2>
 
               <div className={styles.bioField}>
                 <TextAreaField
