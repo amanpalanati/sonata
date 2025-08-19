@@ -70,6 +70,11 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
         user_id = session["user_id"]
 
         try:
+            # Get current user data to determine account type
+            current_user = user_service.get_user(user_id)
+            if not current_user:
+                return jsonify({"success": False, "error": "User not found"}), 404
+
             # Get form data
             profile_data = {}
 
@@ -80,12 +85,29 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 profile_data["last_name"] = request.form.get("lastName")
             if request.form.get("email"):
                 profile_data["email"] = request.form.get("email")
-            if request.form.get("childFirstName"):
-                profile_data["child_first_name"] = request.form.get("childFirstName")
-            if request.form.get("childLastName"):
-                profile_data["child_last_name"] = request.form.get("childLastName")
-            if request.form.get("bio"):
-                profile_data["bio"] = request.form.get("bio")
+            # Add account type from current user or form data
+            if request.form.get("accountType"):
+                profile_data["account_type"] = request.form.get("accountType")
+            elif current_user.get("account_type"):
+                profile_data["account_type"] = current_user.get("account_type")
+            # Always include location, even if empty - UPDATE PROFILE
+            profile_data["location"] = request.form.get("location", "")
+
+            # Handle child name fields for parents
+            if current_user.get("account_type") == "parent":
+                if request.form.get("childFirstName"):
+                    profile_data["child_first_name"] = request.form.get(
+                        "childFirstName"
+                    )
+                if request.form.get("childLastName"):
+                    profile_data["child_last_name"] = request.form.get("childLastName")
+
+            # Handle bio for teachers
+            if current_user.get("account_type") == "teacher":
+                # Always include bio field for teachers, even if empty
+                profile_data["bio"] = request.form.get("bio", "")
+
+            # Handle instruments
             if request.form.get("instruments"):
                 import json
 
@@ -96,33 +118,29 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 except json.JSONDecodeError:
                     profile_data["instruments"] = []
 
-            # Handle file upload (profile image)
+            # Handle profile image
             profile_image_handled = False
             old_profile_image_path = None
 
-            # Get current user to check for existing profile image
-            current_user = user_service.get_user(user_id)
-            if current_user:
-                # We need to get the raw storage path from user metadata, not the signed URL
-                # The get_user method returns signed URLs, but we need the actual storage path
-                try:
-                    auth_user = user_service.admin_supabase.auth.admin.get_user_by_id(
-                        user_id
-                    )
-                    if auth_user and auth_user.user:
-                        user_metadata = auth_user.user.user_metadata or {}
-                        stored_path = user_metadata.get("profile_image")
-                        # Check if it's a storage path (not a base64 or external URL)
-                        if stored_path and not stored_path.startswith(
-                            ("data:", "http", "__DEFAULT_IMAGE__")
-                        ):
-                            old_profile_image_path = stored_path
-                except Exception as e:
-                    pass  # Silently handle metadata lookup errors
+            # Get current profile image path from database using admin client
+            try:
+                profiles_response = (
+                    user_service.admin_supabase.table("profiles")
+                    .select("profile_image")
+                    .eq("id", user_id)
+                    .execute()
+                )
+                if profiles_response.data:
+                    stored_path = profiles_response.data[0].get("profile_image")
+                    if stored_path and not stored_path.startswith(
+                        ("data:", "http", "__DEFAULT_IMAGE__")
+                    ):
+                        old_profile_image_path = stored_path
+            except Exception as e:
+                pass  # Silently handle lookup errors
 
             # Check if user wants to remove profile image
             if request.form.get("removeProfileImage") == "true":
-                # Set profile image to default marker
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
                 profile_image_handled = True
 
@@ -175,7 +193,6 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                     )
 
                     if upload_result["success"]:
-                        # Store the file path in profile_image (not the signed URL)
                         profile_data["profile_image"] = upload_result["file_path"]
                         profile_image_handled = True
 
@@ -194,9 +211,9 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                         )
 
             # Check if profileImageUrl is explicitly set to empty/undefined (user removed image)
-            # BUT only if no file was uploaded (file upload takes priority)
-            if not profile_image_handled and request.form.get("profileImageUrl") == "":
-                # User explicitly removed their profile image
+            elif (
+                not profile_image_handled and request.form.get("profileImageUrl") == ""
+            ):
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
                 profile_image_handled = True
 
@@ -204,68 +221,14 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                 if old_profile_image_path:
                     storage_service.delete_file(old_profile_image_path)
 
-            # If no profile image was handled but user has existing profile_image, keep it
-            # This prevents overwriting existing images when other fields are updated
-            elif (
-                not profile_image_handled
-                and current_user
-                and current_user.get("profile_image")
-            ):
-                # Keep existing profile image as-is
-                pass
-            # If no profile image was handled and user doesn't have one, set default marker
-            elif not profile_image_handled:
-                # Set default profile image marker
+            # If no profile image was handled but we're completing profile, set default
+            elif not profile_image_handled and not current_user.get("profile_image"):
                 profile_data["profile_image"] = "__DEFAULT_IMAGE__"
 
-            # Mark profile as completed
-            profile_data["profile_completed"] = True
+            # Update profile in database tables
+            result = user_service.create_or_update_profile(user_id, profile_data)
 
-            # Update user metadata using the enhanced method
-            result = user_service.update_user_metadata(user_id, profile_data)
-
-            if result["user_deleted"]:
-                # User was deleted, clear session
-                session.clear()
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "error": "User account no longer exists",
-                            "session_cleared": True,
-                        }
-                    ),
-                    404,
-                )
-
-            if result["success"]:
-                # Update session data
-                session.update(
-                    {
-                        "first_name": profile_data.get(
-                            "first_name", session.get("first_name")
-                        ),
-                        "last_name": profile_data.get(
-                            "last_name", session.get("last_name")
-                        ),
-                        "profile_completed": True,
-                    }
-                )
-
-                # Get updated user data to return to frontend
-                updated_user_data = user_service.get_user(user_id)
-
-                return (
-                    jsonify(
-                        {
-                            "success": True,
-                            "message": "Profile updated successfully",
-                            **updated_user_data,  # Include all updated user data
-                        }
-                    ),
-                    200,
-                )
-            else:
+            if not result["success"]:
                 return (
                     jsonify(
                         {
@@ -276,12 +239,223 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
                     500,
                 )
 
+            # Update session data
+            if profile_data.get("first_name"):
+                session["first_name"] = profile_data["first_name"]
+            if profile_data.get("last_name"):
+                session["last_name"] = profile_data["last_name"]
+            if profile_data.get("profile_completed"):
+                session["profile_completed"] = True
+
+            # Get updated user data to return to frontend
+            updated_user_data = user_service.get_user(user_id)
+
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "message": "Profile updated successfully",
+                        **updated_user_data,  # Include all updated user data
+                    }
+                ),
+                200,
+            )
+
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
 
     @user_bp.route("/api/complete-profile", methods=["POST"])
     def api_complete_profile():
         """API endpoint to complete user profile for the first time"""
-        return api_update_profile()  # Delegate to the update profile function
+        from flask import request
+
+        if "user_id" not in session:
+            return jsonify({"success": False, "error": "Not authenticated"}), 401
+
+        user_id = session["user_id"]
+
+        try:
+            # Get current user data to determine account type
+            current_user = user_service.get_user(user_id)
+            if not current_user:
+                return jsonify({"success": False, "error": "User not found"}), 404
+
+            # Get form data - same as update profile but mark as completing
+            profile_data = {}
+
+            # Handle text fields
+            if request.form.get("firstName"):
+                profile_data["first_name"] = request.form.get("firstName")
+            if request.form.get("lastName"):
+                profile_data["last_name"] = request.form.get("lastName")
+            if request.form.get("email"):
+                profile_data["email"] = request.form.get("email")
+            # Always include location, even if empty - COMPLETE PROFILE
+            profile_data["location"] = request.form.get("location", "")
+
+            # Handle child name fields for parents
+            if current_user.get("account_type") == "parent":
+                if request.form.get("childFirstName"):
+                    profile_data["child_first_name"] = request.form.get(
+                        "childFirstName"
+                    )
+                if request.form.get("childLastName"):
+                    profile_data["child_last_name"] = request.form.get("childLastName")
+
+            # Handle bio for teachers
+            if current_user.get("account_type") == "teacher":
+                # Always include bio field for teachers, even if empty
+                profile_data["bio"] = request.form.get("bio", "")
+
+            # Handle instruments
+            if request.form.get("instruments"):
+                import json
+
+                try:
+                    profile_data["instruments"] = json.loads(
+                        request.form.get("instruments")
+                    )
+                except json.JSONDecodeError:
+                    profile_data["instruments"] = []
+
+            # Handle profile image upload - same logic as update profile
+            profile_image_handled = False
+            old_profile_image_path = None
+
+            # Get current profile image path from database
+            try:
+                profiles_response = (
+                    user_service.supabase.table("profiles")
+                    .select("profile_image")
+                    .eq("id", user_id)
+                    .execute()
+                )
+                if profiles_response.data:
+                    stored_path = profiles_response.data[0].get("profile_image")
+                    if stored_path and not stored_path.startswith(
+                        ("data:", "http", "__DEFAULT_IMAGE__")
+                    ):
+                        old_profile_image_path = stored_path
+            except Exception as e:
+                pass
+
+            # Handle profile image file upload
+            if "profileImage" in request.files:
+                file = request.files["profileImage"]
+                if file and file.filename:
+                    # Validate and upload file (same validation as before)
+                    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+                    file_extension = file.filename.lower().split(".")[-1]
+
+                    if f".{file_extension}" not in allowed_extensions:
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": "Invalid file type. Please upload an image file.",
+                                }
+                            ),
+                            400,
+                        )
+
+                    file.seek(0, 2)
+                    file_size = file.tell()
+                    file.seek(0)
+
+                    if file_size > 5 * 1024 * 1024:  # 5MB
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": "File too large. Please upload an image smaller than 5MB.",
+                                }
+                            ),
+                            400,
+                        )
+
+                    # Upload to Supabase Storage
+                    file_content = file.read()
+                    upload_result = storage_service.upload_profile_image(
+                        user_id,
+                        file_content,
+                        file.filename,
+                        file.content_type or "image/jpeg",
+                        old_profile_image_path,
+                    )
+
+                    if upload_result["success"]:
+                        profile_data["profile_image"] = upload_result["file_path"]
+                        profile_image_handled = True
+                    else:
+                        return (
+                            jsonify(
+                                {
+                                    "success": False,
+                                    "error": f"Failed to upload image: {upload_result.get('error')}",
+                                }
+                            ),
+                            500,
+                        )
+
+            # Check if profileImageUrl is provided (from OAuth or existing image)
+            elif request.form.get("profileImageUrl"):
+                profile_image_url = request.form.get("profileImageUrl")
+                if profile_image_url and not profile_image_url.startswith(
+                    "__DEFAULT_IMAGE__"
+                ):
+                    profile_data["profile_image"] = profile_image_url
+                    profile_image_handled = True
+
+            # Set default image if no image was uploaded or provided
+            if not profile_image_handled:
+                profile_data["profile_image"] = "__DEFAULT_IMAGE__"
+
+            # Mark profile as completed and include account type
+            profile_data["profile_completed"] = True
+            profile_data["account_type"] = current_user.get("account_type")
+
+            # Update profile in database tables
+            result = user_service.create_or_update_profile(user_id, profile_data)
+
+            if not result["success"]:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": result.get("error", "Profile completion failed"),
+                        }
+                    ),
+                    500,
+                )
+
+            # Update session data
+            session.update(
+                {
+                    "first_name": profile_data.get(
+                        "first_name", session.get("first_name")
+                    ),
+                    "last_name": profile_data.get(
+                        "last_name", session.get("last_name")
+                    ),
+                    "profile_completed": True,
+                }
+            )
+
+            # Get updated user data to return to frontend
+            updated_user_data = user_service.get_user(user_id)
+
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "message": "Profile completed successfully",
+                        **updated_user_data,
+                    }
+                ),
+                200,
+            )
+
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
 
     return user_bp

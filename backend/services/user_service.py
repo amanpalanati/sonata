@@ -17,7 +17,7 @@ class UserService(SupabaseService):
         self.storage_service = storage_service
 
     def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
-        """Get user data by user ID"""
+        """Get user data by user ID from profiles, teachers, and parents tables"""
         try:
             if not self.admin_supabase:
                 return None
@@ -31,11 +31,36 @@ class UserService(SupabaseService):
             user = auth_user.user
             user_metadata = user.user_metadata or {}
 
+            # Get profile data from profiles table using admin client
+            profiles_response = (
+                self.admin_supabase.table("profiles")
+                .select("*")
+                .eq("id", user_id)
+                .execute()
+            )
+
+            if not profiles_response.data:
+                # No profile data exists, return basic auth data with metadata
+                oauth_picture = user_metadata.get("picture")
+                return {
+                    "id": user.id,
+                    "email": user.email,
+                    "account_type": user_metadata.get("account_type"),
+                    "first_name": user_metadata.get("first_name"),
+                    "last_name": user_metadata.get("last_name"),
+                    "profile_image": oauth_picture,
+                    "profile_completed": user_metadata.get("profile_completed", False),
+                    "email_confirmed_at": user.email_confirmed_at,
+                    "created_at": user.created_at,
+                    "updated_at": user.updated_at,
+                }
+
+            profile_data = profiles_response.data[0]
+
             # Handle profile image - get signed URL if it's a storage path
             profile_image = None
-            stored_image_path = user_metadata.get("profile_image")
+            stored_image_path = profile_data.get("profile_image")
 
-            # Check if user explicitly chose default image
             if stored_image_path == "__DEFAULT_IMAGE__":
                 profile_image = "__DEFAULT_IMAGE__"
             elif stored_image_path:
@@ -44,35 +69,63 @@ class UserService(SupabaseService):
                     ("data:", "http")
                 ):
                     # It's a storage path, get signed URL
-                    profile_image = self.storage_service.get_profile_image_url(
-                        user_id, stored_image_path
-                    )
+                    while not profile_image:
+                        profile_image = self.storage_service.get_profile_image_url(
+                            user_id, stored_image_path
+                        )
+                    print("profile_image:", profile_image)
                 else:
                     # It's a base64 data URL or external URL (OAuth), use as-is
                     profile_image = stored_image_path
             else:
-                # No profile_image in metadata, fall back to OAuth picture for new OAuth users
+                # No profile_image in profile, fall back to OAuth picture for new OAuth users
                 oauth_picture = user_metadata.get("picture")
                 if oauth_picture:
                     profile_image = oauth_picture
 
-            return {
+            # Build base user data from profiles table
+            user_data = {
                 "id": user.id,
                 "email": user.email,
-                "account_type": user_metadata.get("account_type"),
-                # Get all profile data from metadata only
-                "first_name": user_metadata.get("first_name"),
-                "last_name": user_metadata.get("last_name"),
+                "account_type": profile_data.get("account_type"),
+                "first_name": profile_data.get("first_name"),
+                "last_name": profile_data.get("last_name"),
                 "profile_image": profile_image,
-                "child_first_name": user_metadata.get("child_first_name"),
-                "child_last_name": user_metadata.get("child_last_name"),
-                "bio": user_metadata.get("bio"),
-                "instruments": user_metadata.get("instruments"),
+                "instruments": profile_data.get("instruments", []),
+                "location": profile_data.get("location"),
                 "profile_completed": user_metadata.get("profile_completed", False),
                 "email_confirmed_at": user.email_confirmed_at,
                 "created_at": user.created_at,
                 "updated_at": user.updated_at,
             }
+
+            # Get additional data based on account type
+            account_type = profile_data.get("account_type")
+
+            if account_type == "teacher":
+                teachers_response = (
+                    self.admin_supabase.table("teachers")
+                    .select("*")
+                    .eq("id", user_id)
+                    .execute()
+                )
+                if teachers_response.data:
+                    teacher_data = teachers_response.data[0]
+                    user_data["bio"] = teacher_data.get("bio")
+
+            elif account_type == "parent":
+                parents_response = (
+                    self.admin_supabase.table("parents")
+                    .select("*")
+                    .eq("id", user_id)
+                    .execute()
+                )
+                if parents_response.data:
+                    parent_data = parents_response.data[0]
+                    user_data["child_first_name"] = parent_data.get("child_first_name")
+                    user_data["child_last_name"] = parent_data.get("child_last_name")
+
+            return user_data
 
         except Exception as e:
             return None
@@ -98,17 +151,8 @@ class UserService(SupabaseService):
                 # Search through users for email match
                 for user in users:
                     if user.email and user.email.lower() == email.lower():
-                        return {
-                            "id": user.id,
-                            "email": user.email,
-                            "account_type": user.user_metadata.get("account_type"),
-                            "first_name": user.user_metadata.get("first_name"),
-                            "last_name": user.user_metadata.get("last_name"),
-                            "profile_image": (user.user_metadata.get("profile_image")),
-                            "profile_completed": user.user_metadata.get(
-                                "profile_completed", False
-                            ),
-                        }
+                        # Return full user data using get_user method
+                        return self.get_user(user.id)
 
             return None
         except Exception as e:
@@ -137,20 +181,13 @@ class UserService(SupabaseService):
                 oauth_first_name = name_parts[0]
                 oauth_last_name = name_parts[1] if len(name_parts) > 1 else ""
 
-            # Use OAuth names if they exist, otherwise keep existing ones
-            user_data = {
-                "id": existing_user["id"],
-                "email": existing_user["email"],
-                "account_type": existing_user[
-                    "account_type"
-                ],  # Keep the saved account_type
-                "first_name": oauth_first_name or existing_user.get("first_name", ""),
-                "last_name": oauth_last_name or existing_user.get("last_name", ""),
-                "profile_image": existing_user.get("profile_image"),
-                "profile_completed": existing_user.get("profile_completed", False),
-            }
+            # Return the complete existing user data with updated names if available
+            if oauth_first_name:
+                existing_user["first_name"] = oauth_first_name
+            if oauth_last_name:
+                existing_user["last_name"] = oauth_last_name
 
-            return user_data
+            return existing_user
 
         # For new users, we need account_type from the request
         account_type = user_metadata.get("account_type")
@@ -234,3 +271,104 @@ class UserService(SupabaseService):
         except Exception as e:
             # On any exception, it might indicate the user is deleted
             return {"success": False, "user_deleted": True, "error": str(e)}
+
+    def create_or_update_profile(
+        self, user_id: str, profile_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create or update user profile in the profiles, teachers, and parents tables"""
+        try:
+            # Validate required fields
+            if not profile_data.get("account_type"):
+                return {"success": False, "error": "Account type is required"}
+            if not profile_data.get("first_name"):
+                return {"success": False, "error": "First name is required"}
+            if not profile_data.get("last_name"):
+                return {"success": False, "error": "Last name is required"}
+
+            # Prepare profile data for profiles table
+            profile_fields = {
+                "id": user_id,
+                "account_type": profile_data.get("account_type"),
+                "first_name": profile_data.get("first_name"),
+                "last_name": profile_data.get("last_name"),
+                "instruments": profile_data.get("instruments", []),
+                "profile_image": profile_data.get("profile_image"),
+                "location": profile_data.get("location"),
+            }
+
+            # Remove None values except for required fields
+            filtered_fields = {}
+            required_fields = ["id", "account_type", "first_name", "last_name"]
+
+            for key, value in profile_fields.items():
+                if key in required_fields:
+                    # Keep required fields even if they're None (will cause DB error if actually None)
+                    filtered_fields[key] = value
+                elif value is not None:
+                    # Only keep optional fields if they have values
+                    filtered_fields[key] = value
+
+            profile_fields = filtered_fields
+
+            # Use admin client for server-side operations since we can't easily
+            # authenticate the regular client with the user's session in this context
+            profiles_response = (
+                self.admin_supabase.table("profiles")
+                .upsert(profile_fields, on_conflict="id")
+                .execute()
+            )
+
+            if not profiles_response.data:
+                return {"success": False, "error": "Failed to create/update profile"}
+
+            # Handle account-type specific data
+            account_type = profile_data.get("account_type")
+
+            if account_type == "teacher":
+                # Always create a teacher record for teacher accounts
+                teacher_data = {
+                    "id": user_id,
+                    "bio": profile_data.get("bio")
+                    or "",  # Use empty string if bio is None or empty
+                }
+
+                teachers_response = (
+                    self.admin_supabase.table("teachers")
+                    .upsert(teacher_data, on_conflict="id")
+                    .execute()
+                )
+
+                if not teachers_response.data:
+                    return {"success": False, "error": "Failed to update teacher data"}
+
+            elif account_type == "parent":
+                # Always create a parent record for parent accounts
+                parent_data = {
+                    "id": user_id,  # Always include the ID
+                    "child_first_name": profile_data.get("child_first_name") or "",
+                    "child_last_name": profile_data.get("child_last_name") or "",
+                }
+
+                parents_response = (
+                    self.admin_supabase.table("parents")
+                    .upsert(parent_data, on_conflict="id")
+                    .execute()
+                )
+
+                if not parents_response.data:
+                    return {"success": False, "error": "Failed to update parent data"}
+
+            # Update metadata with profile_completed flag
+            metadata_update = {}
+            if "profile_completed" in profile_data:
+                metadata_update["profile_completed"] = profile_data["profile_completed"]
+
+            if metadata_update:
+                metadata_result = self.update_user_metadata(user_id, metadata_update)
+                if not metadata_result["success"]:
+                    return metadata_result
+
+            return {"success": True}
+
+        except Exception as e:
+            return {"success": False, "error": str(e)}

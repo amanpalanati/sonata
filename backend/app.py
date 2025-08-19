@@ -39,6 +39,9 @@ user_service = UserService(
     storage_service,  # Inject storage service
 )
 
+# Inject user_service into auth_service after both are created
+auth_service.user_service = user_service
+
 password_service = PasswordService(
     app.config["SUPABASE_URL"],
     app.config["SUPABASE_KEY"],

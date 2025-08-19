@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import Select from "react-select";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { StepComponentProps } from "../../../types/profileCompletion";
-import GroupedInstruments from "../../../types/instruments";
+import InstrumentsSelect from "../../common/InstrumentsSelect";
 
 import RootMessage from "../../forms/fields/RootMessage";
 
@@ -116,55 +115,18 @@ const Instruments: React.FC<InstrumentsProps> = ({
           />
 
           {/* Form Fields */}
-          <Controller // Use Controller to connect react-select with react-hook-form
+          <InstrumentsSelect
             name="instruments"
             control={control}
-            render={({ field }) => {
-              // Convert string values back to option objects for react-select
-              const selectedOptions = Array.isArray(field.value)
-                ? GroupedInstruments.flatMap((group) => group.options).filter(
-                    (option) => field.value.includes(option.value)
-                  )
-                : [];
-
-              return (
-                <Select
-                  id="instruments"
-                  options={GroupedInstruments}
-                  isMulti
-                  placeholder="Select instruments..."
-                  value={selectedOptions}
-                  onChange={(selectedOptions) => {
-                    const values = selectedOptions
-                      ? selectedOptions.map((option) => option.value)
-                      : [];
-                    field.onChange(values);
-
-                    // Update parent state immediately when user makes changes
-                    onUpdate({
-                      instruments: values,
-                    });
-                  }}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  styles={{
-                    control: (provided) => ({
-                      ...provided,
-                      minHeight: "48px",
-                    }),
-                  }}
-                />
-              );
+            error={errors.instruments as any}
+            placeholder="Select instruments..."
+            onSelectionChange={(selectedInstruments) => {
+              // Update parent state immediately when user makes changes
+              onUpdate({
+                instruments: selectedInstruments,
+              });
             }}
           />
-          <div
-            className={
-              errors.instruments ? styles.errorVisible : styles.errorHidden
-            }
-          >
-            <span className={styles.span}>&#9888;</span>
-            {errors.instruments?.message || "\u00A0"}
-          </div>
 
           {/* Navigation buttons */}
           {onPrev ? (
