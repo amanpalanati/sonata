@@ -100,7 +100,6 @@ def create_auth_routes(auth_service: AuthService, user_service: UserService):
             if result["success"]:
                 # Log user in (set session)
                 user = result["user"]
-                
                 session["user_id"] = user["id"]
                 session["user_email"] = user["email"]
                 session["account_type"] = user["account_type"]

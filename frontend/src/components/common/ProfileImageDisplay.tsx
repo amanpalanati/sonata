@@ -26,13 +26,13 @@ const ProfileImageDisplay: React.FC<{ styles: Record<string, string> }> = ({
 
       // Preload the image to avoid flickering
       const img = new Image();
-      
+
       img.onload = () => {
         // Only update the src once the image has fully loaded
         setImageSrc(user.profile_image!);
         setIsLoading(false);
       };
-      
+
       img.onerror = () => {
         // If the image fails to load, use default
         setImageSrc("/images/default_pfp.png");
@@ -52,9 +52,9 @@ const ProfileImageDisplay: React.FC<{ styles: Record<string, string> }> = ({
         src={imageSrc}
         alt="profile picture"
         className={styles.profileImage}
-        style={{ 
+        style={{
           opacity: isLoading ? 0.7 : 1,
-          transition: 'opacity 0.2s ease-in-out'
+          transition: "opacity 0.2s ease-in-out",
         }}
       />
     </div>

@@ -21,7 +21,7 @@ const Login: React.FC = () => {
         login(result.user);
 
         // Wait a bit for state to update before redirecting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         // Redirect based on profile completion status
         if (result.user.profile_completed) {

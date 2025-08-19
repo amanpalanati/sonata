@@ -101,10 +101,10 @@ class AuthService(SupabaseService):
                 if self.user_service:
                     try:
                         user_data = self.user_service.get_user(auth_response.user.id)
-                        
+
                         if user_data:
                             return {"success": True, "user": user_data}
-                        
+
                     except Exception as db_error:
                         pass
                 else:

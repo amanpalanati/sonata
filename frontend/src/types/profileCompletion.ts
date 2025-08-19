@@ -1,4 +1,3 @@
-// Types for profile completion flow
 export interface ProfileData {
   firstName?: string;
   lastName?: string;
