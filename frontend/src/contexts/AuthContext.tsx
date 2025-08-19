@@ -92,7 +92,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }),
             ...(result.location && { location: result.location }),
             ...(result.bio && { bio: result.bio }),
-            
 
             profile_completed: result.profile_completed || false,
           };

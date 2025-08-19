@@ -32,16 +32,23 @@ class UserService(SupabaseService):
             user_metadata = user.user_metadata or {}
 
             # Get profile data from profiles table using admin client
-            profiles_response = self.admin_supabase.table("profiles").select("*").eq("id", user_id).execute()
-            
+            profiles_response = (
+                self.admin_supabase.table("profiles")
+                .select("*")
+                .eq("id", user_id)
+                .execute()
+            )
+
             if not profiles_response.data:
                 # No profile data exists, return basic auth data with metadata
+                oauth_picture = user_metadata.get("picture")
                 return {
                     "id": user.id,
                     "email": user.email,
                     "account_type": user_metadata.get("account_type"),
                     "first_name": user_metadata.get("first_name"),
                     "last_name": user_metadata.get("last_name"),
+                    "profile_image": oauth_picture,
                     "profile_completed": user_metadata.get("profile_completed", False),
                     "email_confirmed_at": user.email_confirmed_at,
                     "created_at": user.created_at,
@@ -62,9 +69,11 @@ class UserService(SupabaseService):
                     ("data:", "http")
                 ):
                     # It's a storage path, get signed URL
-                    profile_image = self.storage_service.get_profile_image_url(
-                        user_id, stored_image_path
-                    )
+                    while not profile_image:
+                        profile_image = self.storage_service.get_profile_image_url(
+                            user_id, stored_image_path
+                        )
+                    print("profile_image:", profile_image)
                 else:
                     # It's a base64 data URL or external URL (OAuth), use as-is
                     profile_image = stored_image_path
@@ -92,15 +101,25 @@ class UserService(SupabaseService):
 
             # Get additional data based on account type
             account_type = profile_data.get("account_type")
-            
+
             if account_type == "teacher":
-                teachers_response = self.admin_supabase.table("teachers").select("*").eq("id", user_id).execute()
+                teachers_response = (
+                    self.admin_supabase.table("teachers")
+                    .select("*")
+                    .eq("id", user_id)
+                    .execute()
+                )
                 if teachers_response.data:
                     teacher_data = teachers_response.data[0]
                     user_data["bio"] = teacher_data.get("bio")
-            
+
             elif account_type == "parent":
-                parents_response = self.admin_supabase.table("parents").select("*").eq("id", user_id).execute()
+                parents_response = (
+                    self.admin_supabase.table("parents")
+                    .select("*")
+                    .eq("id", user_id)
+                    .execute()
+                )
                 if parents_response.data:
                     parent_data = parents_response.data[0]
                     user_data["child_first_name"] = parent_data.get("child_first_name")
@@ -167,11 +186,6 @@ class UserService(SupabaseService):
                 existing_user["first_name"] = oauth_first_name
             if oauth_last_name:
                 existing_user["last_name"] = oauth_last_name
-
-            # Update profile image from OAuth if it's provided and different
-            oauth_profile_image = user_metadata.get("profile_image") or user_metadata.get("picture")
-            if oauth_profile_image and oauth_profile_image != existing_user.get("profile_image"):
-                existing_user["profile_image"] = oauth_profile_image
 
             return existing_user
 
@@ -270,7 +284,7 @@ class UserService(SupabaseService):
                 return {"success": False, "error": "First name is required"}
             if not profile_data.get("last_name"):
                 return {"success": False, "error": "Last name is required"}
-            
+
             # Prepare profile data for profiles table
             profile_fields = {
                 "id": user_id,
@@ -285,7 +299,7 @@ class UserService(SupabaseService):
             # Remove None values except for required fields
             filtered_fields = {}
             required_fields = ["id", "account_type", "first_name", "last_name"]
-            
+
             for key, value in profile_fields.items():
                 if key in required_fields:
                     # Keep required fields even if they're None (will cause DB error if actually None)
@@ -293,10 +307,10 @@ class UserService(SupabaseService):
                 elif value is not None:
                     # Only keep optional fields if they have values
                     filtered_fields[key] = value
-            
+
             profile_fields = filtered_fields
 
-            # Use admin client for server-side operations since we can't easily 
+            # Use admin client for server-side operations since we can't easily
             # authenticate the regular client with the user's session in this context
             profiles_response = (
                 self.admin_supabase.table("profiles")
@@ -314,9 +328,10 @@ class UserService(SupabaseService):
                 # Always create a teacher record for teacher accounts
                 teacher_data = {
                     "id": user_id,
-                    "bio": profile_data.get("bio") or "",  # Use empty string if bio is None or empty
+                    "bio": profile_data.get("bio")
+                    or "",  # Use empty string if bio is None or empty
                 }
-                
+
                 teachers_response = (
                     self.admin_supabase.table("teachers")
                     .upsert(teacher_data, on_conflict="id")
@@ -325,7 +340,7 @@ class UserService(SupabaseService):
 
                 if not teachers_response.data:
                     return {"success": False, "error": "Failed to update teacher data"}
-                    
+
             elif account_type == "parent":
                 # Always create a parent record for parent accounts
                 parent_data = {
