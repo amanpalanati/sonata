@@ -19,6 +19,7 @@ const emailSchema = yup.object().shape({
     .string()
     .required("Email is required")
     .email("Please enter a valid email address")
+    .max(100, "Email must be less than 100 characters")
     .trim(),
 });
 
@@ -35,7 +36,11 @@ const ForgotPasswordEmailForm: React.FC<ForgotPasswordEmailFormProps> = ({
     resolver: yupResolver(emailSchema),
   });
 
-  const { handleSubmit, formState: { errors, isSubmitting }, setError } = form;
+  const {
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = form;
 
   // Use the custom hook for field management
   const { customRegister } = useFormFieldManagement({ form });

@@ -1,6 +1,6 @@
 import React from "react";
 
-import styles from "../../styles/home_page/Footer.module.css";
+import styles from "../../styles/common/Footer.module.css";
 
 const Footer: React.FC = () => {
   return (

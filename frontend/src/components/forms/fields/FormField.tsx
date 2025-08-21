@@ -18,7 +18,7 @@ interface FormFieldProps {
 /**
  * A complete form field component that combines FloatingLabelInput with FieldError.
  * This is the highest level of abstraction - use this for maximum code reduction.
- * 
+ *
  * Usage:
  * <FormField
  *   id="email"

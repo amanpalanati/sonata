@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import ProfileImageDisplay from "./ProfileImageDisplay";
 
-import styles from "../../styles/dashboard/ProfileDropdown.module.css";
+import styles from "../../styles/common/ProfileDropdown.module.css";
 import { authService } from "../../services/auth";
 
 const ProfileDropdown: React.FC = () => {
@@ -83,12 +83,16 @@ const ProfileDropdown: React.FC = () => {
       {isOpen && (
         <div className={styles.dropdownContent}>
           <div className={styles.dropdownHeader}>
-            <div className={styles.imageWrapper}>
+            <Link
+              className={styles.imageWrapper}
+              to="/account/info?editProfileImage=true"
+              onClick={() => setIsOpen(false)}
+            >
               <ProfileImageDisplay styles={styles} />
               <div className={styles.editIcon}>
                 <img src="/icons/edit_icon.svg" alt="Edit" />
               </div>
-            </div>
+            </Link>
             <div>
               <p className={styles.subtext}>
                 {user?.first_name} {user?.last_name}
@@ -136,19 +140,19 @@ const ProfileDropdown: React.FC = () => {
           </div>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/account/info"
             onClick={() => setIsOpen(false)}
           >
             <img
               className={styles.dropdownIcon}
               src="/icons/person_icon.svg"
-              alt="Account Settings"
+              alt="Account"
             />
-            <p>Account Settings</p>
+            <p>Manage Account</p>
           </Link>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/account/wallet"
             onClick={() => setIsOpen(false)}
           >
             <img
@@ -160,7 +164,7 @@ const ProfileDropdown: React.FC = () => {
           </Link>
           <Link
             className={styles.dropdownItem}
-            to="#"
+            to="/help"
             onClick={() => setIsOpen(false)}
           >
             <img

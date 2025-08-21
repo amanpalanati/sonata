@@ -105,6 +105,7 @@ def create_auth_routes(auth_service: AuthService, user_service: UserService):
                 session["account_type"] = user["account_type"]
                 session["first_name"] = user["first_name"]
                 session["last_name"] = user["last_name"]
+                session["profile_completed"] = user.get("profile_completed", False)
                 session["user_verified_at"] = time.time()
                 session.permanent = True
 

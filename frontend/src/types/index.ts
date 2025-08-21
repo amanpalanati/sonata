@@ -20,3 +20,20 @@ export interface ForgotPasswordFormData {
 export interface ForgotPasswordEmailData {
   email: string;
 }
+
+export interface AccountInfoFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  instruments?: string[];
+  location?: string;
+  childFirstName?: string;
+  childLastName?: string;
+  bio?: string;
+}
+
+export interface ChangePasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}

@@ -26,9 +26,10 @@ interface BioData {
   bio?: string;
 }
 
-interface BioProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
+interface BioProps extends Pick<StepComponentProps, "onPrev"> {
   data: BioData;
   onUpdate: (data: Partial<BioData>) => void;
+  onNext: (data?: Partial<BioData>) => void;
 }
 
 const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
@@ -58,11 +59,13 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
 
   const handleFormSubmit = async (formData: BioFormData) => {
     try {
+      const bioData = { bio: formData.bio.trim() };
+      
       // Update parent state with current values
-      onUpdate({
-        bio: formData.bio.trim(),
-      });
-      onNext();
+      onUpdate(bioData);
+            
+      // Pass bio data directly to onNext for final submission
+      onNext(bioData);
     } catch (error) {
       // Handle any errors
       if (error instanceof Error) {
@@ -101,7 +104,7 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
           {/* Form Fields */}
           <TextAreaField
             id="bio"
-            label="Bio"
+            label="Bio (Optional)"
             placeholder="What you hope to accomplish as a music teacher..."
             register={register("bio")}
             error={errors.bio}
@@ -141,20 +144,20 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
                 type="submit"
                 disabled={isSubmitting}
               >
-                Next
+                Complete Profile
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>
@@ -166,20 +169,20 @@ const Bio: React.FC<BioProps> = ({ data, onUpdate, onNext, onPrev }) => {
                 type="submit"
                 disabled={isSubmitting}
               >
-                Next
+                Complete Profile
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>

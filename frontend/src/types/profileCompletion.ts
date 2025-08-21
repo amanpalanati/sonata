@@ -1,22 +1,24 @@
-// Types for profile completion flow
 export interface ProfileData {
   firstName?: string;
   lastName?: string;
   email?: string;
   childFirstName?: string;
   childLastName?: string;
+  instruments?: string[];
   profileImage?: File | null; // New file being uploaded
   profileImageUrl?: string; // Existing image URL (e.g., from Google OAuth)
+  location?: string;
   bio?: string;
-  instruments?: string[];
+  accountType?: string; // Account type for conditional logic
 }
 
 export const ALL_STEPS = [
   "nameEmail",
   "childName",
-  "pfp",
-  "bio",
   "instruments",
+  "pfp",
+  "location",
+  "bio",
 ] as const;
 
 export type StepType = (typeof ALL_STEPS)[number];
@@ -25,7 +27,7 @@ export type StepType = (typeof ALL_STEPS)[number];
 export interface StepComponentProps {
   data: ProfileData;
   onUpdate: (data: Partial<ProfileData>) => void;
-  onNext: () => void;
+  onNext: (data?: Partial<ProfileData>) => void;
   onPrev?: () => void;
   onSkip?: () => void;
   accountType?: string;

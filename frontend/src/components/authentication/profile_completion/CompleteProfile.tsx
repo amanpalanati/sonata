@@ -8,9 +8,10 @@ import { ProfileData, StepType } from "../../../types/profileCompletion";
 import Header from "../Header";
 import NameEmail from "./NameEmail";
 import ChildName from "./ChildName";
-import ProfileImage from "./ProfileImage";
-import Bio from "./Bio";
 import Instruments from "./Instruments";
+import ProfileImage from "./ProfileImage";
+import Location from "./Location";
+import Bio from "./Bio";
 import Submitting from "./Submitting";
 
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
@@ -45,32 +46,66 @@ const CompleteProfile: React.FC = () => {
       steps.push("childName");
     }
 
+    // Instruments step - always include but content varies by account type
+    steps.push("instruments");
+
     // Profile image step - always included
     steps.push("pfp");
+
+    // Location step - always include but content varies by account type
+    steps.push("location");
 
     // Bio - only for teachers
     if (user.account_type === "teacher") {
       steps.push("bio");
     }
 
-    // Instruments step - always include but content varies by account type
-    steps.push("instruments");
-
     // Pre-populate with existing user data (only if profileData is empty)
     setProfileData((prev) => {
-      // Populate data that users entered in profile completion components
+      // If profileData already has data (user has been entering info), keep it
       if (Object.keys(prev).length > 0) {
         return prev;
       }
 
       // Initial population from user data before rendering steps
-      return {
+      const initialData: ProfileData = {
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         email: user.email || "",
-        ...(user.profile_image && { profileImageUrl: user.profile_image }),
         accountType: user.account_type, // For conditional messaging
       };
+
+      // Add existing profile data if available
+      if (user.profile_image) {
+        initialData.profileImageUrl = user.profile_image;
+      }
+      
+      if (user.location) {
+        initialData.location = user.location;
+      }
+      
+      if (user.instruments && user.instruments.length > 0) {
+        initialData.instruments = user.instruments;
+      }
+
+      // Add parent-specific data
+      if (user.account_type === "parent") {
+        if (user.child_first_name) {
+          initialData.childFirstName = user.child_first_name;
+        }
+        if (user.child_last_name) {
+          initialData.childLastName = user.child_last_name;
+        }
+      }
+
+      // Add teacher-specific data
+      if (user.account_type === "teacher") {
+        if (user.bio) {
+          initialData.bio = user.bio;
+        }
+      }
+
+      return initialData;
     });
 
     setRequiredSteps(steps);
@@ -93,14 +128,37 @@ const CompleteProfile: React.FC = () => {
   };
 
   // Submit complete profile to backend
-  const submitProfile = async () => {
+  const submitProfile = async (finalStepData?: any) => {
     try {
       setShowCompleting(true);
 
       const formData = new FormData();
 
-      // Add text fields
-      Object.entries(profileData).forEach(([key, value]) => {
+      // Merge user data with profileData to ensure all data is sent
+      // Use finalStepData if provided (for bio from final step)
+      const currentProfileData = finalStepData ? { ...profileData, ...finalStepData } : profileData;
+      
+      const completeProfileData = {
+        firstName: currentProfileData.firstName || user?.first_name || "",
+        lastName: currentProfileData.lastName || user?.last_name || "",
+        email: currentProfileData.email || user?.email || "",
+        ...(currentProfileData.instruments && { instruments: currentProfileData.instruments }),
+        // Always include location, even if empty
+        location: currentProfileData.location || "",
+        ...(user?.account_type === "parent" && {
+          childFirstName: currentProfileData.childFirstName || user?.child_first_name || "",
+          childLastName: currentProfileData.childLastName || user?.child_last_name || "",
+        }),
+        ...(user?.account_type === "teacher" && {
+          bio: currentProfileData.bio || user?.bio || "",
+        }),
+        // Profile image handling
+        ...(currentProfileData.profileImage && { profileImage: currentProfileData.profileImage }),
+        ...(currentProfileData.profileImageUrl !== undefined && { profileImageUrl: currentProfileData.profileImageUrl }),
+      };
+
+      // Add fields to FormData
+      Object.entries(completeProfileData).forEach(([key, value]) => {
         if (key === "profileImage" && value instanceof File) {
           formData.append("profileImage", value);
         } else if (key === "instruments" && Array.isArray(value)) {
@@ -108,7 +166,11 @@ const CompleteProfile: React.FC = () => {
         } else if (key === "profileImageUrl") {
           // Always send profileImageUrl, even if empty (indicates user wants default)
           formData.append(key, String(value || ""));
-        } else if (value !== undefined && value !== null && value !== "") {
+        } else if (key === "bio") {
+          // Always send bio for teachers, even if empty
+          formData.append(key, String(value || ""));
+        } else if (value !== undefined && value !== null) {
+          // Send all values except undefined/null, including empty strings
           formData.append(key, String(value));
         }
       });
@@ -129,21 +191,24 @@ const CompleteProfile: React.FC = () => {
       // Update the auth context with all the new profile data
       updateUserProfile({
         profile_completed: true,
-        first_name: profileData.firstName || user?.first_name,
-        last_name: profileData.lastName || user?.last_name,
-        email: profileData.email || user?.email,
-        ...(profileData.childFirstName && {
-          child_first_name: profileData.childFirstName,
+        first_name: completeProfileData.firstName,
+        last_name: completeProfileData.lastName,
+        email: completeProfileData.email,
+        ...(completeProfileData.childFirstName && {
+          child_first_name: completeProfileData.childFirstName,
         }),
-        ...(profileData.childLastName && {
-          child_last_name: profileData.childLastName,
+        ...(completeProfileData.childLastName && {
+          child_last_name: completeProfileData.childLastName,
+        }),
+        ...(completeProfileData.instruments && {
+          instruments: completeProfileData.instruments,
+        }),
+        ...(completeProfileData.location && {
+          location: completeProfileData.location,
         }),
         // Backend will always provide a profile_image (either uploaded or default)
         profile_image: updatedUser.profile_image,
-        ...(profileData.bio && { bio: profileData.bio }),
-        ...(profileData.instruments && {
-          instruments: profileData.instruments,
-        }),
+        ...(completeProfileData.bio && { bio: completeProfileData.bio }),
       });
 
       // Add a small delay to allow the success animation to show
@@ -159,12 +224,12 @@ const CompleteProfile: React.FC = () => {
   };
 
   // Handle final step completion
-  const handleFinalStep = async () => {
+  const handleFinalStep = async (finalStepData?: any) => {
     if (currentStepIndex === requiredSteps.length - 1) {
       // Trigger the slide-out animation and then submit
       setDirection("forward");
       await new Promise((resolve) => setTimeout(resolve, 250)); // Wait for exit animation
-      await submitProfile();
+      await submitProfile(finalStepData);
     } else {
       setDirection("forward");
       nextStep();
@@ -274,6 +339,20 @@ const CompleteProfile: React.FC = () => {
                 />
               )}
 
+              {currentStep === "instruments" && (
+                <Instruments
+                  data={{
+                    ...profileData,
+                    accountType: user?.account_type, // Add accountType from user
+                  }}
+                  onUpdate={(data) => {
+                    setProfileData((prev) => ({ ...prev, ...data }));
+                  }}
+                  onNext={nextStep}
+                  onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                />
+              )}
+
               {currentStep === "pfp" && (
                 <ProfileImage
                   data={profileData}
@@ -285,27 +364,30 @@ const CompleteProfile: React.FC = () => {
                 />
               )}
 
-              {currentStep === "bio" && (
-                <Bio
+              {currentStep === "location" && (
+                <Location
                   data={profileData}
-                  onUpdate={(data) =>
-                    setProfileData((prev) => ({ ...prev, ...data }))
-                  }
-                  onNext={nextStep}
+                  onUpdate={(data) => {
+                    setProfileData((prev) => {
+                      const newData = { ...prev, ...data };
+                      return newData;
+                    });
+                  }}
+                  onNext={currentStepIndex === requiredSteps.length - 1 ? (data) => handleFinalStep(data) : nextStep}
                   onPrev={currentStepIndex > 0 ? prevStep : undefined}
+                  isFinal={currentStepIndex === requiredSteps.length - 1}
                 />
               )}
 
-              {currentStep === "instruments" && (
-                <Instruments
-                  data={{
-                    ...profileData,
-                    accountType: user?.account_type, // Add accountType from user
-                  }}
+              {currentStep === "bio" && (
+                <Bio
+                  data={profileData}
                   onUpdate={(data) => {
-                    setProfileData((prev) => ({ ...prev, ...data }));
+                    setProfileData((prev) => {
+                      return { ...prev, ...data };
+                    });
                   }}
-                  onNext={handleFinalStep}
+                  onNext={(data) => handleFinalStep(data)}
                   onPrev={currentStepIndex > 0 ? prevStep : undefined}
                 />
               )}

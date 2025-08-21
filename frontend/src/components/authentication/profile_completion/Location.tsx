@@ -1,63 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import { StepComponentProps } from "../../../types/profileCompletion";
-import { useFormFieldManagement } from "../../../hooks/useFormFieldManagement";
 
-import FormField from "../../forms/fields/FormField";
 import RootMessage from "../../forms/fields/RootMessage";
+import LocationSelect from "../../common/LocationSelect";
 
 import { useBodyClass } from "../../../hooks/useBodyClass";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
-// Validation schema
-const childNameSchema = yup.object().shape({
-  childFirstName: yup
-    .string()
-    .required("Child's first name is required")
-    .min(2, "Child's first name must be at least 2 characters")
-    .max(50, "Child's first name must be less than 50 characters")
-    .trim(),
-  childLastName: yup
-    .string()
-    .required("Child's last name is required")
-    .min(2, "Child's last name must be at least 2 characters")
-    .max(50, "Child's last name must be less than 50 characters")
-    .trim(),
+const locationSchema = yup.object().shape({
+  location: yup.string().optional().default(""),
 });
 
-// Form data type that matches the schema (required fields)
-interface ChildNameFormData {
-  childFirstName: string;
-  childLastName: string;
+// Form data type that matches the schema
+interface LocationFormData {
+  location: string;
 }
 
-// Extract just the properties this component needs (optional for props)
-interface ChildNameData {
-  childFirstName?: string;
-  childLastName?: string;
+// Extract just the properties this component needs
+interface LocationData {
+  location?: string;
+  accountType?: string; // For conditional messaging
+  locationSelectedFromDropdown?: boolean; // Track if location was selected from dropdown
 }
 
-interface ChildNameProps extends Pick<StepComponentProps, "onNext" | "onPrev"> {
-  data: ChildNameData;
-  onUpdate: (data: Partial<ChildNameData>) => void;
+interface LocationProps extends Pick<StepComponentProps, "onPrev"> {
+  data: LocationData;
+  onUpdate: (data: Partial<LocationData>) => void;
+  onNext: (data?: Partial<LocationData>) => void;
+  isFinal?: boolean;
 }
 
-const ChildName: React.FC<ChildNameProps> = ({
+const Location: React.FC<LocationProps> = ({
   data,
   onUpdate,
   onNext,
   onPrev,
+  isFinal = false, // Default to false
 }) => {
   useBodyClass("auth");
 
-  const form = useForm<ChildNameFormData>({
-    resolver: yupResolver(childNameSchema),
+  // State for custom location error and dropdown selection tracking
+  const [customError, setCustomError] = useState<string>("");
+  const [wasSelectedFromDropdown, setWasSelectedFromDropdown] = useState(false);
+
+  const form = useForm<LocationFormData>({
+    resolver: yupResolver(locationSchema),
+    mode: "onSubmit", // Only validate on submit, we'll handle custom validation manually
     defaultValues: {
-      childFirstName: data.childFirstName || "",
-      childLastName: data.childLastName || "",
+      location: data.location || "",
     },
   });
 
@@ -65,23 +59,62 @@ const ChildName: React.FC<ChildNameProps> = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    reset,
+    watch,
+    control,
   } = form;
+  const locationValue = watch("location");
 
-  // Use the custom hook for field management
-  const { customRegister } = useFormFieldManagement({
-    form,
-  });
+  // Helper function to determine button text
+  const getButtonText = () => {
+    if (isFinal) {
+      return "Complete Profile";
+    }
+    return locationValue?.trim() ? "Next" : "Skip";
+  };
 
-  const handleFormSubmit = async (formData: ChildNameFormData) => {
+  // Reset form when component mounts or data changes
+  useEffect(() => {
+    reset({ location: data.location || "" });
+  }, [data.location, reset]);
+
+  // Handle location selection changes
+  const handleLocationChange = (
+    _location: string,
+    selectedFromDropdown: boolean
+  ) => {
+    setWasSelectedFromDropdown(selectedFromDropdown);
+    // Persist the dropdown selection state to parent immediately
+    onUpdate({ locationSelectedFromDropdown: selectedFromDropdown });
+  };
+
+  const handleFormSubmit = async (formData: LocationFormData) => {
     try {
-      // Update parent state with current values
-      onUpdate({
-        childFirstName: formData.childFirstName.trim(),
-        childLastName: formData.childLastName.trim(),
-      });
-      onNext();
+      // Use the most up-to-date selection state (either from local state or parent data)
+      const isSelectedFromDropdown =
+        wasSelectedFromDropdown || data.locationSelectedFromDropdown;
+
+      // Custom validation: if there's a location value but it wasn't selected from dropdown
+      if (
+        formData.location &&
+        formData.location.trim() &&
+        !isSelectedFromDropdown
+      ) {
+        setCustomError("Please select a location from the dropdown");
+        return;
+      }
+
+      const locationData = {
+        location: formData.location?.trim() || "",
+        locationSelectedFromDropdown: isSelectedFromDropdown,
+      };
+
+      // Update data to persist the dropdown selection state
+      onUpdate(locationData);
+
+      // Pass location data directly to onNext for immediate submission
+      onNext(locationData);
     } catch (error) {
-      // Handle any errors
       if (error instanceof Error) {
         setError("root", { type: "manual", message: error.message });
       } else {
@@ -98,14 +131,19 @@ const ChildName: React.FC<ChildNameProps> = ({
       <div className={styles.wrapper}></div>
       <div className={styles.container}>
         <h1 className={styles.h1}>Complete Your Profile</h1>
-        <p className={styles.p}>Please provide your child's name.</p>
+        <p className={styles.p}>
+          {data.accountType === "student"
+            ? "Provide your location so you can easily find teachers in your area"
+            : data.accountType === "teacher"
+            ? "Provide your location so students in your area can find you"
+            : "Provide your location so you can find teachers for your student easily"}
+        </p>
 
         <form
           className={styles.form}
           onSubmit={handleSubmit(handleFormSubmit)}
           noValidate
         >
-          {/* Root error for API errors */}
           <RootMessage
             message={errors.root?.message}
             type="error"
@@ -115,25 +153,14 @@ const ChildName: React.FC<ChildNameProps> = ({
             }}
           />
 
-          {/* Form Fields */}
-          <FormField
-            id="childFirstName"
-            label="Child's First Name"
-            type="text"
-            placeholder="Child's First Name"
-            register={customRegister("childFirstName")}
-            error={errors.childFirstName}
-            styles={styles}
-          />
-
-          <FormField
-            id="childLastName"
-            label="Child's Last Name"
-            type="text"
-            placeholder="Child's Last Name"
-            register={customRegister("childLastName")}
-            error={errors.childLastName}
-            styles={styles}
+          <LocationSelect
+            name="location"
+            control={control}
+            error={errors.location}
+            customError={customError}
+            label="Location (Optional)"
+            onSelectionChange={handleLocationChange}
+            onCustomError={setCustomError}
           />
 
           {/* Navigation buttons */}
@@ -166,7 +193,7 @@ const ChildName: React.FC<ChildNameProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                Next
+                {getButtonText()}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
@@ -191,7 +218,7 @@ const ChildName: React.FC<ChildNameProps> = ({
                 type="submit"
                 disabled={isSubmitting}
               >
-                Next
+                {getButtonText()}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"
@@ -216,4 +243,4 @@ const ChildName: React.FC<ChildNameProps> = ({
   );
 };
 
-export default ChildName;
+export default Location;

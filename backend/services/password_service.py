@@ -113,3 +113,83 @@ class PasswordService(SupabaseService):
                 "error": "An error occurred while resetting your password. Please try again.",
                 "error_type": "server_error",
             }
+
+    def change_password(
+        self, user_id: str, current_password: str, new_password: str
+    ) -> Dict[str, Any]:
+        """Change user password after verifying current password"""
+        try:
+            # First, get the user's email
+            user_data = self.user_service.get_user(user_id)
+            if not user_data or not user_data.get("email"):
+                return {
+                    "success": False,
+                    "error": "User not found",
+                    "error_type": "user_not_found",
+                }
+
+            # Verify current password by attempting to sign in with a fresh client
+            from supabase import create_client, Client
+
+            temp_supabase: Client = create_client(
+                self.supabase.supabase_url, self.supabase.supabase_key
+            )
+
+            try:
+                # Attempt to sign in with current password
+                auth_response = temp_supabase.auth.sign_in_with_password(
+                    {"email": user_data["email"], "password": current_password}
+                )
+
+                if not auth_response or not auth_response.user:
+                    return {
+                        "success": False,
+                        "error": "Current password is incorrect",
+                        "error_type": "invalid_current_password",
+                    }
+
+                # Sign out from the verification session immediately
+                temp_supabase.auth.sign_out()
+
+            except Exception:
+                return {
+                    "success": False,
+                    "error": "Current password is incorrect",
+                    "error_type": "invalid_current_password",
+                }
+
+            # Check if new password is different from current password (after verifying current password)
+            if current_password == new_password:
+                return {
+                    "success": False,
+                    "error": "New password must be different from current password",
+                    "error_type": "same_password",
+                }
+
+            # Update password using admin API
+            if self.admin_supabase:
+                admin_response = self.admin_supabase.auth.admin.update_user_by_id(
+                    user_id, {"password": new_password}
+                )
+
+                if admin_response and admin_response.user:
+                    return {"success": True}
+                else:
+                    return {
+                        "success": False,
+                        "error": "Failed to update password. Please try again.",
+                        "error_type": "update_failed",
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": "Server configuration error. Please try again later.",
+                    "error_type": "config_error",
+                }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": "An error occurred while changing your password. Please try again.",
+                "error_type": "server_error",
+            }

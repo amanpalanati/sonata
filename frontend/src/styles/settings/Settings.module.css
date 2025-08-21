@@ -1,0 +1,325 @@
+.page {
+  position: relative;
+}
+
+.sidebar {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 16px 0px;
+  width: 220px;
+  background-color: white;
+  z-index: 10;
+}
+
+.contentArea {
+  margin-left: min(max(250px, 22vw), 400px);
+  padding: 60px 24px;
+}
+
+.sidebarTitle {
+  font-size: 18px;
+  color: rgb(90, 90, 90);
+  font-weight: bold;
+  margin-top: 16px;
+  margin-left: 34px;
+}
+
+.sidebarItemContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarItem,
+.sidebarItemSelected {
+  text-decoration: none;
+  color: black;
+  font-size: 15px;
+  padding: 16px 38px;
+  border-radius: 8px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.sidebarItemSelected {
+  font-weight: bold;
+  border-radius: 0px 8px 8px 0px;
+  padding-left: 32px;
+  border-left: 6px black solid;
+  background-color: rgb(240, 240, 240);
+}
+
+.sidebarItem:hover {
+  background-color: rgb(240, 240, 240);
+}
+
+.content {
+  max-width: 60vw;
+  margin: 0;
+  padding: 0;
+}
+
+.contentTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.subTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: grey;
+  margin-top: 30px;
+}
+
+.divider {
+  border: none;
+  border-top: 1.5px solid grey;
+}
+
+.subdivider {
+  border: none;
+  border-top: 1px solid lightgrey;
+}
+
+.alert {
+  font-size: 16px;
+  color: rgb(255, 67, 67);
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 8px;
+}
+
+.success {
+  font-size: 16px;
+  color: rgb(34, 197, 94);
+  text-align: center;
+  margin-top: -14px;
+  margin-bottom: 2px;
+}
+
+.textFields {
+  margin-top: 20px;
+  display: flex;
+}
+
+.textWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.textInputs {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.nameInputs {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.instrumentsField,
+.locationField {
+  width: 50%;
+  margin-top: 10px;
+  margin-bottom: 18px;
+}
+
+.bioField {
+  width: 50%;
+  margin-top: -8px;
+  margin-bottom: 20px;
+}
+
+.childNameField {
+  margin-top: 16px;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.imageWrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 40px;
+}
+
+.imageWrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  border-radius: 50%;
+}
+
+.imageWrapper:hover::before {
+  opacity: 1;
+}
+
+.editIcon {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #f0f0f0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  opacity: 1;
+}
+
+.editIcon img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.profileImage {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f0f0f0;
+  display: block;
+  position: relative;
+  z-index: 0;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+}
+
+.errorHidden {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: hidden;
+}
+
+.errorVisible {
+  font-size: 12px;
+  color: rgb(255, 67, 67);
+  padding-left: 2px;
+  margin-top: -10px;
+  visibility: visible;
+}
+
+.span {
+  margin-right: 6px;
+}
+
+.buttonGroup {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.buttonGroup button {
+  width: 100px;
+}
+
+.saveButton {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: rgb(66, 66, 66);
+}
+
+.saveButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.passwordWrapper {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.submitButton {
+  background-color: black;
+  color: white;
+  border-radius: 20px;
+  border: none;
+  font-size: 16px;
+  transition: 0.2s;
+  padding: 7px 6px;
+  cursor: pointer;
+  margin-top: -6px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: rgb(50, 50, 50);
+}
+
+.submitButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

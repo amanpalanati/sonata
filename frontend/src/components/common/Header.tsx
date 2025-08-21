@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 
 import ProfileDropdown from "./ProfileDropdown";
 
-import styles from "../../styles/dashboard/Header.module.css";
+import styles from "../../styles/common/Header.module.css";
 
 const Header: React.FC = () => {
   return (
     <header className={styles.header}>
       <nav className={styles.left}>
-        <Link className={styles.logo} to="/">
+        <Link className={styles.logo} to="/dashboard">
           <img src="./placeholder-logo.png" alt="app-name/logo" />
         </Link>
         <Link className={styles.leftNavItem} to="#">

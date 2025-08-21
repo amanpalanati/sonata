@@ -156,7 +156,7 @@ const ResetPassword: React.FC = () => {
                   duration: 0.25,
                   ease: [0.25, 0.46, 0.45, 0.94],
                   opacity: { duration: 0.2 },
-                  x: { duration: 0.25 }
+                  x: { duration: 0.25 },
                 }}
               >
                 <div className={styles.container}>
@@ -194,64 +194,64 @@ const ResetPassword: React.FC = () => {
                 duration: 0.25,
                 ease: [0.25, 0.46, 0.45, 0.94],
                 opacity: { duration: 0.2 },
-                x: { duration: 0.25 }
+                x: { duration: 0.25 },
               }}
             >
-            <div className={styles.container}>
-              <h1 className={styles.h1}>Reset Your Password</h1>
+              <div className={styles.container}>
+                <h1 className={styles.h1}>Reset Your Password</h1>
 
-              <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-                <RootMessage
-                  message={error || undefined}
-                  type="error"
-                  styles={{
-                    alert: styles.resetTokenAlert,
-                    span: styles.span,
-                  }}
-                />
+                <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+                  <RootMessage
+                    message={error || undefined}
+                    type="error"
+                    styles={{
+                      alert: styles.resetTokenAlert,
+                      span: styles.span,
+                    }}
+                  />
 
-                <FormField
-                  id="password"
-                  label="New Password"
-                  type="password"
-                  placeholder="New Password"
-                  register={customRegister("password")}
-                  error={errors.password}
-                  styles={styles}
-                  className={styles.resetFirstFormGroup}
-                />
+                  <FormField
+                    id="password"
+                    label="New Password"
+                    type="password"
+                    placeholder="New Password"
+                    register={customRegister("password")}
+                    error={errors.password}
+                    styles={styles}
+                    className={styles.resetFirstFormGroup}
+                  />
 
-                <FormField
-                  id="confirmPassword"
-                  label="Confirm New Password"
-                  type="password"
-                  placeholder="Confirm New Password"
-                  register={customRegister("confirmPassword")}
-                  error={errors.confirmPassword}
-                  styles={styles}
-                />
+                  <FormField
+                    id="confirmPassword"
+                    label="Confirm New Password"
+                    type="password"
+                    placeholder="Confirm New Password"
+                    register={customRegister("confirmPassword")}
+                    error={errors.confirmPassword}
+                    styles={styles}
+                  />
 
-                <button
-                  className={styles.submitButton}
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Resetting Password..." : "Reset Password"}
-                </button>
-              </form>
+                  <button
+                    className={styles.submitButton}
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Resetting Password..." : "Reset Password"}
+                  </button>
+                </form>
 
-              <div className={styles.links}>
-                <Link to="/login" className={styles.link}>
-                  Back to Login
-                </Link>
+                <div className={styles.links}>
+                  <Link to="/login" className={styles.link}>
+                    Back to Login
+                  </Link>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </main>
-  </>
-);
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </main>
+    </>
+  );
 };
 
 export default ResetPassword;

@@ -50,7 +50,9 @@ export function useFormFieldManagement<T extends FieldValues>({
 
     return {
       ...registration,
-      onChange: async (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange: async (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => {
         registration.onChange(e);
         // If this field has had an error before, validate on change
         if (touchedWithErrors.has(name as string)) {
@@ -76,7 +78,9 @@ export function useFormFieldManagement<T extends FieldValues>({
           customOnFocus();
         }
       },
-      onBlur: async (e: React.FocusEvent<HTMLInputElement>) => {
+      onBlur: async (
+        e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => {
         registration.onBlur(e);
         // Mark field as touched
         setTouchedFields((prev) => new Set(prev).add(name as string));

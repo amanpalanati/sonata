@@ -14,12 +14,23 @@ import styles from "../../../styles/authentication/ProfileCompletion.module.css"
 
 // Validation schema
 const nameEmailSchema = yup.object().shape({
-  firstName: yup.string().required("First name is required").trim(),
-  lastName: yup.string().required("Last name is required").trim(),
+  firstName: yup
+    .string()
+    .required("First name is required")
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters")
+    .trim(),
+  lastName: yup
+    .string()
+    .required("Last name is required")
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters")
+    .trim(),
   email: yup
     .string()
     .required("Email is required")
     .email("Please enter a valid email address")
+    .max(100, "Email must be less than 100 characters")
     .trim(),
 });
 
@@ -157,15 +168,15 @@ const NameEmail: React.FC<NameEmailProps> = ({
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="19"
                   height="19"
                   className={styles.leftArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
                 Back
@@ -180,15 +191,15 @@ const NameEmail: React.FC<NameEmailProps> = ({
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>
@@ -205,15 +216,15 @@ const NameEmail: React.FC<NameEmailProps> = ({
                   viewBox="0 0 20 20"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                   width="18"
                   height="18"
                   className={styles.rightArrow}
                 >
                   <path
                     d="M10 4 L16 10 L10 16"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </button>
