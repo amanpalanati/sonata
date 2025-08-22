@@ -45,6 +45,10 @@
   padding-top: 0.5px;
 }
 
+.wrapper {
+  display: none;
+}
+
 .dropdownContent {
   position: absolute;
   top: calc(100% + 8px);
@@ -63,7 +67,7 @@
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;
@@ -254,10 +258,15 @@
   background-color: rgb(200, 200, 200);
 }
 
-/* Mobile responsiveness */
 @media (max-width: 768px) {
   .dropdownContent {
-    right: -20px;
-    min-width: 160px;
+    position: fixed;
+    left: 0;
+    top: 72px;
+    width: 100vw;
+    right: 0;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+    animation: dropdownFadeIn 0.15s ease-out;
   }
 }
