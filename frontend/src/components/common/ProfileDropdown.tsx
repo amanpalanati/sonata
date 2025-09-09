@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
@@ -15,30 +15,37 @@ const ProfileDropdown: React.FC = () => {
   const [isClosing, setIsClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const closeDropdown = () => {
+  const closeDropdown = useCallback(() => {
     setIsClosing(true);
     setTimeout(() => {
       setIsOpen(false);
       setIsClosing(false);
     }, 150); // Match the animation duration
-  };
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        isOpen && !isClosing
       ) {
         closeDropdown();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Use a slight delay to avoid conflicts with the toggle click
+    if (isOpen) {
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+      }, 0);
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [closeDropdown, isOpen, isClosing]);
 
   // Close dropdown when pressing Escape key
   useEffect(() => {
@@ -52,9 +59,10 @@ const ProfileDropdown: React.FC = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [closeDropdown]);
 
-  const toggleDropdown = () => {
+  const toggleDropdown = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent event bubbling
     if (isOpen && !isClosing) {
       closeDropdown();
     } else if (!isOpen && !isClosing) {

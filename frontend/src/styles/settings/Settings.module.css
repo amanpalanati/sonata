@@ -323,3 +323,113 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* Mobile horizontal navigation */
+.mobileNav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .contentArea {
+    margin-left: 0;
+    padding: 20px 16px;
+    padding-top: 80px; /* Account for mobile nav */
+  }
+
+  .mobileNav {
+    display: block;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background-color: rgb(230, 230, 230);
+    z-index: 10;
+    height: 60px;
+    overflow: hidden;
+  }
+
+  .mobileNavScroller {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 8px calc(50vw - 60px);
+    height: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 36px;
+    /* Hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .mobileNavScroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobileNavItem,
+  .mobileNavItemSelected {
+    flex-shrink: 0;
+    text-decoration: none;
+    color: black;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .mobileNavItem {
+    font-size: 14px;
+    padding: 22px 18px;
+  }
+
+  .mobileNavItemSelected {
+    background-color: rgb(200, 200, 200);
+    padding: 23px 18px 19px 18px;
+    font-size: 13px;
+    font-weight: bold;
+    color: black;
+    border-bottom: 4px black solid;
+  }
+
+  .mobileNavItem:hover {
+    background-color: rgb(200, 200, 200);
+  }
+
+  /* Fade effect for edges */
+  .mobileNav::before,
+  .mobileNav::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .mobileNav::before {
+    left: 0;
+    background: linear-gradient(
+      to right,
+      rgb(230, 230, 230) 0%,
+      rgb(230, 230, 230) 40%,
+      rgba(230, 230, 230, 0.8) 70%,
+      transparent 100%
+    );
+  }
+
+  .mobileNav::after {
+    right: 0;
+    background: linear-gradient(
+      to left,
+      rgb(230, 230, 230) 0%,
+      rgb(230, 230, 230) 40%,
+      rgba(230, 230, 230, 0.8) 70%,
+      transparent 100%
+    );
+  }
+}
