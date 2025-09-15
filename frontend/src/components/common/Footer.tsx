@@ -1,11 +1,47 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 import styles from "../../styles/common/Footer.module.css";
 
 const Footer: React.FC = () => {
+  const year = new Date().getFullYear();
   return (
     <footer className={styles.footer}>
-      <p>put footer stuff here</p>
+      <div className={styles.inner}>
+        {/* Logo */}
+        <Link to="/" className={styles.brand}>
+          <img src="/images/transparent-sonata.png" alt="Sonata Logo" />
+        </Link>
+
+        {/* Navigation / info links */}
+        <nav className={styles.links}>
+          <Link to="/about">About</Link>
+          <Link to="/help">Help</Link>
+          <Link to="/terms">Terms</Link>
+          <Link to="/privacy">Privacy</Link>
+        </nav>
+
+        {/* Social/contact icons */}
+        <div className={styles.socials}>
+          <a href="tel:+15551234567" aria-label="Phone">
+            📞
+          </a>
+          <a
+            href="https://facebook.com/yourpage"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Facebook"
+          >
+            🌐
+          </a>
+          <a href="mailto:hello@sonata.app" aria-label="Email">
+            ✉️
+          </a>
+        </div>
+      </div>
+
+      <div className={styles.bottom}>
+        <span>© {year} Sonata — All rights reserved.</span>
+      </div>
     </footer>
   );
 };

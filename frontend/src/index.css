@@ -1,12 +1,33 @@
+/* existing reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Make the app fill the viewport height */
+html, body, #root {
+  height: 100%;
+}
+
+/* Remove the old body padding; we'll offset the fixed header on main instead */
 body {
   font-family: Arial, sans-serif;
-  padding-top: 72px;
+}
+
+/* App-level flex layout */
+.App {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #fff; /* optional */
+}
+
+/* Main content grows to push footer down */
+.mainContent {
+  flex: 1;
+  padding-top: 72px; /* matches your fixed header height */
+  min-height: 0;
 }
 
 body.auth {

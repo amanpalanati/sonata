@@ -16,13 +16,23 @@
 .left,
 .right {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
+/* let the left section size itself naturally, with spacing between logo + nav items */
 .left {
-  width: 325px;
+  gap: 16px;   /* spacing between logo and links */
+  /* remove: width: 325px; */
+  /* remove: justify-content: space-between; */
 }
+
+/* do the same for right if you want */
+.right {
+  gap: 12px;
+  /* remove: width: 204px; */
+  /* remove: justify-content: space-between; */
+}
+
 
 @media (max-width: 768px) {
   .leftNavItem {
@@ -56,4 +66,30 @@
 .leftNavItem:active,
 .rightNavItem:active {
   background-color: rgb(96, 96, 96);
+}
+
+/* Style for the logo link */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the logo image itself */
+.logo img {
+  height: 40px;   /* adjust to fit nicely in the 72px header */
+  width: auto;
+  display: block;
+}
+
+/* Ensure the logo area and image are visible and sized */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;          /* visible inside a 72px header */
+  width: auto;
+  display: block;
+  object-fit: contain;
 }

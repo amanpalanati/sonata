@@ -1,10 +1,9 @@
 import React from "react";
-
+import TeachersList from "./TeachersList";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTitle } from "../../hooks/useTitle";
 
-import Header from "../common/Header";
-import Footer from "../common/Footer";
+
 
 const Dashboard: React.FC = () => {
   useTitle("Dashboard");
@@ -13,7 +12,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Header />
+      
       <h1>Dashboard</h1>
 
       <p>Child's first name: {user?.child_first_name || "Not provided"}</p>
@@ -28,9 +27,12 @@ const Dashboard: React.FC = () => {
       <p>Bio: {user?.bio || "Not provided"}</p>
 
       <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
-      <Footer />
+      <TeachersList />   
+      
     </>
   );
 };
 
 export default Dashboard;
+
+

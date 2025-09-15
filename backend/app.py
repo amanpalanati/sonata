@@ -1,3 +1,14 @@
+# filepath: c:\Users\luisf\OneDrive\Desktop\Sonata\music-teacher-app\backend\app.py
+from flask import Flask, session, request, jsonify
+from services.teachers_service import TeachersService
+# ...existing code...
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+print("DEBUG SUPABASE_URL =", os.environ.get("SUPABASE_URL"))
+
 from flask import Flask, session, request
 from flask_session import Session
 from flask_cors import CORS
@@ -48,6 +59,13 @@ password_service = PasswordService(
     app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
     user_service,
 )
+# filepath: c:\Users\luisf\OneDrive\Desktop\Sonata\music-teacher-app\backend\app.py
+teachers_service = TeachersService(
+    app.config["SUPABASE_URL"],
+    app.config["SUPABASE_KEY"],
+    app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
+)
+# ...existing code...
 
 
 # Resets session lifetime only for authenticated users who are actively using the app
@@ -69,5 +87,15 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(password_blueprint)
 
+# filepath: c:\Users\luisf\OneDrive\Desktop\Sonata\music-teacher-app\backend\app.py
+@app.get("/api/teachers")
+def list_teachers():
+    try:
+        q = request.args.get("q")
+        teachers = teachers_service.list_teachers(q=q)
+        return jsonify(teachers), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# ...existing code...
 if __name__ == "__main__":
     app.run(debug=True)
