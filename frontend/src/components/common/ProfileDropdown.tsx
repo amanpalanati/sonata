@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
@@ -12,30 +12,46 @@ const ProfileDropdown: React.FC = () => {
   const { logoutAndRedirect, user } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const closeDropdown = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+    }, 150); // Match the animation duration
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        isOpen && !isClosing
       ) {
-        setIsOpen(false);
+        closeDropdown();
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Use a slight delay to avoid conflicts with the toggle click
+    if (isOpen) {
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+      }, 0);
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [closeDropdown, isOpen, isClosing]);
 
   // Close dropdown when pressing Escape key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        closeDropdown();
       }
     };
 
@@ -43,10 +59,15 @@ const ProfileDropdown: React.FC = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [closeDropdown]);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+  const toggleDropdown = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent event bubbling
+    if (isOpen && !isClosing) {
+      closeDropdown();
+    } else if (!isOpen && !isClosing) {
+      setIsOpen(true);
+    }
   };
 
   const handleLogout = async () => {
@@ -80,13 +101,13 @@ const ProfileDropdown: React.FC = () => {
           &#x25BC;
         </span>
       </button>
-      {isOpen && (
-        <div className={styles.dropdownContent}>
+      {(isOpen || isClosing) && (
+        <div className={`${styles.dropdownContent} ${isClosing ? styles.dropdownContentClosing : ''}`}>
           <div className={styles.dropdownHeader}>
             <Link
               className={styles.imageWrapper}
               to="/account/info?editProfileImage=true"
-              onClick={() => setIsOpen(false)}
+              onClick={closeDropdown}
             >
               <ProfileImageDisplay styles={styles} />
               <div className={styles.editIcon}>
@@ -103,7 +124,7 @@ const ProfileDropdown: React.FC = () => {
               <Link
                 className={styles.option}
                 to="/dashboard"
-                onClick={() => setIsOpen(false)}
+                onClick={closeDropdown}
               >
                 <img
                   className={styles.optionIcon}
@@ -115,7 +136,7 @@ const ProfileDropdown: React.FC = () => {
               <Link
                 className={styles.option}
                 to="#"
-                onClick={() => setIsOpen(false)}
+                onClick={closeDropdown}
               >
                 <img
                   className={styles.optionIcon}
@@ -127,7 +148,7 @@ const ProfileDropdown: React.FC = () => {
               <Link
                 className={styles.option}
                 to="#"
-                onClick={() => setIsOpen(false)}
+                onClick={closeDropdown}
               >
                 <img
                   className={styles.optionIcon}
@@ -141,7 +162,7 @@ const ProfileDropdown: React.FC = () => {
           <Link
             className={styles.dropdownItem}
             to="/account/info"
-            onClick={() => setIsOpen(false)}
+            onClick={closeDropdown}
           >
             <img
               className={styles.dropdownIcon}
@@ -153,7 +174,7 @@ const ProfileDropdown: React.FC = () => {
           <Link
             className={styles.dropdownItem}
             to="/account/wallet"
-            onClick={() => setIsOpen(false)}
+            onClick={closeDropdown}
           >
             <img
               className={styles.dropdownIcon}
@@ -165,7 +186,7 @@ const ProfileDropdown: React.FC = () => {
           <Link
             className={styles.dropdownItem}
             to="/help"
-            onClick={() => setIsOpen(false)}
+            onClick={closeDropdown}
           >
             <img
               className={styles.dropdownIcon}
@@ -177,7 +198,7 @@ const ProfileDropdown: React.FC = () => {
           <Link
             className={styles.dropdownItem}
             to="#"
-            onClick={() => setIsOpen(false)}
+            onClick={closeDropdown}
           >
             <img
               className={styles.feedbackIcon}

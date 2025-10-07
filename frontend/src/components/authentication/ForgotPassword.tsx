@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { ForgotPasswordEmailData } from "../../types";
 import { authService } from "../../services/auth";
+import { useTitle } from "../../hooks/useTitle";
 
 import Header from "./Header";
 import ForgotPasswordEmailForm from "../forms/ForgotPasswordEmailForm";
@@ -11,6 +12,7 @@ import ForgotPasswordEmailSent from "./ForgotPasswordEmailSent";
 import styles from "../../styles/forms/ForgotPassword.module.css";
 
 const ForgotPassword: React.FC = () => {
+  useTitle("Forgot Password");
   const [step, setStep] = useState<"email" | "sent">("email");
   const [email, setEmail] = useState<string>("");
 

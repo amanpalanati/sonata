@@ -1,12 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { useTitle } from "../../hooks/useTitle";
+
 import Header from "./Header";
 
 import { useBodyClass } from "../../hooks/useBodyClass";
 import styles from "../../styles/authentication/AccountType.module.css";
 
 const AccountType: React.FC = () => {
+  useTitle("Sign Up");
   useBodyClass("auth");
 
   return (

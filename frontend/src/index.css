@@ -12,3 +12,7 @@ body {
 body.auth {
   background: rgb(240, 240, 240);
 }
+
+button {
+  font-weight: 400;
+}

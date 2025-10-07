@@ -36,6 +36,16 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     if (previewUrl) return previewUrl;
     if (data.profileImage) return URL.createObjectURL(data.profileImage);
     if (data.profileImageUrl && data.profileImageUrl !== "__DEFAULT_IMAGE__") {
+      // Check if it's an external URL (Google, GitHub, etc.)
+      if (
+        data.profileImageUrl.startsWith("http://") ||
+        data.profileImageUrl.startsWith("https://")
+      ) {
+        // Proxy external URLs through backend to avoid CORS
+        return `http://localhost:5000/api/proxy-image?url=${encodeURIComponent(
+          data.profileImageUrl
+        )}`;
+      }
       return data.profileImageUrl;
     }
     return "/images/default_pfp.png";
@@ -150,6 +160,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                 src={getDisplayImage()}
                 alt="profile picture"
                 className={styles.profileImage}
+                crossOrigin="anonymous"
                 onError={(e) => {
                   // Fallback to default image if loading fails
                   (e.target as HTMLImageElement).src =

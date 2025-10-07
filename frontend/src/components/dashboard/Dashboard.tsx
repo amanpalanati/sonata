@@ -1,11 +1,14 @@
 import React from "react";
 
 import { useAuth } from "../../contexts/AuthContext";
+import { useTitle } from "../../hooks/useTitle";
 
 import Header from "../common/Header";
 import Footer from "../common/Footer";
 
 const Dashboard: React.FC = () => {
+  useTitle("Dashboard");
+
   const { user } = useAuth();
 
   return (

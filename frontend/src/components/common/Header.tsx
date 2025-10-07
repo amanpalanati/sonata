@@ -13,22 +13,16 @@ const Header: React.FC = () => {
           <img src="./placeholder-logo.png" alt="app-name/logo" />
         </Link>
         <Link className={styles.leftNavItem} to="#">
-          Item1
+          Calendar
         </Link>
         <Link className={styles.leftNavItem} to="#">
-          Item2
+          Messages
         </Link>
         <Link className={styles.leftNavItem} to="/about">
           About
         </Link>
       </nav>
       <nav className={styles.right}>
-        <Link className={styles.rightNavItem} to="#">
-          Calendar
-        </Link>
-        <Link className={styles.rightNavItem} to="#">
-          Messages
-        </Link>
         <Link className={styles.rightNavItem} to="/help">
           Help
         </Link>
