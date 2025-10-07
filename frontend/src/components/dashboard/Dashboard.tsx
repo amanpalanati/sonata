@@ -29,8 +29,9 @@ const Dashboard: React.FC = () => {
       <p>Bio: {user?.bio || "Not provided"}</p>
 
       <p>Profile completed: {user?.profile_completed ? "Yes" : "No"}</p>
-      <TeachersList />   
+      <TeachersList />
       
+      <Footer />
     </>
   );
 };
