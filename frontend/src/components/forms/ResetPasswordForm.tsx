@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { authService } from "../../services/auth";
 import { useFormFieldManagement } from "../../hooks/useFormFieldManagement";
+import { useTitle } from "../../hooks/useTitle";
 
 import FormField from "./fields/FormField";
 import RootMessage from "./fields/RootMessage";
@@ -33,6 +34,7 @@ const schema = yup.object().shape({
 
 const ResetPassword: React.FC = () => {
   useBodyClass("auth");
+  useTitle("Reset Password");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);

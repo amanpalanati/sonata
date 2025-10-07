@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
+import { useTitle } from "../../hooks/useTitle";
+
 import Header from "../common/Header";
 import AccountInfo from "./AccountInfo";
 import Notifications from "./Notifications";
@@ -11,6 +13,7 @@ import Privacy from "./Privacy";
 import styles from "../../styles/settings/Settings.module.css";
 
 const Settings: React.FC = () => {
+  useTitle("Settings");
   const location = useLocation();
   const mobileNavRef = useRef<HTMLDivElement>(null);
 

@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { SignUpFormData } from "../../types";
 import { authService } from "../../services/auth";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTitle } from "../../hooks/useTitle";
 
 import Header from "./Header";
 import SignUpForm from "../forms/SignUpForm";
 
 const SignUp: React.FC = () => {
+  useTitle("Sign Up");
+
   const navigate = useNavigate();
   const { login } = useAuth();
 

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { useAuth } from "../../../contexts/AuthContext";
 import { ProfileData, StepType } from "../../../types/profileCompletion";
+import { useTitle } from "../../../hooks/useTitle";
 
 import Header from "../Header";
 import NameEmail from "./NameEmail";
@@ -17,6 +18,8 @@ import Submitting from "./Submitting";
 import styles from "../../../styles/authentication/ProfileCompletion.module.css";
 
 const CompleteProfile: React.FC = () => {
+  useTitle("Complete Profile");
+
   const { user, updateUserProfile } = useAuth();
   const navigate = useNavigate();
 
