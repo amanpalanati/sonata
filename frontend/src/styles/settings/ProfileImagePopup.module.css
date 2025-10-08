@@ -1,0 +1,254 @@
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.popupOverlay.closing {
+  animation: fadeOut 0.3s ease;
+}
+
+/* Main popup container */
+.popupContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  padding: 32px;
+  width: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 -2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  gap: 24px;
+  position: relative;
+  animation: slideIn 0.3s ease;
+  overflow: visible; /* Allow close button to show outside */
+}
+
+.popupContainer.closing {
+  animation: slideOut 0.3s ease;
+}
+
+/* Content wrapper inside container for overflow handling */
+.popupContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-height: calc(90vh - 64px); /* Account for container padding */
+  overflow-y: auto;
+}
+
+.closeButton {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: white;
+  border: 2px solid #ddd;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.closeButton:hover {
+  background-color: #f8f9fa;
+  border-color: #aaa;
+  color: #333;
+  transform: scale(1.05);
+}
+
+.title {
+  font-size: 24px;
+  white-space: nowrap;
+  text-align: center;
+  margin: 0;
+  color: #333;
+}
+
+.imageUploadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background-color: transparent;
+  width: 100%;
+}
+
+.imageUploadContainer:hover {
+  border-color: #007bff;
+}
+
+.imageUploadContainer.dragActive {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.imageContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 3px solid #f0f0f0;
+}
+
+.removeButton {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.removeButton:hover {
+  background-color: #c82333;
+}
+
+.uploadText {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.uploadSubtext {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+.errorMessage {
+  font-size: 14px;
+  color: rgb(255, 67, 67);
+  text-align: center;
+  margin: -10px 0 10px 0;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  margin-top: -10px;
+}
+
+.button {
+  color: rgb(80, 80, 80);
+  text-decoration: none;
+  font-size: 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: 0.15s;
+  padding: 8px 16px;
+}
+
+.button:hover {
+  text-decoration: underline;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button:disabled:hover {
+  text-decoration: none;
+}
+
+/* Hidden file input */
+.hiddenInput {
+  display: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .popupContainer {
+    width: 85%;
+    padding: 24px;
+    max-height: 85vh;
+  }
+}
