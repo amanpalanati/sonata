@@ -4,10 +4,10 @@ from flask_cors import CORS
 from config import Config
 
 # Import services
-from services import AuthService, UserService, PasswordService, StorageService
+from services import AuthService, UserService, PasswordService, StorageService, TeacherService
 
 # Import route factories
-from routes import create_auth_routes, create_user_routes, create_password_routes
+from routes import create_auth_routes, create_user_routes, create_password_routes, create_teachers_routes
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -46,7 +46,13 @@ password_service = PasswordService(
     app.config["SUPABASE_URL"],
     app.config["SUPABASE_KEY"],
     app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
-    user_service,
+    user_service,  # Inject user service
+)
+
+teacher_service = TeacherService(
+    app.config["SUPABASE_URL"],
+    app.config["SUPABASE_KEY"],
+    app.config.get("SUPABASE_SERVICE_ROLE_KEY"),
 )
 
 
@@ -64,10 +70,12 @@ user_blueprint = create_user_routes(
     user_service, storage_service
 )  # Pass storage service
 password_blueprint = create_password_routes(password_service)
+teachers_blueprint = create_teachers_routes(teacher_service)
 
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(password_blueprint)
+app.register_blueprint(teachers_blueprint)
 
 if __name__ == "__main__":
     app.run(debug=True)

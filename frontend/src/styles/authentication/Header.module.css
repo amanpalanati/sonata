@@ -12,6 +12,19 @@
   height: 72px;
 }
 
+/* Style for the logo link */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the logo image itself */
+.logo img {
+  height: 72px;
+  width: auto;
+  display: block;
+}
+
 @media (max-width: 550px) {
   .header {
     padding: 0px;

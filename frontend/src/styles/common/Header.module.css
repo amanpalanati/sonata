@@ -16,10 +16,11 @@
 .left,
 .right {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  align-items: center;   /* keep */
+  gap: 12px;             /* a little more space is nice */
+  /* remove: justify-content: space-between; */
 }
+
 
 @media (max-width: 768px) {
   .leftNavItem {
@@ -49,4 +50,17 @@
 .leftNavItem:active,
 .rightNavItem:active {
   background-color: rgb(96, 96, 96);
+}
+
+/* Style for the logo link */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the logo image itself */
+.logo img {
+  height: 72px;
+  width: auto;
+  display: block;
 }

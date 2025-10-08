@@ -463,40 +463,46 @@ def create_user_routes(user_service: UserService, storage_service: StorageServic
     def api_proxy_image():
         """Proxy endpoint to fetch external images (e.g., Google profile pictures)"""
         from flask import request
-        
+
         image_url = request.args.get("url")
         if not image_url:
             return jsonify({"success": False, "error": "No URL provided"}), 400
-        
+
         # Only allow specific domains for security
         allowed_domains = [
             "lh3.googleusercontent.com",
             "googleusercontent.com",
             "avatars.githubusercontent.com",
-            "githubusercontent.com"
+            "githubusercontent.com",
         ]
-        
+
         # Check if the URL is from an allowed domain
         from urllib.parse import urlparse
+
         parsed_url = urlparse(image_url)
         if not any(domain in parsed_url.netloc for domain in allowed_domains):
             return jsonify({"success": False, "error": "Domain not allowed"}), 403
-        
+
         try:
             # Fetch the image
             response = requests.get(image_url, timeout=10)
             response.raise_for_status()
-            
+
             # Return the image with appropriate headers
             return Response(
                 response.content,
                 mimetype=response.headers.get("Content-Type", "image/jpeg"),
                 headers={
                     "Cache-Control": "public, max-age=3600",  # Cache for 1 hour
-                    "Access-Control-Allow-Origin": "*"
-                }
+                    "Access-Control-Allow-Origin": "*",
+                },
             )
         except requests.exceptions.RequestException as e:
-            return jsonify({"success": False, "error": f"Failed to fetch image: {str(e)}"}), 500
+            return (
+                jsonify(
+                    {"success": False, "error": f"Failed to fetch image: {str(e)}"}
+                ),
+                500,
+            )
 
     return user_bp
